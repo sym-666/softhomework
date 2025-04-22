@@ -18,7 +18,7 @@ headers = {
 payload = {
   "msg_type": "text",
   "content": {
-    "text": "后端仓库有新的提交！\n最新提交的作者: #{author}\n提交信息: #{commit_message}"
+    "text": "CBaldur有新的提交！\n最新提交的作者: #{author}\n提交信息: #{commit_message}"
   }
 }
 
