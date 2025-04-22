@@ -17,7 +17,7 @@ CBaldur 是一个集成前后端的案例管理与仿真平台，包含后端（
 
 * 安装与运行
 
-**后端**
+** 后端
 1. 进入cbaldur-backend目录
 2. 推荐开发工具：Rider > Visual Studio > VSCode
 3. 运行命令：
@@ -27,7 +27,7 @@ CBaldur 是一个集成前后端的案例管理与仿真平台，包含后端（
    #+end_src
 4. 配置数据库连接、JWT密钥、Memcached等（见appsettings.json）
 
-**前端**
+** 前端
 1. 进入cbaldur-frontend目录
 2. 复制环境变量模板
    #+begin_src bash
@@ -46,7 +46,7 @@ CBaldur 是一个集成前后端的案例管理与仿真平台，包含后端（
    yarn build     # 或 npm run build / pnpm build / cnpm run build
    #+end_src
 
-**沙箱**
+** 沙箱
 - 沙箱环境和字体文件位于cbaldur-sandbox目录，供后端/前端调用。
 
 * 配置说明
