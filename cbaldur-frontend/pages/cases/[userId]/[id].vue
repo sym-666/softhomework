@@ -232,7 +232,11 @@
         </p>
       </UCard>
       <UCard class="col-span-11" :ui="{ body: { base: 'w-full' } }">
-        <div class="grid grid-cols-12 w-full gap-2">
+        <div
+          class="grid grid-cols-12 w-full gap-2 relative"
+          :style="showAllXHeaders ? '' : 'max-height: 40px; overflow: hidden;'"
+          ref="xHeaderRef"
+        >
           <div class="col-span-1" v-for="header in nowHeaders">
             <UButton
               class="w-full"
@@ -250,6 +254,21 @@
               header
             }}</UButton>
           </div>
+          <!-- 渐变遮罩 -->
+          <div
+            v-if="xHeaderOverflow && !showAllXHeaders"
+            class="absolute bottom-0 left-0 w-full h-6 pointer-events-none"
+            style="background: linear-gradient(to bottom, rgba(255,255,255,0), #fff 90%);"
+          ></div>
+        </div>
+        <div v-if="xHeaderOverflow" class="text-right">
+          <UButton
+            size="xs"
+            variant="link"
+            @click="showAllXHeaders = !showAllXHeaders"
+          >
+            {{ showAllXHeaders ? '收起' : '展开全部' }}
+          </UButton>
         </div>
       </UCard>
       <UCard class="col-span-1">
@@ -272,7 +291,11 @@
         </p>
       </UCard>
       <UCard class="col-span-11" :ui="{ body: { base: 'w-full' } }">
-        <div class="grid grid-cols-12 w-full gap-2">
+        <div
+          class="grid grid-cols-12 w-full gap-2 relative"
+          :style="showAllYHeaders ? '' : 'max-height: 40px; overflow: hidden;'"
+          ref="yHeaderRef"
+        >
           <div class="col-span-1" v-for="header in nowHeaders">
             <UButton
               class="w-full"
@@ -290,6 +313,20 @@
               header
             }}</UButton>
           </div>
+          <div
+            v-if="yHeaderOverflow && !showAllYHeaders"
+            class="absolute bottom-0 left-0 w-full h-6 pointer-events-none"
+            style="background: linear-gradient(to bottom, rgba(255,255,255,0), #fff 90%);"
+          ></div>
+        </div>
+        <div v-if="yHeaderOverflow" class="text-right">
+          <UButton
+            size="xs"
+            variant="link"
+            @click="showAllYHeaders = !showAllYHeaders"
+          >
+            {{ showAllYHeaders ? '收起' : '展开全部' }}
+          </UButton>
         </div>
       </UCard>
     </div>
@@ -299,6 +336,7 @@
 <script lang="ts" setup>
 import { Chart } from "@antv/g2";
 import * as d3 from "d3";
+import { ref, nextTick, watch } from "vue";
 
 enum Operate {
   none,
@@ -1243,6 +1281,32 @@ const submitTags = () => {
     },
   }).then(() => (tagsModal.value = false));
 };
+
+// 控制x/y变量header的展开/折叠
+const showAllXHeaders = ref(false);
+const showAllYHeaders = ref(false);
+const xHeaderOverflow = ref(false);
+const yHeaderOverflow = ref(false);
+const xHeaderRef = ref<HTMLElement | null>(null);
+const yHeaderRef = ref<HTMLElement | null>(null);
+
+const checkHeaderOverflow = () => {
+  nextTick(() => {
+    if (xHeaderRef.value) {
+      // 只判断高度是否大于一行
+      const rowHeight = xHeaderRef.value.firstElementChild?.clientHeight || 0;
+      xHeaderOverflow.value = xHeaderRef.value.scrollHeight > rowHeight + 2;
+    }
+    if (yHeaderRef.value) {
+      const rowHeight = yHeaderRef.value.firstElementChild?.clientHeight || 0;
+      yHeaderOverflow.value = yHeaderRef.value.scrollHeight > rowHeight + 2;
+    }
+  });
+};
+
+// 监听header变化
+watch([nowHeaders], checkHeaderOverflow, { immediate: true });
+
 onMounted(() => {
   chart = new Chart({
     container: "container",
@@ -1265,6 +1329,7 @@ onMounted(() => {
       );
     });
   }
+  nextTick(checkHeaderOverflow);
   updatePlot();
 });
 </script>

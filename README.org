@@ -2,7 +2,6 @@
 
 CBaldur 是一个集成前后端的案例管理与仿真平台，包含后端（ASP.NET Core 8）、前端（Nuxt3 + Tailwind CSS + TypeScript）及沙箱环境。支持案例管理、用户管理、仿真任务、数据可视化等功能。
 
-**目录结构简述**
 - cbaldur-backend/  后端服务，基于.NET 8
 - cbaldur-frontend/ 前端项目，基于Nuxt3
 - cbaldur-sandbox/  代码运行沙箱
