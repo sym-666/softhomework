@@ -1,0 +1,79 @@
+* CBaldur 项目总览
+
+CBaldur 是一个集成前后端的案例管理与仿真平台，包含后端（ASP.NET Core 8）、前端（Nuxt3 + Tailwind CSS + TypeScript）及沙箱环境。支持案例管理、用户管理、仿真任务、数据可视化等功能。
+
+**目录结构简述**
+- cbaldur-backend/  后端服务，基于.NET 8
+- cbaldur-frontend/ 前端项目，基于Nuxt3
+- cbaldur-sandbox/  代码运行沙箱
+- 根目录是docker部署相关的内容（docker-compose.yml、config.json等）
+
+* 技术栈
+
+- 后端：ASP.NET Core 8、FreeSql、Lamar、Memcached、JWT认证
+- 前端：Nuxt3、TypeScript、Tailwind CSS、antv/g2、nuxt ui、monaco-editor、d3、markdown-it
+- 数据库：MySQL（通过FreeSql连接）
+- 其他：Docker、Memcached、Swagger
+
+* 安装与运行
+
+**后端**
+1. 进入cbaldur-backend目录
+2. 推荐开发工具：Rider > Visual Studio > VSCode
+3. 运行命令：
+   #+begin_src bash
+   dotnet run         # 仅运行
+   dotnet watch       # 运行并监听文件变更
+   #+end_src
+4. 配置数据库连接、JWT密钥、Memcached等（见appsettings.json）
+
+**前端**
+1. 进入cbaldur-frontend目录
+2. 复制环境变量模板
+   #+begin_src bash
+   cp .env.example .env
+   #+end_src
+3. 安装依赖
+   #+begin_src bash
+   yarn           # 或 npm install / pnpm install / cnpm install
+   #+end_src
+4. 启动开发环境
+   #+begin_src bash
+   yarn dev       # 或 npm run dev / pnpm dev / cnpm run dev
+   #+end_src
+5. 构建生产包
+   #+begin_src bash
+   yarn build     # 或 npm run build / pnpm build / cnpm run build
+   #+end_src
+
+**沙箱**
+- 沙箱环境和字体文件位于cbaldur-sandbox目录，供后端/前端调用。
+
+* 配置说明
+
+- 后端配置文件：cbaldur-backend/appsettings.json
+  - 数据库连接字符串、JWT密钥、Memcached主机等
+- 前端配置文件：cbaldur-frontend/.env
+
+* 主要功能
+
+- 用户注册、登录、权限管理
+- 案例的创建、编辑、运行、结果可视化
+- 文件上传、下载、在线编辑与执行（支持Python等）
+- 通知、组织、分享等模块
+- 支持中英文界面与中文字体
+
+* 依赖与环境
+
+- Node.js >= 16（前端）
+- .NET 8 SDK（后端）
+- MySQL 数据库
+- Memcached 缓存服务
+- Docker（可选，支持容器化部署）
+
+* 贡献与开发
+
+- 前后端均支持主流开发环境
+- 代码风格与提交规范请参考各自子项目README
+
+如需详细开发文档，请分别查阅cbaldur-backend/README.MD与cbaldur-frontend/README.md。
