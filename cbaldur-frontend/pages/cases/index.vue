@@ -37,8 +37,19 @@ const page = ref(1)
 const pageCount = 8
 
 const rows = computed(() => {
-  return data.value.slice((page.value - 1) * pageCount, (page.value) * pageCount)
+  return data.value.map((item: any) => ({
+    ...item,
+    runTime: ((new Date(item.updatedAt).getTime() - new Date(item.createdAt).getTime()) / 1000).toFixed(3),
+    createdAt: formatDate(item.createdAt)
+  })).slice((page.value - 1) * pageCount, (page.value) * pageCount)
 })
+
+function formatDate(dateStr: string) {
+  const date = new Date(dateStr)
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  return `${date.getFullYear()}年${pad(date.getMonth() + 1)}月${pad(date.getDate())}日 ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`
+}
+
 const columns = [
   {
     key:"id",
@@ -55,8 +66,8 @@ const columns = [
     label:"创建时间"
   },
   {
-    key:"updatedAt",
-    label:"更新时间"
+    key:"runTime",
+    label:"运行时间(秒)"
   },
   {
     key:"tags",
