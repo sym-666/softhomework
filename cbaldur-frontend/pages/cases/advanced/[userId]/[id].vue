@@ -284,9 +284,9 @@ const saveFile = async () => {
 const executeCode = async () => {
   if (!selectedFile.value || !selectedFile.value.endsWith('.py')) return;
   
-  try {  
+  try {
     // 执行代码
-    await $$fetch('/api/Case/ExecuteCode', {
+    const response = await $$fetch('/api/Case/ExecuteCode', {
       method: 'POST',
       body: {
         userId: Number(userId.value),
@@ -300,10 +300,29 @@ const executeCode = async () => {
     
     // 成功提示
     alert('代码执行成功！');
-  } catch (error) {
+  } catch (error: any) {
     console.error('执行代码失败:', error);
-    // 错误提示
-    alert('执行代码失败，请检查代码或重试！');
+    
+    // 提取详细错误信息
+    let errorMessage = '执行代码失败！';
+    
+    if (error?.data) {
+      // 如果后端返回了结构化的错误数据
+      if (typeof error.data === 'string') {
+        errorMessage = `执行失败：\n${error.data}`;
+      } else if (error.data.message) {
+        errorMessage = `执行失败：\n${error.data.message}`;
+      } else if (error.data.error) {
+        errorMessage = `执行失败：\n${error.data.error}`;
+      }
+    } else if (error?.message) {
+      errorMessage = `执行失败：\n${error.message}`;
+    } else if (typeof error === 'string') {
+      errorMessage = `执行失败：\n${error}`;
+    }
+    
+    // 显示详细错误信息，使用换行符格式化
+    alert(errorMessage);
   }
 };
 
