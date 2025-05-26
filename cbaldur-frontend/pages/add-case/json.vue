@@ -34,7 +34,7 @@
     </div>
   </div>
   <div class="h-[70vh] w-[100%] pr-6 rounded-2xl">
-    <MonacoEditor class="h-[70vh]  bg-indigo-100" @update:model-value="(value)=>finalValue=JSON.parse(value)" :model-value="JSON.stringify(finalValue,null,2)" lang="json"/>
+    <MonacoEditor class="h-[70vh]  bg-indigo-100" @update:model-value="updateFinalValue" :model-value="JSON.stringify(finalValue,null,2)" lang="json"/>
   </div>
 </template>
 
@@ -58,6 +58,56 @@ function transformObject(obj) {
   
   return result;
 }
+
+// 反向转换函数：将 finalValue 转换回 input 格式
+function reverseTransformObject(finalObj, originalInput) {
+  const result = {};
+  
+  // 遍历原始 input 的结构
+  for (const [block, data] of Object.entries(originalInput)) {
+    result[block] = { ...data };
+    
+    // 获取对应的 namelist
+    const correspondingNamelist = data.namelist;
+    
+    for (const [key, value] of Object.entries(data)) {
+      // 跳过 namelist 字段本身
+      if (key === 'namelist') {
+        continue;
+      }
+      
+      if (value && typeof value === 'object' && value.hasOwnProperty('index') && value.hasOwnProperty('values')) {
+        // 对于有 index 和 values 的项，从 finalObj 中提取对应值
+        const newValues = [];
+        value.index.forEach((index, i) => {
+          const finalKey = `${key}(${index})`;
+          
+          if (finalObj[correspondingNamelist] && finalObj[correspondingNamelist].hasOwnProperty(finalKey)) {
+            newValues[i] = finalObj[correspondingNamelist][finalKey];
+          } else {
+            newValues[i] = value.values[i]; // 保持原值
+          }
+        });
+        result[block][key] = {
+          ...value,
+          values: newValues
+        };
+      } else {
+        // 对于普通字段，从 finalObj 中查找对应值
+        if (finalObj[correspondingNamelist] && finalObj[correspondingNamelist].hasOwnProperty(key)) {
+          result[block][key] = finalObj[correspondingNamelist][key];
+        } else {
+          result[block][key] = value; // 保持原值
+        }
+      }
+    }
+  }
+  
+  return result;
+}
+
+
+
 function mergeObjectsByNamelist(obj) {
     const result = {};
 
@@ -102,6 +152,22 @@ function mergeBlocks(block1, block2) {
 }
 const comment = useComment()
 const finalValue = ref(mergeObjectsByNamelist(transformObject(input.value)))
+
+// 处理编辑器值更新的函数
+const updateFinalValue = (value) => {
+  try {
+    // 解析新的 JSON 值
+    const newFinalValue = JSON.parse(value);
+    finalValue.value = newFinalValue;
+    
+    // 立即将变化反馈给 input
+    const updatedInput = reverseTransformObject(newFinalValue, input.value);
+    Object.assign(input.value, updatedInput);
+  } catch (error) {
+    console.error('JSON 解析错误:', error);
+  }
+};
+
 const submit = () =>{
   $$fetch("/api/Case/CreateCase",{
     method:"PUT",

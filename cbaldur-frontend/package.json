@@ -28,6 +28,5 @@
   "devDependencies": {
     "@types/d3": "^7.4.3",
     "@types/markdown-it": "^14.1.2"
-  },
-  "packageManager": "yarn@4.9.1"
+  }
 }
