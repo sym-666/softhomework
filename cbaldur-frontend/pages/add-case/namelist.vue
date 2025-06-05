@@ -1,14 +1,34 @@
 <template>
-  <UButton @click="submit" class="w-1/12 h-[40%] mb-4 hover:cursor-pointer">
-    提交
-  </UButton>
+  <div class="w-full flex items-center mb-4 pr-4 space-x-4">
+    <USelect v-model="selectedSupercomputer" :options="supercomputerOptions" option-attribute="name" value-attribute="id" class="w-1/3" />
+    <UButton @click="submit" class="h-[40%]">
+      提交
+    </UButton>
+  </div>
   <div class="h-[80vh] w-[100%] pr-6 rounded-2xl">
     <MonacoEditor class="h-[80vh]  bg-indigo-100" v-model="namelist"/>
   </div>
 </template>
 
 <script setup>
+import { ref, watch } from 'vue' // 确保导入 ref 和 watch
 const route = useRoute()
+const input = useInput() // 获取共享状态
+
+const supercomputerOptions = [
+  { name: '后端超算：Auto', id: 'auto' },
+  { name: 'Hubei', id: 'mhd' },
+  { name: 'Beijing', id: 'bscct' }
+]
+
+// 初始化时尝试从 input.value 读取，否则默认为 'auto'
+const selectedSupercomputer = ref(input.value.supercomputer || 'auto')
+
+// 监听 selectedSupercomputer 的变化，并更新到 input.value
+watch(selectedSupercomputer, (newValue) => {
+  input.value.supercomputer = newValue
+})
+
 const namelist = route.query.namelist?ref(route.query.namelist):ref(`F  0  0  0
 iter058f ITER
 T_edge = 1.00, n_e_edge/ne-bar = 0.75, <n_e20> = 1.1
@@ -356,6 +376,7 @@ const submit = () =>{
     method:"PUT",
     body:{
       namelist: namelist.value,
+      supercomputer: selectedSupercomputer.value, // 添加超算选择
     }
   }).then((data)=>{
     if(data.success){

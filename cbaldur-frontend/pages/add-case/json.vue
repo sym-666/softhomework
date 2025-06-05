@@ -18,11 +18,12 @@
           '请填写Comment以及检查生成的JSON！'
           ]"
       />
-      <div class="w-[100%] flex mt-3 justify-between">
+      <div class="w-[100%] flex mt-3 justify-between items-center">
         <UButton to="/add-case/baldur-control">上一项</UButton>
+        <USelect v-model="selectedSupercomputer" :options="supercomputerOptions" option-attribute="name" value-attribute="id" class="w-1/3" />
         <UButton v-on:click="submit">提交</UButton>
       </div>
-  </UCard>
+    </UCard>
   </div>
   
   <div class="w-full min-h-[10vh] grid grid-cols-5 pr-6 mb-6">
@@ -40,6 +41,12 @@
 
 <script setup>
 const input = useInput()
+const selectedSupercomputer = ref('auto') // 默认选中 auto
+const supercomputerOptions = [
+  { name: '后端超算：Auto', id: 'auto' },
+  { name: 'Hubei', id: 'mhd' },
+  { name: 'Beijing', id: 'bscct' }
+]
 
 function transformObject(obj) {
   const result = {};
@@ -175,6 +182,7 @@ const submit = () =>{
       caseJson: JSON.stringify(finalValue.value),
       caseJsonPrototype: JSON.stringify(input.value),
       comment: comment.value,
+      superComputer: selectedSupercomputer.value,
     }
   }).then((data)=>{
     if(data.success){
