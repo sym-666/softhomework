@@ -54,20 +54,17 @@
         </div>
         <template #footer>
           <UButton
-            @click="
-              () =>
-                jsonDownload(
-                  JSON.stringify(JSON.parse(data.case.caseJson), null, 2),
-                  `${data.case.id}-input.json`
-                )
-            "
+            @click="downloadGfileTar"
             variant="outline"
             class="w-full h-10 flex items-center justify-center mb-4"
           >
-            下载配置文件
+            下载gfile
           </UButton>
-          <UButton class="w-full h-10 flex items-center justify-center mb-4">
-            下载算例结果/CSV
+          <UButton
+            @click="downloadAllCsvTar"
+            class="w-full h-10 flex items-center justify-center mb-4"
+          >
+            下载CSV结果
           </UButton>
           <UButton
             @click="imgDownload"
@@ -482,6 +479,40 @@ var jsonDownload = (content: string, filename: string) => {
   eleLink.click();
   // 然后移除
   document.body.removeChild(eleLink);
+};
+
+// 下载二进制文件的函数
+const downloadBinaryFile = async (url: string, filename: string) => {
+  try {
+    const arrayBuffer = await $$fetch<ArrayBuffer>(url, {
+      responseType: 'arrayBuffer'
+    });
+    
+    const blob = new Blob([arrayBuffer]);
+    const eleLink = document.createElement("a");
+    eleLink.download = filename;
+    eleLink.style.display = "none";
+    eleLink.href = URL.createObjectURL(blob);
+    document.body.appendChild(eleLink);
+    eleLink.click();
+    document.body.removeChild(eleLink);
+    URL.revokeObjectURL(eleLink.href);
+  } catch (error) {
+    console.error('下载文件失败:', error);
+    alert('下载文件失败，请稍后重试');
+  }
+};
+
+// 下载gfile.tar文件
+const downloadGfileTar = () => {
+  const url = `/api/Case/DownloadGfileTar?userId=${route.params.userId}&caseId=${route.params.id}`;
+  downloadBinaryFile(url, `case-${route.params.id}-gfile.tar`);
+};
+
+// 下载all_csv.tar文件
+const downloadAllCsvTar = () => {
+  const url = `/api/Case/DownloadAllCsvTar?userId=${route.params.userId}&caseId=${route.params.id}`;
+  downloadBinaryFile(url, `case-${route.params.id}-all_csv.tar`);
 };
 const plotData = ref({});
 let chart: Chart;
