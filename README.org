@@ -16,34 +16,46 @@ CBaldur 是一个集成前后端的案例管理与仿真平台，包含后端（
 
 * 安装与运行
 
+** 写在前面
+
+请提前配置好环境变量，防止corepack对package.json造成不兼容的修改
+
+#+begin_src bash
+export COREPACK_ENABLE_AUTO_PIN=0
+#+end_src
+
+#+begin_src fish
+set -x COREPACK_ENABLE_AUTO_PIN 0
+#+end_src
+
 ** 后端
 1. 进入cbaldur-backend目录
 2. 推荐开发工具：Rider > Visual Studio > VSCode
 3. 运行命令：
-   #+begin_src bash
-   dotnet run         # 仅运行
-   dotnet watch       # 运行并监听文件变更
-   #+end_src
+#+begin_src bash
+dotnet run         # 仅运行
+dotnet watch       # 运行并监听文件变更
+#+end_src
 4. 配置数据库连接、JWT密钥、Memcached等（见appsettings.json）
 
 ** 前端
 1. 进入cbaldur-frontend目录
 2. 复制环境变量模板
-   #+begin_src bash
-   cp .env.example .env
-   #+end_src
+#+begin_src bash
+cp .env.example .env
+#+end_src
 3. 安装依赖
-   #+begin_src bash
-   yarn           # 或 npm install / pnpm install / cnpm install
-   #+end_src
+#+begin_src bash
+yarn           # 或 npm install / pnpm install / cnpm install
+#+end_src
 4. 启动开发环境
-   #+begin_src bash
-   yarn dev       # 或 npm run dev / pnpm dev / cnpm run dev
-   #+end_src
+#+begin_src bash
+yarn dev       # 或 npm run dev / pnpm dev / cnpm run dev
+#+end_src
 5. 构建生产包
-   #+begin_src bash
-   yarn build     # 或 npm run build / pnpm build / cnpm run build
-   #+end_src
+#+begin_src bash
+yarn build     # 或 npm run build / pnpm build / cnpm run build
+#+end_src
 
 ** 沙箱
 - 沙箱环境和字体文件位于cbaldur-sandbox目录，供后端/前端调用。

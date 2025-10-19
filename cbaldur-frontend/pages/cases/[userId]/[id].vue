@@ -108,7 +108,16 @@
               :model-value="nowMode"
               @change="
                 (value) => {
+                $$fetch('/api/Plot/GetTimes', {
+                  method: 'GET',
+                  query: {
+                    userId: Number(route.params['userId']),
+                    caseId: Number(route.params['id']),
+                    type: value,
+                  },
+                }).then(()=>{
                   nowMode = value;
+                })
                 }
               "
               :options="modeOptions"

@@ -3,7 +3,7 @@ export const useInput = () => {
     return {
       block1: {
         namelist: "nurun1",
-        nrun: 901,
+        nrun: 90,
         leqtyp: 11,
         reread: 70.5,
         "limprd(32)": 2,

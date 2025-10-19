@@ -10,9 +10,7 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@antv/g-svg": "^2.0.28",
     "@antv/g2": "^5.2.7",
-    "@logto/nuxt": "^1.0.1",
     "@nuxt/ui": "^2.19.2",
     "@nuxtjs/tailwindcss": "^6.12.2",
     "d3": "^7.9.0",
@@ -28,6 +26,5 @@
   "devDependencies": {
     "@types/d3": "^7.4.3",
     "@types/markdown-it": "^14.1.2"
-  },
-  "packageManager": "yarn@4.9.1+sha512.f95ce356460e05be48d66401c1ae64ef84d163dd689964962c6888a9810865e39097a5e9de748876c2e0bf89b232d583c33982773e9903ae7a76257270986538"
+  }
 }
