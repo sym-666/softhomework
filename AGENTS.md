@@ -1,13 +1,30 @@
 # AGENTS.md
 
 ## 项目组织和模块管理
-`cbaldur-backend/` 是项目的后端文件夹，使用ASP .NET Core构建REST API。`Controllers/` 目录暴露HTTP端点，`Services/` 包含业务逻辑，`Models/` 定义数据传输对象（DTO），`data/` 存储种子JSON文件。配置文件位于 `appsettings*.json` 中，敏感信息应保存在 `appsettings.Development.json`。
-`cbaldur-frontend/` 是一个Nuxt 3的用户界面，包含 `pages/`、`components/` 和 `composables/` 用于共享实用程序；静态资源位于 `public/` 下，目前已经弃用，功能需要逐步转移到`cbaldur-frontend-next/`。
-`cbaldur-frontend-next/` 包含一个React + RSBuild的原型，结构包括 `src/components/`、`hooks/`、`routes/`、`redux/` 和 `shadcn/` UI原语。
-`cbaldur-sandbox/` 存放Docker资源和占位符密钥。`docker-compose.yml` 。
+`cbaldur-backend/` 是项目的后端文件夹，使用ASP .NET Core构建REST API。主要目录结构：
+- `Controllers/` - HTTP端点控制器（Auth、Case、User、Plot、Organization、Notice、Share）
+- `Services/` - 业务逻辑层，包含接口定义和实现
+- `Models/` - 数据传输对象（DTO）和模型定义
+- `Schemas/` - 配置架构定义
+- `Utils/` - 工具类和辅助函数
+- `Others/` - 其他辅助资源
+- `data/` - 种子数据JSON文件
+配置文件位于 `appsettings*.json` 中，敏感信息应保存在 `appsettings.Development.json`。
+
+`cbaldur-frontend-next/` 是当前使用的React前端应用（使用RSBuild构建）。主要结构：
+- `src/routes/` - 页面路由组件（使用wouter进行路由管理）
+- `src/components/` - 可复用组件
+- `src/hooks/` - 自定义React Hooks
+- `src/redux/` - Redux状态管理（store、slices、RTK Query API）
+- `src/shadcn/` - shadcn/ui组件库
+- `src/types/` - TypeScript类型定义
+
+`cbaldur-sandbox/` 存放Docker资源、占位符密钥和字体文件。
+`cbaldur-copyright/` 存放前后端OpenAPI规范文件。
+根目录的 `docker-compose.yml` 用于容器编排。
 
 ## 前端注意事项
-前端使用React库，使用Redux状态管理，并使用RSBuild进行构建。UI组件主要基于shadcn/ui，样式使用Tailwind CSS。路由通过React Router管理，应用程序状态通过Redux Toolkit处理。API调用使用RTX Query进行管理。
+前端使用React 19库，使用Redux Toolkit进行状态管理，并使用RSBuild进行构建。UI组件主要基于shadcn/ui（Radix UI primitives），样式使用Tailwind CSS 4。路由通过wouter轻量级路由库管理，应用程序状态通过Redux Toolkit处理。API调用使用RTK Query进行管理。
 
 目前的绘图库uPlot+uplot-Wrapper。
 
@@ -35,8 +52,9 @@ const Chart = () => (
 
 ## 代码风格
 
-后端代码遵循默认的 .NET 格式（4个空格缩进，文件范围命名空间）。控制器和服务使用 PascalCase；异步服务方法以 `Async` 结尾，DTO 生活在 `Models/` 中，配置键保持 camelCase。更倾向于使用依赖注入而不是静态状态。
-对于 RSBuild 客户端，保持 TypeScript 严格，倾向于使用 hooks 共享逻辑，并镜像现有文件夹名称。在 `cbaldur-frontend-next/` 中通过 `npm run format` 运行 Prettier，并在提交之前使用 `npx eslint .` 检查 Nuxt 代码。Tailwind 工具类应按断点顺序排列以提高可读性。
+后端代码遵循默认的 .NET 格式（4个空格缩进，文件范围命名空间）。控制器和服务使用 PascalCase；异步服务方法以 `Async` 结尾，DTO 位于 `Models/` 中，配置键保持 camelCase。更倾向于使用依赖注入而不是静态状态。
+
+前端代码保持 TypeScript 严格模式，倾向于使用 hooks 共享逻辑，并遵循现有的文件夹组织结构。在 `cbaldur-frontend-next/` 中通过 `npm run format` 运行 Prettier 格式化代码，使用 `npm run lint` 检查代码规范。Tailwind 工具类应按断点顺序排列以提高可读性。
 
 ## 测试指南
 暂时无单元测试和集成测试
