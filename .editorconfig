@@ -1,0 +1,6 @@
+[*.cs]
+csharp_prefer_simple_using_statement = false
+dotnet_diagnostic.CA1859.severity = none
+dotnet_diagnostic.CA2208.severity = none
+dotnet_diagnostic.IDE0290.severity = none
+dotnet_diagnostic.IDE0042.severity = none
