@@ -19,14 +19,14 @@ CBaldur 是一个集成前后端的案例管理与仿真平台，包含后端（
 
 ### 写在前面
 
-请提前配置好环境变量，防止 corepack 对 `package.json` 造成不兼容的修改。
+建议使用`vlt`作为前端包管理器，可以跳过corepack的锁定
+
+天天忘记锁定版本导致package.json被重写，浪费时间
+
+但是`npm`也不是不行
 
 ```bash
-export COREPACK_ENABLE_AUTO_PIN=0
-```
-
-```fish
-set -x COREPACK_ENABLE_AUTO_PIN 0
+npm install -g vlt
 ```
 
 ### 后端
@@ -44,29 +44,24 @@ set -x COREPACK_ENABLE_AUTO_PIN 0
 
 ### 前端
 
-1. 进入 `cbaldur-frontend` 目录。
-2. 复制环境变量模板：
+1. 进入 `cbaldur-frontend-next` 目录。
+
+2. 安装依赖：
 
    ```bash
-   cp .env.example .env
+   vlt i
    ```
 
-3. 安装依赖：
+3. 启动开发环境：
 
    ```bash
-   yarn           # 或 npm install / pnpm install / cnpm install
+   vlt r dev
    ```
 
-4. 启动开发环境：
+4. 构建生产包：
 
    ```bash
-   yarn dev       # 或 npm run dev / pnpm dev / cnpm run dev
-   ```
-
-5. 构建生产包：
-
-   ```bash
-   yarn build     # 或 npm run build / pnpm build / cnpm run build
+   vlt r build
    ```
 
 ### 沙箱
@@ -77,19 +72,18 @@ set -x COREPACK_ENABLE_AUTO_PIN 0
 
 - 后端配置文件：`cbaldur-backend/appsettings.json`
   - 数据库连接字符串、JWT 密钥、Memcached 主机等
-- 前端配置文件：`cbaldur-frontend/.env`
 
 ## 主要功能
 
-- 用户注册、登录、权限管理
-- 案例的创建、编辑、运行、结果可视化
-- 文件上传、下载、在线编辑与执行（支持 Python 等）
-- 通知、组织、分享等模块
-- 支持中英文界面与中文字体
+- [x] 用户注册、登录、权限管理
+- [x] 案例的创建、编辑、运行、结果可视化
+- [ ] 文件上传、下载、在线编辑与执行（支持 Python 等）
+- [x] 通知、组织、分享等模块
+- [ ] 支持中英文界面与中文字体
 
 ## 依赖与环境
 
-- Node.js ≥ 16（前端）
+- Node.js ≥ 22（前端）
 - .NET 8 SDK（后端）
 - MySQL 数据库
 - Memcached 缓存服务
