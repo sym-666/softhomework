@@ -1,3 +1,5 @@
 .vscode
 .claude
 openspec
+.idea
+*.key
