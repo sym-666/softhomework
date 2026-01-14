@@ -30,21 +30,9 @@
 - **路由**：通过 wouter 轻量级路由库管理。
 - **状态管理**：应用程序状态通过 Redux Toolkit 处理，API 调用使用 RTK Query 进行管理。
 - **其他库**：`sonner` 用于 Toast 通知，`next-themes` 用于主题管理。
-- **绘图库**：uPlot + uplot-react。
+- **绘图库**：ECharts 绘制图表，ECharts-for-React 作为 React 包装器。
 
-uplot-wrapper 的使用方式为：
-```tsx
-import React from 'react';
-import uPlot from 'uplot';
-import UplotReact from 'uplot-react';
-import 'uplot/dist/uPlot.min.css';
 
-const Chart = () => (
-    <UplotReact options={options} data={data} target={target} onCreate={(chart) => {}} onDelete={(chart) => {}} />
-);
-``` 
-
-你可以从 context7 中获取 uplot 的文档
 
 ## 后端注意事项
 后端使用 ASP.NET Core 构建，遵循 RESTful API 设计原则。
