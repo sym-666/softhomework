@@ -58,7 +58,8 @@
 暂时无单元测试和集成测试
 
 ## 提交和拉取请求指南
-commit 格式为 "YYYY/MM/DD 简短描述"，分支命名为 "feature/简短描述" 或 "bugfix/简短描述"。
+commit 格式参考 Conventional Commits
+
 
 ## 安全性和配置提示
 切勿提交真实的密钥；占位符凭据位于 `cbaldur-sandbox/` 和 `config.json` 中。通过用户机密或环境变量加载敏感值。在公开新端点之前，请检查 CORS 和身份验证设置，并确保生成的 OpenAPI 文件省略敏感架构。
