@@ -3,3 +3,9 @@
 openspec
 .idea
 *.key
+
+# Trellis / agent scaffolding (local workflow tooling; not product code)
+.trellis/
+.agents/
+.opencode/
+.codex/
