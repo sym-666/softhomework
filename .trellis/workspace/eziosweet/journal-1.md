@@ -204,3 +204,36 @@ Extended one-dimensional analysis formulas with menu-inserted variable aliases, 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 7: 跟踪 Agent 脚手架并提交 PR #25
+
+**Date**: 2026-07-21
+**Task**: 跟踪 Agent 脚手架并提交 PR #25
+**Branch**: `feature/case-pipeline-and-agent-scaffolding`
+
+### Summary
+
+放宽 .gitignore，纳入 .trellis/.claude/.codex/.cursor/.agents/.opencode；新建分支 feature/case-pipeline-and-agent-scaffolding 并创建 PR #25。migrate 任务此前已归档。
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `05024c4` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

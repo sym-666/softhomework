@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 6
+- **Total Sessions**: 7
 - **Last Active**: 2026-07-21
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~206 | Active |
+| `journal-1.md` | ~239 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 7 | 2026-07-21 | 跟踪 Agent 脚手架并提交 PR #25 | `05024c4` | `feature/case-pipeline-and-agent-scaffolding` |
 | 6 | 2026-07-21 | CaseService → PipelineExecutor 迁移并对齐逐步输入 | `735e910` | `master` |
 | 5 | 2026-07-14 | Extend parameter analysis variables | `9e9093a` | `feature/param-search` |
 | 4 | 2026-07-14 | 逐步输入参数关系图编辑器 | `6839ed5` | `feature/param-search` |
