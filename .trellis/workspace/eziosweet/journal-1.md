@@ -305,3 +305,37 @@ Restored case-comparison mode on the case plot page: setNowCases + success-case 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 10: Cases realtime SSE refresh
+
+**Date**: 2026-07-21
+**Task**: Cases realtime SSE refresh
+**Branch**: `feature/case-pipeline-and-agent-scaffolding`
+
+### Summary
+
+Added SSE StatusEvents + in-process broker; AuthGuard EventSource invalidates Case tags for /cases and home; documented case-status-sse-contract.
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `c88c17a` | (see git log) |
+| `7847ae5` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
