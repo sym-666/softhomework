@@ -339,3 +339,37 @@ Added SSE StatusEvents + in-process broker; AuthGuard EventSource invalidates Ca
 ### Next Steps
 
 - None - task complete
+
+
+## Session 11: C# JSON→namelist converter and sandbox cleanup
+
+**Date**: 2026-07-21
+**Task**: C# JSON→namelist converter and sandbox cleanup
+**Branch**: `feature/case-pipeline-and-agent-scaffolding`
+
+### Summary
+
+Replaced cbaldur-json-to-nml with JsonToNmlConverter, disabled plot sandbox, removed Others binaries except keys, dropped legacy path config; verified 163/166 CSV parity.
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `b5477ab` | (see git log) |
+| `e0431b4` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
