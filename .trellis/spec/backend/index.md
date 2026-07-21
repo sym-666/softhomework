@@ -20,6 +20,7 @@ This directory contains guidelines for backend development. Fill in each file wi
 | [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | To fill |
 | [Logging Guidelines](./logging-guidelines.md) | Structured logging, log levels | To fill |
 | [Plot Expression Contract](./plot-expression-contract.md) | Auxiliary plot-column API contract | Active |
+| [Case List Payload Contract](./case-list-payload-contract.md) | Lightweight GetCases / GetCasesForAdmin DTO | Active |
 
 ---
 
