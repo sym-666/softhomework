@@ -1,0 +1,3 @@
+{"file": ".trellis/spec/backend/plot-expression-contract.md", "reason": "Across-cases plot Variables contract must stay intact when wiring GetPlotAcrossCases"}
+{"file": ".trellis/spec/backend/case-list-payload-contract.md", "reason": "GetCases list DTO fields available for comparison picker (id/comment/status)"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend layer conventions index for UI work"}
