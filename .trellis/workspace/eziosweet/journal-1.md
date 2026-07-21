@@ -237,3 +237,37 @@ Extended one-dimensional analysis formulas with menu-inserted variable aliases, 
 ### Next Steps
 
 - None - task complete
+
+
+## Session 8: GetCases list payload + case comparison kickoff
+
+**Date**: 2026-07-21
+**Task**: GetCases list payload + case comparison kickoff
+**Branch**: `feature/case-pipeline-and-agent-scaffolding`
+
+### Summary
+
+Finished lightweight GetCases/GetCasesForAdmin CaseListItem DTO (backend projection + frontend types/lazy GetCase for JSON template). Documented case-list-payload-contract in .trellis/spec. Next: fix broken case-comparison plot mode (nowCases has no setter/UI).
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `366c68d` | (see git log) |
+| `93bc927` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

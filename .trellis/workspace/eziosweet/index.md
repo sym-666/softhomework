@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 7
+- **Total Sessions**: 8
 - **Last Active**: 2026-07-21
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~239 | Active |
+| `journal-1.md` | ~273 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 8 | 2026-07-21 | GetCases list payload + case comparison kickoff | `366c68d`, `93bc927` | `feature/case-pipeline-and-agent-scaffolding` |
 | 7 | 2026-07-21 | 跟踪 Agent 脚手架并提交 PR #25 | `05024c4` | `feature/case-pipeline-and-agent-scaffolding` |
 | 6 | 2026-07-21 | CaseService → PipelineExecutor 迁移并对齐逐步输入 | `735e910` | `master` |
 | 5 | 2026-07-14 | Extend parameter analysis variables | `9e9093a` | `feature/param-search` |
