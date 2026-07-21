@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/backend/case-list-payload-contract.md", "reason": "Ensure SSE invalidation does not widen list payload"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Backend quality bar"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Frontend quality bar"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Verify RTK tag invalidation usage"}
