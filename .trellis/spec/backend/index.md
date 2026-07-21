@@ -22,6 +22,7 @@ This directory contains guidelines for backend development. Fill in each file wi
 | [Plot Expression Contract](./plot-expression-contract.md) | Auxiliary plot-column API contract | Active |
 | [Case List Payload Contract](./case-list-payload-contract.md) | Lightweight GetCases / GetCasesForAdmin DTO | Active |
 | [Case Status SSE Contract](./case-status-sse-contract.md) | SSE StatusEvents + RTK invalidate for list refresh | Active |
+| [JSON → Namelist Converter Contract](./json-to-nml-converter-contract.md) | Managed JsonToNmlConverter + pipeline convert step | Active |
 
 ---
 
