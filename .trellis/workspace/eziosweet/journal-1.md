@@ -271,3 +271,37 @@ Finished lightweight GetCases/GetCasesForAdmin CaseListItem DTO (backend project
 ### Next Steps
 
 - None - task complete
+
+
+## Session 9: Fix case-comparison plot selection
+
+**Date**: 2026-07-21
+**Task**: Fix case-comparison plot selection
+**Branch**: `feature/case-pipeline-and-agent-scaffolding`
+
+### Summary
+
+Restored case-comparison mode on the case plot page: setNowCases + success-case sidebar with per-case multi time select, seeded current case/nowTime, effectiveNowCases for GetPlotAcrossCases/CSV. Documented frontend case-plot-comparison convention.
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `1c6f818` | (see git log) |
+| `f2d8f8a` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
