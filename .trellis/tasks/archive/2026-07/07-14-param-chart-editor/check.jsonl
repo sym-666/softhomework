@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend guidelines index for quality check"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Quality bar and forbidden patterns"}
+{"file": ".trellis/tasks/07-14-param-chart-editor/prd.md", "reason": "Acceptance criteria AC1–AC8"}
+{"file": ".trellis/tasks/07-14-param-chart-editor/design.md", "reason": "Contracts and ECharts-only constraint"}
+{"file": ".trellis/tasks/07-14-param-chart-editor/implement.md", "reason": "Validation commands and checklist"}

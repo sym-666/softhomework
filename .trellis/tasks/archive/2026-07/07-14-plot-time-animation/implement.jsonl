@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend package conventions index for Case plot UI work"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Component patterns when extending Case sidebar and chart controls"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Local vs RTK Query state when adding animation cache and playback"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "Prefer reusing GetPlotAcrossTimes and existing echartsOption builders"}

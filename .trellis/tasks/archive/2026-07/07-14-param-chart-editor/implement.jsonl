@@ -1,0 +1,6 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend package conventions index for implement agent"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Component patterns when adding ParamChartEditorDialog"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Redux dynamicForm updateField usage"}
+{"file": ".trellis/tasks/07-14-param-chart-editor/prd.md", "reason": "Requirements and acceptance criteria"}
+{"file": ".trellis/tasks/07-14-param-chart-editor/design.md", "reason": "Architecture, ECharts drag strategy, data flow"}
+{"file": ".trellis/tasks/07-14-param-chart-editor/implement.md", "reason": "Ordered checklist and validation"}

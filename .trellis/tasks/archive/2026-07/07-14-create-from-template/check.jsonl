@@ -1,0 +1,4 @@
+{"file": ".trellis/tasks/07-14-create-from-template/prd.md", "reason": "Verify AC1–AC7 against implementation"}
+{"file": ".trellis/tasks/07-14-create-from-template/design.md", "reason": "Verify Redux inject and namelist URL contracts"}
+{"file": ".trellis/tasks/07-14-create-from-template/implement.md", "reason": "Verify checklist and lint validation"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend conventions during quality check"}
