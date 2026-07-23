@@ -1,0 +1,6 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Entity mapping and AutoSync"}
+{"file": ".trellis/spec/backend/case-list-payload-contract.md", "reason": "List DTO must gain UUID id + caseId"}
+{"file": ".trellis/spec/backend/case-status-sse-contract.md", "reason": "SSE payload case key becomes UUID"}
+{"file": ".trellis/spec/frontend/case-plot-comparison.md", "reason": "Case comparison uses case ids"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Route/API/disk UUID alignment"}
