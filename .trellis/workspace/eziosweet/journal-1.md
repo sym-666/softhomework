@@ -407,3 +407,37 @@ Switched FreeSql from MySQL to PostgreSQL with auth/cbaldur schemas, compose/doc
 ### Next Steps
 
 - None - task complete
+
+
+## Session 13: Case UUID + BYTEA avatar
+
+**Date**: 2026-07-23
+**Task**: Case UUID + BYTEA avatar
+**Branch**: `feature/pgsql`
+
+### Summary
+
+Shipped per-user caseId with UUID case PK/API/disk paths, and avatar BYTEA via GET /api/User/Avatar. Archived parent+child Trellis tasks.
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5bab865` | (see git log) |
+| `9b7eac7` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
