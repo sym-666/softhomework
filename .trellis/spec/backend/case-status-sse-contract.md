@@ -24,7 +24,7 @@ List payload shape remains `CaseListItemModel` — see
 
 **Backend**
 
-- `ICaseStatusNotifier.NotifyStatusChanged(int userId, int caseId, string status)`
+- `ICaseStatusNotifier.NotifyStatusChanged(int userId, Guid id, int caseId, string status)`
 - `ICaseStatusEventSource.SubscribeAsync(int userId, CancellationToken ct)` →
   `IAsyncEnumerable<CaseStatusEvent>`
 - `CaseStatusBroker` — singleton implementing both interfaces
@@ -53,7 +53,8 @@ List payload shape remains `CaseListItemModel` — see
 
 | Field | Type | Constraints |
 | --- | --- | --- |
-| `caseId` | `number` | Case primary key |
+| `id` | `string` (UUID) | Case primary key |
+| `caseId` | `number` | Per-user display sequence |
 | `status` | `string` | `"success"` \| `"failed"` only for MVP |
 
 Payload is a **hint**; UI must treat `GetCases` as source of truth after
@@ -108,7 +109,7 @@ invalidation. Do not patch RTK cache from SSE alone in MVP.
 // Update DB but never notify — list UIs stay on "running"
 _fsql.Update<CaseModel>()
     .Set(c => c.Status, "success")
-    .Where(c => c.Id == caseId)
+    .Where(c => c.Id == id)
     .ExecuteAffrows();
 ```
 
@@ -122,9 +123,9 @@ api.util.updateQueryData('getCases', {}, (draft) => { /* mutate one row */ });
 ```csharp
 _fsql.Update<CaseModel>()
     .Set(c => c.Status, "success")
-    .Where(c => c.Id == caseId)
+    .Where(c => c.Id == id)
     .ExecuteAffrows();
-_caseStatusNotifier.NotifyStatusChanged(userId, caseId, "success");
+_caseStatusNotifier.NotifyStatusChanged(userId, id, caseId, "success");
 ```
 
 ```tsx

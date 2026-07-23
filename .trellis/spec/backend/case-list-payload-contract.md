@@ -17,7 +17,8 @@ OpenAPI shape, and frontend RTK Query types must stay aligned.
 - `ICaseService.GetCaseListItemsByUserIdAsync(int userId)`
 - `ICaseService.GetCaseListItemsByOrganizationIdAsync(int organizationId)`
 - `ICaseService.GetAllCaseListItemsAsync()`
-- Detail remains on `GET /api/Case/GetCase?id=` → `CaseModel` (unchanged)
+- Detail remains on `GET /api/Case/GetCase?id=` → `CaseModel` (unchanged;
+  `id` is UUID)
 
 ### 3. Contracts
 
@@ -25,7 +26,8 @@ OpenAPI shape, and frontend RTK Query types must stay aligned.
 
 | Field | Type | Purpose |
 | --- | --- | --- |
-| `id` | `number \| null` | Row identity / detail navigation |
+| `id` | `string` (UUID) | Row identity / detail navigation / disk path key |
+| `caseId` | `number` | Per-user display sequence (starts at 1); list sort desc |
 | `userId` | `number \| null` | Owner / admin filtering |
 | `status` | `string` | List / dashboard status |
 | `comment` | `string` | Display label |
@@ -37,9 +39,12 @@ OpenAPI shape, and frontend RTK Query types must stay aligned.
 Must **not** appear on list responses: `caseJson`, `caseNamelist`, nested
 `user`, or full `caseJsonPrototype`.
 
-Frontend `CaseListItem` mirrors this DTO. JSON template flow uses
+Frontend `CaseListItem` mirrors this DTO. UI shows `caseId` as the human
+sequence; routes and RTK detail fetch use `id` (UUID). JSON template flow uses
 `hasCaseJsonPrototype` for disabled state, then `useLazyGetCaseQuery(id)` to
 fetch `caseJsonPrototype` on click.
+
+List queries order by `caseId` descending.
 
 ### 4. Validation & Error Matrix
 
@@ -48,14 +53,15 @@ fetch `caseJsonPrototype` on click.
 | Authenticated user calls `GetCases` | Return that user's list items only |
 | Admin `GetCasesForAdmin` with org/user filters | Same DTO; existing auth/filter rules unchanged |
 | List consumer needs prototype JSON | Call `GetCase`, not the list endpoint |
-| Client types still expect `CaseModel` on list | Type/runtime mismatch; update RTK types |
+| Client types still expect numeric `id` on list | Type/runtime mismatch; update RTK types |
 
 ### 5. Good/Base/Bad Cases
 
 - Good: cases table and dashboard render from list fields only; JSON "use as
-  template" fetches detail once on click.
+  template" fetches detail once on click; two users can both have `caseId=1`.
 - Base: `GetCase` still returns full `CaseModel` for namelist/json editors.
-- Bad: re-adding `caseJson` / nested `user` to list responses "for convenience".
+- Bad: re-adding `caseJson` / nested `user` to list responses "for convenience";
+  navigating with the int `caseId` instead of UUID `id`.
 
 ### 6. Tests Required
 
