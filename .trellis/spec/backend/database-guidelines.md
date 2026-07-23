@@ -34,3 +34,4 @@ Single `IFreeSql` singleton; cross-schema joins via `Navigate` / `Select<A,B>().
 - Unqualified `[Table(Name = "users")]` — AutoSync may target `public` while CRUD uses `search_path`
 - Expecting FreeSql to create schemas — it only creates tables inside existing schemas
 - MySQL-style connection keys (`server`, `user`) — use Npgsql `Host` / `Username`
+- Comparing `jsonb` columns to `""` in FreeSql projections — PostgreSQL casts `''` to json and throws `22P02`; use `!= null` only (empty string is not valid jsonb)
