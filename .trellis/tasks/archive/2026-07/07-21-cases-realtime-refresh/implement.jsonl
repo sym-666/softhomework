@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/backend/case-list-payload-contract.md", "reason": "List refetch must keep CaseListItemModel contract"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "Where to place notifier/broker vs Controllers/Services"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "RTK invalidateTags pattern for case list"}
+{"file": ".trellis/spec/frontend/hook-guidelines.md", "reason": "Shared EventSource hook conventions"}

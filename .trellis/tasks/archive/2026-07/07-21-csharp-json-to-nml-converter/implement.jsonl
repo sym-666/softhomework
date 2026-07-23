@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend guideline index for module placement and conventions"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "Where Utils/Services/Models belong when adding JsonToNmlConverter"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Quality/testing expectations for backend changes"}
+{"file": ".trellis/tasks/07-21-csharp-json-to-nml-converter/design.md", "reason": "Conversion contract, 80-col wrap, pipeline wiring"}
+{"file": ".trellis/tasks/07-21-csharp-json-to-nml-converter/prd.md", "reason": "Acceptance: NormalizeNamelist, keep binary file, unit-test first"}
