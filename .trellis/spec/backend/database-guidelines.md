@@ -6,46 +6,31 @@
 
 ## Overview
 
-<!--
-Document your project's database conventions here.
+- **ORM**: FreeSql 3.2.x with `FreeSql.Provider.PostgreSQL`
+- **Database**: PostgreSQL (`fusim`); schemas `auth` and `cbaldur`
+- **Connection key**: `ConnectionStrings:PostgreSQL` (Npgsql format: `Host` / `Username` / `Database`)
+- **Migrations**: no migration scripts; `UseAutoSyncStructure(true)` creates/alters tables on first CRUD
+- **Schema bootstrap**: FreeSql does not create schemas — run `CREATE SCHEMA IF NOT EXISTS auth` / `cbaldur` at startup (and in compose init SQL)
 
-Questions to answer:
-- What ORM/query library do you use?
-- How are migrations managed?
-- What are the naming conventions for tables/columns?
-- How do you handle transactions?
--->
+## Entity mapping
 
-(To be filled by the team)
+Qualify every table as `schema.table` via `[Table(Name = "...")]`:
 
----
+| Model | Table |
+|-------|-------|
+| `UserModel` | `auth.users` |
+| `OrganizationModel` | `auth.organizations` |
+| `CaseModel` | `cbaldur.cases` |
+| `NoticeModel` | `cbaldur.notices` |
+
+Do not rely on `search_path` for AutoSync. Prefer `jsonb` for JSON columns and `text` for long strings (not MySQL `mediumtext` / `json`).
 
 ## Query Patterns
 
-<!-- How should queries be written? Batch operations? -->
-
-(To be filled by the team)
-
----
-
-## Migrations
-
-<!-- How to create and run migrations -->
-
-(To be filled by the team)
-
----
-
-## Naming Conventions
-
-<!-- Table names, column names, index names -->
-
-(To be filled by the team)
-
----
+Single `IFreeSql` singleton; cross-schema joins via `Navigate` / `Select<A,B>().LeftJoin(...)` are fine when both entities use qualified names.
 
 ## Common Mistakes
 
-<!-- Database-related mistakes your team has made -->
-
-(To be filled by the team)
+- Unqualified `[Table(Name = "users")]` — AutoSync may target `public` while CRUD uses `search_path`
+- Expecting FreeSql to create schemas — it only creates tables inside existing schemas
+- MySQL-style connection keys (`server`, `user`) — use Npgsql `Host` / `Username`

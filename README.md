@@ -85,7 +85,7 @@ npm install -g vlt
 
 - Node.js ≥ 22（前端）
 - .NET 8 SDK（后端）
-- MySQL 数据库
+- PostgreSQL 数据库（schemas：`auth` / `cbaldur`）
 - Memcached 缓存服务
 - Docker（可选，支持容器化部署）
 

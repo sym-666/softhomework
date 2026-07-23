@@ -36,7 +36,7 @@
 
 ## 后端注意事项
 后端使用 ASP.NET Core 构建，遵循 RESTful API 设计原则。
-- **数据库 ORM**：使用 `FreeSql` (MySQL)。
+- **数据库 ORM**：使用 `FreeSql` (PostgreSQL)。表按 schema 划分：`auth`（users、organizations）、`cbaldur`（cases、notices）；启动时 `CREATE SCHEMA IF NOT EXISTS`，表结构由 `UseAutoSyncStructure` 同步。
 - **依赖注入**：使用 `Lamar` 替代默认 DI 容器。
 - **缓存**：使用 `EnyimMemcached` 连接 Memcached。
 - **身份验证**：使用 JWT，Token 存储在名为 `AuthToken` 的 Cookie 中。
