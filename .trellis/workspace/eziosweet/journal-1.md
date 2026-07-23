@@ -373,3 +373,37 @@ Replaced cbaldur-json-to-nml with JsonToNmlConverter, disabled plot sandbox, rem
 ### Next Steps
 
 - None - task complete
+
+
+## Session 12: Migrate MySQL to PostgreSQL (auth/cbaldur schemas)
+
+**Date**: 2026-07-23
+**Task**: Migrate MySQL to PostgreSQL (auth/cbaldur schemas)
+**Branch**: `feature/pgsql`
+
+### Summary
+
+Switched FreeSql from MySQL to PostgreSQL with auth/cbaldur schemas, compose/docs/config updates, and fixed GetCases jsonb empty-string comparison (22P02).
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `82d32c2` | (see git log) |
+| `27b02da` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
