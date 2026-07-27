@@ -3,8 +3,9 @@
 ## Convention: Wire `nowCases` before calling across-cases plot APIs
 
 **What**: On the case detail chart page (`routes/cases/Case.tsx`), mode
-`nowMode === 'case'` must keep mutable `nowCases: { caseId, times[] }[]` and
-only request plot/CSV with **effective** entries whose `times.length > 0`.
+`nowMode === 'case'` must keep mutable `nowCases: { caseId, times[] }[]`
+where `caseId` is the case **UUID string**, and only request plot/CSV with
+**effective** entries whose `times.length > 0`.
 
 **Why**: `POST /api/Plot/GetPlotAcrossCases` and
 `DownloadPlotCsvAcrossCases` already accept `cases[]`, but an empty or
@@ -15,19 +16,20 @@ case.
 **Behavior**:
 
 - Candidate cases come from `GET /api/Case/GetCases` (`CaseListItem`),
-  filtered to `status === 'success'`, including the current case id.
+  filtered to `status === 'success'`, including the current case UUID `id`.
 - Entering case mode seeds the current case and, when available, the current
   single-slice `nowTime`.
 - Per selected case, times come from `GetTimes` (reuse page `timeOptions` for
   the current case; lazy-load for others). Invalidate cached times when
   `nowType` changes.
-- Backend series key remains `time = "{caseId}:{time}"`; do not change that
-  format without updating the pivot/legend path.
+- Backend series key remains `time = "{caseUuid}:{time}"`; do not change that
+  format without updating the pivot/legend path. UI display of per-user
+  sequence uses list field `caseId` (int), not the UUID.
 
 **Example**:
 
 ```ts
-const [nowCases, setNowCases] = useState<{ caseId: number; times: string[] }[]>(
+const [nowCases, setNowCases] = useState<{ caseId: string; times: string[] }[]>(
   [],
 );
 const effectiveNowCases = nowCases.filter((c) => c.times.length > 0);

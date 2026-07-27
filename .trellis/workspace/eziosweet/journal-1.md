@@ -373,3 +373,105 @@ Replaced cbaldur-json-to-nml with JsonToNmlConverter, disabled plot sandbox, rem
 ### Next Steps
 
 - None - task complete
+
+
+## Session 12: Migrate MySQL to PostgreSQL (auth/cbaldur schemas)
+
+**Date**: 2026-07-23
+**Task**: Migrate MySQL to PostgreSQL (auth/cbaldur schemas)
+**Branch**: `feature/pgsql`
+
+### Summary
+
+Switched FreeSql from MySQL to PostgreSQL with auth/cbaldur schemas, compose/docs/config updates, and fixed GetCases jsonb empty-string comparison (22P02).
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `82d32c2` | (see git log) |
+| `27b02da` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
+
+
+## Session 13: Case UUID + BYTEA avatar
+
+**Date**: 2026-07-23
+**Task**: Case UUID + BYTEA avatar
+**Branch**: `feature/pgsql`
+
+### Summary
+
+Shipped per-user caseId with UUID case PK/API/disk paths, and avatar BYTEA via GET /api/User/Avatar. Archived parent+child Trellis tasks.
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `5bab865` | (see git log) |
+| `9b7eac7` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
+
+
+## Session 14: All entity PKs to UUID
+
+**Date**: 2026-07-27
+**Task**: All entity PKs to UUID
+**Branch**: `feature/pgsql`
+
+### Summary
+
+Migrated users/orgs/notices PKs and FKs to UUID; JWT Guid claims; status bar shows per-user caseId.
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `51a5a73` | (see git log) |
+| `c30742a` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

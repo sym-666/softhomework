@@ -294,7 +294,7 @@ Schema 驱动的多面板向导，后端提供 YAML 配置定义面板和字段�
 
 - **认证方式**：JWT Token 存储于 HttpOnly Cookie（`AuthToken`），支持 GitHub OAuth
 - **密码安全**：PBKDF2 + SHA3-256，10000 次迭代，16 字节随机盐
-- **数据库**：FreeSql ORM + MySQL (AWS RDS)，启动时自动同步表结构
+- **数据库**：FreeSql ORM + PostgreSQL（schemas：`auth` / `cbaldur`），启动时 `CREATE SCHEMA` 后由 AutoSync 同步表结构
 - **缓存**：Memcached（验证码、分享链接）
 - **日志**：Serilog 控制台 + 每日滚动文件日志（30 天保留，20MB 上限）
 - **DI 容器**：Lamar
