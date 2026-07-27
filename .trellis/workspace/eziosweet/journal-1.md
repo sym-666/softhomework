@@ -509,3 +509,37 @@ Fixed profile animation via exact GetTimes CSV token matching; hid YF animation;
 ### Next Steps
 
 - None - task complete
+
+
+## Session 16: Fix JSON add-cases upload/export defaults
+
+**Date**: 2026-07-27
+**Task**: Fix JSON add-cases upload/export defaults
+**Branch**: `feature/plot-ux-fixes`
+
+### Summary
+
+Repaired JSON create-case upload/download/sync, schema defaults, configName routing, and in-page createCase; documented add-cases JSON path contracts.
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `6d2538e` | (see git log) |
+| `49f3b13` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
