@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/case-plot-comparison.md", "reason": "Verify legend shows numeric caseId while wire key stays UUID"}
+{"file": ".trellis/spec/backend/plot-expression-contract.md", "reason": "Verify expression labels stay frontend-only and contract intact"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Lint/type and UI consistency checks"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Backend build/quality if GetPlotAcrossTimes changes"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Cross-layer check for prof animation data path"}

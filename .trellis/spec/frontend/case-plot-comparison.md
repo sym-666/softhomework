@@ -24,7 +24,9 @@ case.
   `nowType` changes.
 - Backend series key remains `time = "{caseUuid}:{time}"`; do not change that
   format without updating the pivot/legend path. UI display of per-user
-  sequence uses list field `caseId` (int), not the UUID.
+  sequence uses list field `caseId` (int), not the UUID. Legend / tooltip
+  labels must render as `#<caseId> @ <time>` (e.g. `#42 @ 1.234e5`); never
+  show the raw UUID in the chart legend.
 
 **Example**:
 
