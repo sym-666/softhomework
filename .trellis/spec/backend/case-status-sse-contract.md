@@ -24,8 +24,8 @@ List payload shape remains `CaseListItemModel` — see
 
 **Backend**
 
-- `ICaseStatusNotifier.NotifyStatusChanged(int userId, Guid id, int caseId, string status)`
-- `ICaseStatusEventSource.SubscribeAsync(int userId, CancellationToken ct)` →
+- `ICaseStatusNotifier.NotifyStatusChanged(Guid userId, Guid id, int caseId, string status)`
+- `ICaseStatusEventSource.SubscribeAsync(Guid userId, CancellationToken ct)` →
   `IAsyncEnumerable<CaseStatusEvent>`
 - `CaseStatusBroker` — singleton implementing both interfaces
 - Emit sites: after FreeSql status updates in

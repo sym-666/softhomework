@@ -14,8 +14,8 @@ OpenAPI shape, and frontend RTK Query types must stay aligned.
 
 - `GET /api/Case/GetCases` → `IList<CaseListItemModel>`
 - `GET /api/Case/GetCasesForAdmin` → `IList<CaseListItemModel>` (same DTO)
-- `ICaseService.GetCaseListItemsByUserIdAsync(int userId)`
-- `ICaseService.GetCaseListItemsByOrganizationIdAsync(int organizationId)`
+- `ICaseService.GetCaseListItemsByUserIdAsync(Guid userId)`
+- `ICaseService.GetCaseListItemsByOrganizationIdAsync(Guid organizationId)`
 - `ICaseService.GetAllCaseListItemsAsync()`
 - Detail remains on `GET /api/Case/GetCase?id=` → `CaseModel` (unchanged;
   `id` is UUID)
@@ -28,7 +28,7 @@ OpenAPI shape, and frontend RTK Query types must stay aligned.
 | --- | --- | --- |
 | `id` | `string` (UUID) | Row identity / detail navigation / disk path key |
 | `caseId` | `number` | Per-user display sequence (starts at 1); list sort desc |
-| `userId` | `number \| null` | Owner / admin filtering |
+| `userId` | `string \| null` (UUID) | Owner / admin filtering |
 | `status` | `string` | List / dashboard status |
 | `comment` | `string` | Display label |
 | `tags` | `string \| null` | Optional tags |

@@ -18,12 +18,18 @@ Qualify every table as `schema.table` via `[Table(Name = "...")]`:
 
 | Model | Table |
 |-------|-------|
-| `UserModel` | `auth.users` (`Avatar` bytea + `AvatarContentType`; JSON exposes `avatar` URL via ignored projection) |
-| `OrganizationModel` | `auth.organizations` |
-| `CaseModel` | `cbaldur.cases` (`Id` uuid PK; `CaseId` int per-user sequence; unique `(UserId, CaseId)`) |
-| `NoticeModel` | `cbaldur.notices` |
+| `UserModel` | `auth.users` (`Id` uuid PK; `Avatar` bytea + `AvatarContentType`; JSON exposes `avatar` URL via ignored projection) |
+| `OrganizationModel` | `auth.organizations` (`Id` uuid PK) |
+| `CaseModel` | `cbaldur.cases` (`Id` uuid PK; `UserId` uuid FK; `CaseId` int per-user sequence; unique `(UserId, CaseId)`) |
+| `NoticeModel` | `cbaldur.notices` (`Id` uuid PK; `OrganizationId` uuid FK nullable) |
 
 Do not rely on `search_path` for AutoSync. Prefer `jsonb` for JSON columns and `text` for long strings (not MySQL `mediumtext` / `json`). Use `bytea` for binary blobs (avatars, password hashes/salts).
+
+### PK / FK UUID notes
+
+- Application assigns `Guid.NewGuid()` on insert for users, organizations, notices, and cases (no identity).
+- `RoleId` stays int. Per-user `CaseId` stays int.
+- AutoSync cannot alter PK/FK int → uuid; startup wipe drops legacy int-PK tables when detected (dev discard OK).
 
 ### Binary columns and JSON
 
