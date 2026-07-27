@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 14
+- **Total Sessions**: 15
 - **Last Active**: 2026-07-27
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~477 | Active |
+| `journal-1.md` | ~511 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 15 | 2026-07-27 | Plot UX fixes: animation, legends, expressions | `b920977`, `c35040a` | `feature/plot-ux-fixes` |
 | 14 | 2026-07-27 | All entity PKs to UUID | `51a5a73`, `c30742a` | `feature/pgsql` |
 | 13 | 2026-07-23 | Case UUID + BYTEA avatar | `5bab865`, `9b7eac7` | `feature/pgsql` |
 | 12 | 2026-07-23 | Migrate MySQL to PostgreSQL (auth/cbaldur schemas) | `82d32c2`, `27b02da` | `feature/pgsql` |
