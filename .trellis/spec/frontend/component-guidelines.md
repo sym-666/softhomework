@@ -54,6 +54,12 @@ Questions to answer:
 
 ## Common Mistakes
 
-<!-- Component-related mistakes your team has made -->
+### Common Mistake: `Label asChild` + `Button` for file inputs
 
-(To be filled by the team)
+**Symptom**: Clicking「选择文件」does nothing; the hidden `<input type="file">` never opens.
+
+**Cause**: With `asChild`, Radix Label renders as the Button. `htmlFor` on a `<button>` does not activate the associated file input (that only works on a real `<label>`).
+
+**Fix**: Use `ref` + `input.click()`, or a native `<label htmlFor>` wrapping non-Button content.
+
+**Prevention**: See [Add-Cases JSON Path](./add-cases-json.md) Wrong vs Correct.

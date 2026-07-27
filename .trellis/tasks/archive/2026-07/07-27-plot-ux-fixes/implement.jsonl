@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/case-plot-comparison.md", "reason": "Multi-case series key UUID vs UI caseId display contract"}
+{"file": ".trellis/spec/backend/plot-expression-contract.md", "reason": "Frontend-only formula evaluation; variables come from same CSV row"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Frontend quality bar while editing Case plot UX"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "UI component patterns for plot controls"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Across-times plot path spans frontend hook and PlotService"}

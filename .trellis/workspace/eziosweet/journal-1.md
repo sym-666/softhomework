@@ -475,3 +475,71 @@ Migrated users/orgs/notices PKs and FKs to UUID; JWT Guid claims; status bar sho
 ### Next Steps
 
 - None - task complete
+
+
+## Session 15: Plot UX fixes: animation, legends, expressions
+
+**Date**: 2026-07-27
+**Task**: Plot UX fixes: animation, legends, expressions
+**Branch**: `feature/plot-ux-fixes`
+
+### Summary
+
+Fixed profile animation via exact GetTimes CSV token matching; hid YF animation; case legends as #id @ time; clarified XY x/y/vN UX and formula labels; removed gfile from plot types. Specs updated for CSV resolution and gfile.
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `b920977` | (see git log) |
+| `c35040a` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
+
+
+## Session 16: Fix JSON add-cases upload/export defaults
+
+**Date**: 2026-07-27
+**Task**: Fix JSON add-cases upload/export defaults
+**Branch**: `feature/plot-ux-fixes`
+
+### Summary
+
+Repaired JSON create-case upload/download/sync, schema defaults, configName routing, and in-page createCase; documented add-cases JSON path contracts.
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `6d2538e` | (see git log) |
+| `49f3b13` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

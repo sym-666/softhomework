@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend guideline index for check-time compliance"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Quality bar for lint/type and forbidden patterns"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Verify JSON page no longer depends on obsolete inputSlice path"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Check typed contracts for panel data and createCase payload"}
