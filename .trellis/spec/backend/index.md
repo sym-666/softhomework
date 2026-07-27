@@ -20,6 +20,7 @@ This directory contains guidelines for backend development. Fill in each file wi
 | [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | To fill |
 | [Logging Guidelines](./logging-guidelines.md) | Structured logging, log levels | To fill |
 | [Plot Expression Contract](./plot-expression-contract.md) | Auxiliary plot-column API contract | Active |
+| [Plot CSV File Resolution](./plot-csv-file-resolution.md) | GetTimes token ↔ CSV file match for plot/animation | Active |
 | [Case List Payload Contract](./case-list-payload-contract.md) | Lightweight GetCases / GetCasesForAdmin DTO | Active |
 | [Case Status SSE Contract](./case-status-sse-contract.md) | SSE StatusEvents + RTK invalidate for list refresh | Active |
 | [JSON → Namelist Converter Contract](./json-to-nml-converter-contract.md) | Managed JsonToNmlConverter + pipeline convert step | Active |

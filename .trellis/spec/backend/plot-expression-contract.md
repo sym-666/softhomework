@@ -34,6 +34,15 @@ requested source header to the value from that exact CSV row. Omitted
 The backend reads raw numeric data only. It never accepts, parses, or executes
 formula text; expression validation and evaluation remain frontend concerns.
 
+Frontend alias rules (UI only):
+
+- Axes in formulas are always `x` and `y` (not physical header names).
+- Extra columns map to sequential `v1`, `v2`, … (skipping the current X/Y
+  headers), not raw header indices.
+- After apply, chart title is `{expression} vs {nowX}` and the Y-axis / single
+  legend use the raw expression text; do not rewrite aliases to physical names
+  in labels.
+
 ### 4. Validation & Error Matrix
 
 | Condition | Boundary behavior |
@@ -46,8 +55,8 @@ formula text; expression validation and evaluation remain frontend concerns.
 
 ### 5. Good/Base/Bad Cases
 
-- Good: a formula `x + v3` requests the source header mapped to `v3`; every
-  plotted row includes that header's same-row numeric value.
+- Good: a formula `x + v1` requests the source header mapped to sequential
+  `v1`; every plotted row includes that header's same-row numeric value.
 - Base: `x * 2` sends no `Variables` and uses the established plot endpoint
   behavior.
 - Bad: returning an auxiliary column from a separately fetched or mismatched

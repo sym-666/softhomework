@@ -58,3 +58,15 @@ series.
 
 **Prevention**: Any new plot mode that depends on multi-entity selection must
 ship state + sidebar controls + fetch gate in the same change.
+
+## Common Mistake: `gfile` as a plot type
+
+**Symptom**: Ribbon includes「G 文件 / Gfile」as a data type; chart stays empty
+despite `GetTimes` returning values.
+
+**Cause**: `gfile_*.dat` is EFIT text, not CSV. `PlotService` only reads CSVs;
+`GetGFile` exists for download/parse but is not wired to the chart.
+
+**Fix**: Keep `gfile` out of plot `typeOptions`. Download remains via the
+G-file button. Do not add `gfile` back to plotting without a dedicated
+GetGFile → chart path.
