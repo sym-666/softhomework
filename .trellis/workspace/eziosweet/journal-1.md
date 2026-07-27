@@ -441,3 +441,37 @@ Shipped per-user caseId with UUID case PK/API/disk paths, and avatar BYTEA via G
 ### Next Steps
 
 - None - task complete
+
+
+## Session 14: All entity PKs to UUID
+
+**Date**: 2026-07-27
+**Task**: All entity PKs to UUID
+**Branch**: `feature/pgsql`
+
+### Summary
+
+Migrated users/orgs/notices PKs and FKs to UUID; JWT Guid claims; status bar shows per-user caseId.
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `51a5a73` | (see git log) |
+| `c30742a` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
