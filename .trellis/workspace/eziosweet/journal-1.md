@@ -543,3 +543,36 @@ Repaired JSON create-case upload/download/sync, schema defaults, configName rout
 ### Next Steps
 
 - None - task complete
+
+
+## Session 17: Realtime Case Execution Output Log
+
+**Date**: 2026-08-26
+**Task**: Realtime Case Execution Output Log
+**Branch**: `feature/realtime-case-execution-log`
+
+### Summary
+
+支持算例提交后在详情页通过 SSE 实时流式监控超算 jobxlpt 日志输出与 Pipeline 步骤进度；Pipeline 执行共用长连接并在 submit 步骤并发增量 tail jobxlpt；计算完成后自动过渡至 ECharts 分析视图并在 Ribbon 工具栏提供历史日志弹窗；算例列表解除运行中点击限制；提交后自动跳转详情。
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `f603561` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

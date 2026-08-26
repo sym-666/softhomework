@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 16
-- **Last Active**: 2026-07-27
+- **Total Sessions**: 17
+- **Last Active**: 2026-08-26
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~545 | Active |
+| `journal-1.md` | ~578 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 17 | 2026-08-26 | Realtime Case Execution Output Log | `f603561` | `feature/realtime-case-execution-log` |
 | 16 | 2026-07-27 | Fix JSON add-cases upload/export defaults | `6d2538e`, `49f3b13` | `feature/plot-ux-fixes` |
 | 15 | 2026-07-27 | Plot UX fixes: animation, legends, expressions | `b920977`, `c35040a` | `feature/plot-ux-fixes` |
 | 14 | 2026-07-27 | All entity PKs to UUID | `51a5a73`, `c30742a` | `feature/pgsql` |
