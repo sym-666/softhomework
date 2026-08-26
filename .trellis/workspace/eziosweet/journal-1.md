@@ -576,3 +576,36 @@ Repaired JSON create-case upload/download/sync, schema defaults, configName rout
 ### Next Steps
 
 - None - task complete
+
+
+## Session 18: 优化算例实时预览界面并支持配置化主动终止计算任务
+
+**Date**: 2026-08-26
+**Task**: 优化算例实时预览界面并支持配置化主动终止计算任务
+**Branch**: `feature/realtime-case-execution-log`
+
+### Summary
+
+完成了算例提交后实时监控界面美化（PipelineStepStepper 5阶段指示器 + CaseLogTerminal 现代化终端控制台），实现了前后端协同的主动切断计算运行功能。取消逻辑全面接入 Pipeline Schema 与 YAML 配置化驱动（北京超算 Slurm 作业取消与湖北超算 PID 进程切断），支持独立的 'terminated' 状态与琥珀橙色视觉设计，并完善了切断前后 jobxlpt 日志的实时持久化与控制台回显查看。
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `342fbad` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
