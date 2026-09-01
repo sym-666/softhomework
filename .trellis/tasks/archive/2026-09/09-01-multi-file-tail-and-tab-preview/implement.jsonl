@@ -1,0 +1,3 @@
+{"file": ".trellis/spec/backend/case-status-sse-contract.md", "reason": "SSE connection and log event streaming conventions"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "UI component design and styling patterns"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Redux Toolkit and RTK Query state guidelines"}
