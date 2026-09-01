@@ -609,3 +609,36 @@ Repaired JSON create-case upload/download/sync, schema defaults, configName rout
 ### Next Steps
 
 - None - task complete
+
+
+## Session 19: 支持多文件 tail-file 追踪、多 Tab 控制台与高性能虚拟滚动渲染
+
+**Date**: 2026-09-01
+**Task**: 支持多文件 tail-file 追踪、多 Tab 控制台与高性能虚拟滚动渲染
+**Branch**: `feature/realtime-case-execution-log`
+
+### Summary
+
+扩展 pipeline tail_files 多文件追踪，支持后端并发 SFTP 增量读取与本地持久化；前端提供多 Tab 切换、轻量级虚拟滚动视口（Virtual Windowing）与 60ms SSE 微批次合并，彻底消除数万行日志卡顿；优化绘图页运行日志弹窗布局并移除冗余重置按钮。
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `6b00e0a` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
