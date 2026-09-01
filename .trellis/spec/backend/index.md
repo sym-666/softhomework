@@ -25,6 +25,7 @@ This directory contains guidelines for backend development. Fill in each file wi
 | [Case Status SSE Contract](./case-status-sse-contract.md) | SSE StatusEvents + RTK invalidate for list refresh | Active |
 | [JSON → Namelist Converter Contract](./json-to-nml-converter-contract.md) | Managed JsonToNmlConverter + pipeline convert step | Active |
 | [Case Execution Cancellation Contract](./case-execution-cancellation-contract.md) | Cooperative cancellation & termination lifecycle | Active |
+| [Case Execution Log Streaming Contract](./case-execution-log-streaming-contract.md) | Multi-file tailing & tabbed realtime log streaming | Active |
 
 ---
 
