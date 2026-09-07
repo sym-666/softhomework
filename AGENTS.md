@@ -55,11 +55,41 @@
 前端代码保持 TypeScript 严格模式，倾向于使用 hooks 共享逻辑，并遵循现有的文件夹组织结构。在 `cbaldur-frontend-next/` 中通过 `npm run format` 运行 Prettier 格式化代码，使用 `npm run lint` 检查代码规范。Tailwind 工具类应按断点顺序排列以提高可读性。
 
 ## 测试指南
-暂时无单元测试和集成测试
+- 后端：在 `cbaldur-backend/` 下运行 `dotnet test` 执行单元测试
+- 前端：在 `cbaldur-frontend-next/` 下运行 `npm run lint` 和 `npm run build` 校验代码规范与编译
 
 ## 提交和拉取请求指南
-commit 格式参考 Conventional Commits
+- **Commit 规范**：遵循 Conventional Commits（例如 `feat(case): ...`、`fix(auth): ...`、`chore: ...`）。
+- **分支命名**：`feature/简短描述` 或 `fix/简短描述`。
+- **Pull Request 描述规范**：PR 需采用结构化模板，清晰总结从基础分支到目标特性的全量演进：
 
+```markdown
+## 📌 全量变更概述 (Overview)
+简述本次 PR 解决的核心问题、业务目标与系统改造范围。
+
+---
+
+## 🚀 核心特性与系统演进 (Core Features)
+分模块/主题系统化阐述核心演进：
+1. **模块/功能名称**：
+   - **子功能点**：具体实现逻辑、协议/契约规范、并发/状态设计等。
+
+---
+
+## 📁 关键修改文件清单 (Key Modified Files)
+| 模块 | 核心文件 | 变更说明 |
+| :--- | :--- | :--- |
+| **前端组件/路由** | `src/components/...` | 交互与组件实现 |
+| **后端控制器/服务** | `Services/...` | API 路由与业务逻辑 |
+| **数据契约/配置** | `Schemas/...` | 模型、YAML 与 JSON Schema 定义 |
+| **测试套件** | `*.Tests/...` | 单元测试用例 |
+
+---
+
+## 🧪 验证结论 (Verification)
+- 后端测试：`dotnet test` 单元测试通过情况。
+- 前端检查：`npm run lint` 检查及 `npm run build` 编译打包情况。
+```
 
 ## 安全性和配置提示
 切勿提交真实的密钥；占位符凭据位于 `cbaldur-sandbox/` 和 `config.json` 中。通过用户机密或环境变量加载敏感值。在公开新端点之前，请检查 CORS 和身份验证设置，并确保生成的 OpenAPI 文件省略敏感架构。

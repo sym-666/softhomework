@@ -543,3 +543,102 @@ Repaired JSON create-case upload/download/sync, schema defaults, configName rout
 ### Next Steps
 
 - None - task complete
+
+
+## Session 17: Realtime Case Execution Output Log
+
+**Date**: 2026-08-26
+**Task**: Realtime Case Execution Output Log
+**Branch**: `feature/realtime-case-execution-log`
+
+### Summary
+
+支持算例提交后在详情页通过 SSE 实时流式监控超算 jobxlpt 日志输出与 Pipeline 步骤进度；Pipeline 执行共用长连接并在 submit 步骤并发增量 tail jobxlpt；计算完成后自动过渡至 ECharts 分析视图并在 Ribbon 工具栏提供历史日志弹窗；算例列表解除运行中点击限制；提交后自动跳转详情。
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `f603561` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
+
+
+## Session 18: 优化算例实时预览界面并支持配置化主动终止计算任务
+
+**Date**: 2026-08-26
+**Task**: 优化算例实时预览界面并支持配置化主动终止计算任务
+**Branch**: `feature/realtime-case-execution-log`
+
+### Summary
+
+完成了算例提交后实时监控界面美化（PipelineStepStepper 5阶段指示器 + CaseLogTerminal 现代化终端控制台），实现了前后端协同的主动切断计算运行功能。取消逻辑全面接入 Pipeline Schema 与 YAML 配置化驱动（北京超算 Slurm 作业取消与湖北超算 PID 进程切断），支持独立的 'terminated' 状态与琥珀橙色视觉设计，并完善了切断前后 jobxlpt 日志的实时持久化与控制台回显查看。
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `342fbad` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete
+
+
+## Session 19: 支持多文件 tail-file 追踪、多 Tab 控制台与高性能虚拟滚动渲染
+
+**Date**: 2026-09-01
+**Task**: 支持多文件 tail-file 追踪、多 Tab 控制台与高性能虚拟滚动渲染
+**Branch**: `feature/realtime-case-execution-log`
+
+### Summary
+
+扩展 pipeline tail_files 多文件追踪，支持后端并发 SFTP 增量读取与本地持久化；前端提供多 Tab 切换、轻量级虚拟滚动视口（Virtual Windowing）与 60ms SSE 微批次合并，彻底消除数万行日志卡顿；优化绘图页运行日志弹窗布局并移除冗余重置按钮。
+
+### Main Changes
+
+- Detailed change bullets were not supplied; see the summary above.
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `6b00e0a` | (see git log) |
+
+### Testing
+
+- Validation was not recorded for this session.
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- None - task complete

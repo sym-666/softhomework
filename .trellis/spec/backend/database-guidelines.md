@@ -29,14 +29,14 @@ Do not rely on `search_path` for AutoSync. Prefer `jsonb` for JSON columns and `
 
 - Application assigns `Guid.NewGuid()` on insert for users, organizations, notices, and cases (no identity).
 - `RoleId` stays int. Per-user `CaseId` stays int.
-- AutoSync cannot alter PK/FK int → uuid; startup wipe drops legacy int-PK tables when detected (dev discard OK).
+- AutoSync cannot alter PK/FK int → uuid; schemas must be maintained through standard database migration tools rather than destructive startup scripts.
 
 ### Binary columns and JSON
 
 - Map blobs as `byte[]` with `[Column(DbType = "bytea")]` (or FreeSql default for `byte[]`).
 - Always `[JsonIgnore]` on `byte[]` entity fields (`Avatar`, `PasswordHash`, `PasswordSalt`) so list/detail JSON never ships Base64.
 - Avatar API: persist bytes + MIME; serve via `GET /api/User/Avatar`; project `avatar` as a same-origin URL (`/api/User/Avatar?v=…`), never a data URI in DB or JSON.
-- FreeSql AutoSync may not coerce `text` → `bytea`; drop the old column at startup (dev wipe OK) before sync recreates it.
+- Column type coercions should be handled through migration scripts.
 
 ## Query Patterns
 

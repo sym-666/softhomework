@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 16
-- **Last Active**: 2026-07-27
+- **Total Sessions**: 19
+- **Last Active**: 2026-09-01
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~545 | Active |
+| `journal-1.md` | ~644 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,9 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 19 | 2026-09-01 | 支持多文件 tail-file 追踪、多 Tab 控制台与高性能虚拟滚动渲染 | `6b00e0a` | `feature/realtime-case-execution-log` |
+| 18 | 2026-08-26 | 优化算例实时预览界面并支持配置化主动终止计算任务 | `342fbad` | `feature/realtime-case-execution-log` |
+| 17 | 2026-08-26 | Realtime Case Execution Output Log | `f603561` | `feature/realtime-case-execution-log` |
 | 16 | 2026-07-27 | Fix JSON add-cases upload/export defaults | `6d2538e`, `49f3b13` | `feature/plot-ux-fixes` |
 | 15 | 2026-07-27 | Plot UX fixes: animation, legends, expressions | `b920977`, `c35040a` | `feature/plot-ux-fixes` |
 | 14 | 2026-07-27 | All entity PKs to UUID | `51a5a73`, `c30742a` | `feature/pgsql` |
