@@ -3,9 +3,8 @@
 CBaldur 是一个集成前后端的案例管理与仿真平台，包含后端（ASP.NET Core 8）、前端（React 19+ Tailwind CSS + TypeScript）及沙箱环境。支持案例管理、用户管理、仿真任务、数据可视化等功能。
 
 - `cbaldur-backend/` 后端服务，基于 .NET 8
-- `cbaldur-frontend-next/` 前端项目，基于 React 19
-- `cbaldur-sandbox/` 代码运行沙箱
-- 根目录包含 Docker 部署相关内容（`docker-compose.yml`、`config.json` 等）
+- `cbaldur-frontend/` 前端项目，基于 React 19
+- `docker/` Docker 容器编排与部署配置（`docker-compose.yml`、`nginx.conf`、数据库初始化脚本、字体文件等）
 
 ## AI 辅助编程使用须知
 
@@ -44,7 +43,7 @@ npm install -g vlt
 
 ### 前端
 
-1. 进入 `cbaldur-frontend-next` 目录。
+1. 进入 `cbaldur-frontend` 目录。
 
 2. 安装依赖：
 
@@ -64,18 +63,15 @@ npm install -g vlt
    vlt r build
    ```
 
-### 沙箱
-
-沙箱环境和字体文件位于 `cbaldur-sandbox` 目录，供后端/前端调用。
-
 ### Docker 部署
 
 ```bash
+cd docker
 cp .env.example .env   # 填写 POSTGRES_PASSWORD、JWT_KEY 等
 docker compose up -d --build
 ```
 
-前端、后端、PostgreSQL、Memcached 一键启动，详见 [DEPLOY.md](DEPLOY.md)。
+前端、后端、PostgreSQL、Memcached 一键启动，详见 [docker/DEPLOY.md](docker/DEPLOY.md)。
 
 ## 配置说明
 
