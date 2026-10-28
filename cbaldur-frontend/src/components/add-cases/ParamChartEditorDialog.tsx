@@ -447,8 +447,8 @@ const ParamChartEditorDialog: React.FC<ParamChartEditorDialogProps> = ({
         if (!seriesMeta) return;
 
         const raw = params.value;
-        let x = 0;
-        let y = 0;
+        let x: number;
+        let y: number;
         if (Array.isArray(raw) && raw.length >= 2) {
           x = Number(raw[0]);
           y = Number(raw[1]);

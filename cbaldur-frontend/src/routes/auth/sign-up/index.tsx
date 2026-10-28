@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
-import { Github } from 'lucide-react';
+import { GithubIcon } from '@/components/icons/GithubIcon';
 import { toast } from 'sonner';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Button } from '@/shadcn/components/ui/button';
@@ -380,7 +380,7 @@ export const SignUp: React.FC = () => {
             onClick={handleGithubLogin}
             className="flex items-center justify-center"
           >
-            <Github className="w-4 h-4 mr-2" />
+            <GithubIcon className="w-4 h-4 mr-2" />
             <span><FormattedMessage id="auth.signUp.githubLogin" /></span>
           </Button>
         </div>
