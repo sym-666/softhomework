@@ -68,6 +68,15 @@ npm install -g vlt
 
 沙箱环境和字体文件位于 `cbaldur-sandbox` 目录，供后端/前端调用。
 
+### Docker 部署
+
+```bash
+cp .env.example .env   # 填写 POSTGRES_PASSWORD、JWT_KEY 等
+docker compose up -d --build
+```
+
+前端、后端、PostgreSQL、Memcached 一键启动，详见 [DEPLOY.md](DEPLOY.md)。
+
 ## 配置说明
 
 - 后端配置文件：`cbaldur-backend/appsettings.json`

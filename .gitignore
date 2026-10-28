@@ -14,3 +14,9 @@ openspec
 .trellis/.cache/
 
 # OpenCode: node_modules stays local via .opencode/.gitignore
+
+# Docker deployment（仅根目录，避免误伤 cbaldur-backend/data 等）
+/.env
+/data/
+/postgres/
+/logs/
