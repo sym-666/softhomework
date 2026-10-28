@@ -49,6 +49,8 @@ services:
       Ai__OpenAI__BaseUrl: ${AI_OPENAI_BASE_URL:-https://api.deepseek.com/v1}
       Ai__OpenAI__ModelId: ${AI_OPENAI_MODEL_ID:-}
       Ai__OpenAI__ApiKey: ${AI_OPENAI_API_KEY:-}
+      Ai__OpenAI__FastReasoningEffort: ${AI_OPENAI_FAST_REASONING_EFFORT:-none}
+      Ai__OpenAI__DeepReasoningEffort: ${AI_OPENAI_DEEP_REASONING_EFFORT:-high}
       # 论文语义检索向量模型（可选，不配置则用关键词检索）
       Ai__Embedding__BaseUrl: ${AI_EMBEDDING_BASE_URL:-}
       Ai__Embedding__ModelId: ${AI_EMBEDDING_MODEL_ID:-}
