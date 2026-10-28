@@ -1,0 +1,26 @@
+.vscode
+openspec
+.idea
+*.key
+
+# Claude: track project scaffolding; keep local-only overrides private
+.claude/settings.local.json
+
+# Trellis: track tasks/specs/journal/scripts; ignore local runtime & backups
+.trellis/.backup-*/
+.trellis/worktrees/
+.trellis/.template-hashes.json
+.trellis/.runtime/
+.trellis/.cache/
+
+# OpenCode: node_modules stays local via .opencode/.gitignore
+
+# Docker deployment（仅根目录及 docker/，避免误伤 cbaldur-backend/data 等）
+/.env
+/data/
+/postgres/
+/logs/
+/docker/.env
+/docker/data/
+/docker/postgres/
+/docker/logs/

@@ -1,0 +1,390 @@
+import React, { useState } from 'react';
+import { useLocation } from 'wouter';
+import { GithubIcon } from '@/components/icons/GithubIcon';
+import { toast } from 'sonner';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { Button } from '@/shadcn/components/ui/button';
+import { Input } from '@/shadcn/components/ui/input';
+import { Label } from '@/shadcn/components/ui/label';
+import {
+  useRegisterMutation,
+  useSendVerificationCodeMutation,
+  useLazyGithubLoginQuery,
+} from '@/redux/api/user';
+
+// 表单数据类型
+interface FormData {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  verificationCode: string;
+  roleId: number;
+}
+
+// 错误信息类型
+interface FormErrors {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  verificationCode: string;
+}
+
+export const SignUp: React.FC = () => {
+  const [, setLocation] = useLocation();
+  const intl = useIntl();
+
+  // 表单状态
+  const [form, setForm] = useState<FormData>({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    verificationCode: '',
+    roleId: 1,
+  });
+
+  const [errors, setErrors] = useState<FormErrors>({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    verificationCode: '',
+  });
+
+  const [cooldown, setCooldown] = useState(0);
+
+  // Redux mutations
+  const [register, { isLoading }] = useRegisterMutation();
+  const [sendVerificationCode, { isLoading: sendingCode }] =
+    useSendVerificationCodeMutation();
+  const [triggerGithubLogin] = useLazyGithubLoginQuery();
+
+  // 邮箱格式验证
+  const isValidEmail = (email: string): boolean => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  // 表单验证
+  const validateForm = (): boolean => {
+    let isValid = true;
+    const newErrors: FormErrors = {
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      verificationCode: '',
+    };
+
+    if (!form.username) {
+      newErrors.username = intl.formatMessage({ id: 'auth.signUp.usernameErrorRequired' });
+      isValid = false;
+    } else if (form.username.length < 3) {
+      newErrors.username = intl.formatMessage({ id: 'auth.signUp.usernameErrorLength' });
+      isValid = false;
+    }
+
+    if (!form.email) {
+      newErrors.email = intl.formatMessage({ id: 'auth.signUp.emailErrorRequired' });
+      isValid = false;
+    } else if (!isValidEmail(form.email)) {
+      newErrors.email = intl.formatMessage({ id: 'auth.signUp.emailErrorInvalid' });
+      isValid = false;
+    }
+
+    if (!form.password) {
+      newErrors.password = intl.formatMessage({ id: 'auth.signUp.passwordErrorRequired' });
+      isValid = false;
+    } else if (form.password.length < 8) {
+      newErrors.password = intl.formatMessage({ id: 'auth.signUp.passwordErrorLength' });
+      isValid = false;
+    }
+
+    if (!form.confirmPassword) {
+      newErrors.confirmPassword = intl.formatMessage({ id: 'auth.signUp.confirmPasswordErrorRequired' });
+      isValid = false;
+    } else if (form.confirmPassword !== form.password) {
+      newErrors.confirmPassword = intl.formatMessage({ id: 'auth.signUp.confirmPasswordErrorMismatch' });
+      isValid = false;
+    }
+
+    if (!form.verificationCode) {
+      newErrors.verificationCode = intl.formatMessage({ id: 'auth.signUp.verificationCodeError' });
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  // 处理输入变化
+  const handleInputChange =
+    (field: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setForm((prev) => ({
+        ...prev,
+        [field]: e.target.value,
+      }));
+
+      // 清除对应字段的错误信息
+      if (errors[field as keyof FormErrors]) {
+        setErrors((prev) => ({
+          ...prev,
+          [field]: '',
+        }));
+      }
+    };
+
+  // 发送验证码
+  const handleSendVerificationCode = async () => {
+    if (!form.email) {
+      setErrors((prev) => ({ ...prev, email: intl.formatMessage({ id: 'auth.signUp.emailErrorBeforeSend' }) }));
+      return;
+    }
+
+    if (!isValidEmail(form.email)) {
+      setErrors((prev) => ({ ...prev, email: intl.formatMessage({ id: 'auth.signUp.emailErrorInvalid' }) }));
+      return;
+    }
+
+    try {
+      const result = await sendVerificationCode({ email: form.email }).unwrap();
+
+      if (result.success) {
+        toast.success(intl.formatMessage({ id: 'auth.signUp.sendCodeSuccess' }));
+        // 启动倒计时
+        setCooldown(60);
+        const timer = setInterval(() => {
+          setCooldown((prev) => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      } else {
+        toast.error(intl.formatMessage({ id: 'auth.signUp.sendCodeError' }));
+      }
+    } catch (error) {
+      toast.error(intl.formatMessage({ id: 'auth.signUp.sendCodeError' }));
+      console.error('发送验证码失败:', error);
+    }
+  };
+
+  // 处理注册
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    try {
+      const result = await register({
+        username: form.username,
+        email: form.email,
+        password: form.password,
+        verificationCode: form.verificationCode,
+        roleId: form.roleId,
+      }).unwrap();
+
+      if (result.success) {
+        toast.success(intl.formatMessage({ id: 'auth.signUp.successToast' }));
+        // 注册成功，跳转到登录页面
+        setTimeout(() => {
+          setLocation('/auth/sign-in');
+        }, 1500);
+      } else {
+        toast.error(intl.formatMessage({ id: 'auth.signUp.failureToast' }));
+      }
+    } catch (error) {
+      toast.error(intl.formatMessage({ id: 'auth.signUp.networkError' }));
+      console.error('注册失败:', error);
+    }
+  };
+
+  // 处理GitHub登录
+  const handleGithubLogin = async () => {
+    try {
+      const result = await triggerGithubLogin(
+        window.location.origin + '/auth/github/callback',
+      ).unwrap();
+      if (result.url) {
+        window.location.href = result.url;
+      }
+    } catch (error) {
+      toast.error(intl.formatMessage({ id: 'auth.signUp.githubError' }));
+      console.error('GitHub登录跳转失败:', error);
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-background py-8">
+      <div className="w-full max-w-md bg-card rounded-lg border border-border shadow-lg p-6">
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-6">
+          <img
+            src="https://s2.loli.net/2024/12/04/nCkNI1J5AmgQ9l6.png"
+            alt="Logo"
+            className="h-20 mb-2"
+          />
+        </div>
+
+        {/* 注册表单 */}
+        <form onSubmit={handleRegister} className="space-y-4">
+          {/* 用户名 */}
+          <div className="space-y-2">
+            <Label htmlFor="username">
+              <FormattedMessage id="auth.signUp.usernameLabel" /> <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="username"
+              type="text"
+              value={form.username}
+              onChange={handleInputChange('username')}
+              placeholder={intl.formatMessage({ id: 'auth.signUp.usernamePlaceholder' })}
+              className={errors.username ? 'border-destructive' : ''}
+            />
+            {errors.username && (
+              <span className="text-destructive text-sm">
+                {errors.username}
+              </span>
+            )}
+          </div>
+
+          {/* 邮箱 */}
+          <div className="space-y-2">
+            <Label htmlFor="email">
+              <FormattedMessage id="auth.signUp.emailLabel" /> <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              value={form.email}
+              onChange={handleInputChange('email')}
+              placeholder={intl.formatMessage({ id: 'auth.signUp.emailPlaceholder' })}
+              className={errors.email ? 'border-destructive' : ''}
+            />
+            {errors.email && (
+              <span className="text-destructive text-sm">{errors.email}</span>
+            )}
+          </div>
+
+          {/* 密码 */}
+          <div className="space-y-2">
+            <Label htmlFor="password">
+              <FormattedMessage id="auth.signUp.passwordLabel" /> <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              value={form.password}
+              onChange={handleInputChange('password')}
+              placeholder={intl.formatMessage({ id: 'auth.signUp.passwordPlaceholder' })}
+              className={errors.password ? 'border-destructive' : ''}
+            />
+            {errors.password && (
+              <span className="text-destructive text-sm">
+                {errors.password}
+              </span>
+            )}
+          </div>
+
+          {/* 确认密码 */}
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">
+              <FormattedMessage id="auth.signUp.confirmPasswordLabel" /> <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={form.confirmPassword}
+              onChange={handleInputChange('confirmPassword')}
+              placeholder={intl.formatMessage({ id: 'auth.signUp.confirmPasswordPlaceholder' })}
+              className={errors.confirmPassword ? 'border-destructive' : ''}
+            />
+            {errors.confirmPassword && (
+              <span className="text-destructive text-sm">
+                {errors.confirmPassword}
+              </span>
+            )}
+          </div>
+
+          {/* 验证码 */}
+          <div className="space-y-2">
+            <Label htmlFor="verificationCode">
+              <FormattedMessage id="auth.signUp.verificationCodeLabel" /> <span className="text-destructive">*</span>
+            </Label>
+            <div className="flex space-x-2">
+              <Input
+                id="verificationCode"
+                type="text"
+                value={form.verificationCode}
+                onChange={handleInputChange('verificationCode')}
+                placeholder={intl.formatMessage({ id: 'auth.signUp.verificationCodePlaceholder' })}
+                className={`flex-1 ${errors.verificationCode ? 'border-destructive' : ''}`}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleSendVerificationCode}
+                disabled={cooldown > 0 || sendingCode}
+                className="whitespace-nowrap"
+              >
+                {cooldown > 0
+                  ? intl.formatMessage({ id: 'auth.signUp.sendCodeCooldown' }, { count: cooldown })
+                  : intl.formatMessage({ id: 'auth.signUp.sendCode' })}
+              </Button>
+            </div>
+            {errors.verificationCode && (
+              <span className="text-destructive text-sm">
+                {errors.verificationCode}
+              </span>
+            )}
+          </div>
+
+          {/* 注册按钮 */}
+          <div className="pt-4">
+            <Button type="submit" disabled={isLoading} className="w-full">
+              {isLoading ? intl.formatMessage({ id: 'auth.signUp.submitting' }) : intl.formatMessage({ id: 'auth.signUp.submit' })}
+            </Button>
+          </div>
+
+          {/* 登录链接 */}
+          <div className="text-center mt-4">
+            <span className="text-sm text-muted-foreground"><FormattedMessage id="auth.signUp.hasAccount" /> </span>
+            <button
+              type="button"
+              onClick={() => setLocation('/auth/sign-in')}
+              className="text-sm text-primary hover:underline"
+            >
+              <FormattedMessage id="auth.signUp.signInLink" />
+            </button>
+          </div>
+        </form>
+
+        {/* 社交登录分隔线 */}
+        <div className="my-6 flex items-center">
+          <div className="flex-grow border-t border-border"></div>
+          <div className="px-4 text-sm text-muted-foreground">
+            <FormattedMessage id="auth.signUp.socialDivider" />
+          </div>
+          <div className="flex-grow border-t border-border"></div>
+        </div>
+
+        {/* GitHub登录按钮 */}
+        <div className="flex justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleGithubLogin}
+            className="flex items-center justify-center"
+          >
+            <GithubIcon className="w-4 h-4 mr-2" />
+            <span><FormattedMessage id="auth.signUp.githubLogin" /></span>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};

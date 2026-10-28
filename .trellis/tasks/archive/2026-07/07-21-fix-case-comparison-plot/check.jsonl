@@ -1,0 +1,3 @@
+{"file": ".trellis/spec/backend/plot-expression-contract.md", "reason": "Verify case-mode plot still respects across-cases Variables contract"}
+{"file": ".trellis/spec/backend/case-list-payload-contract.md", "reason": "Verify picker uses list DTO only, not full CaseModel"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend quality expectations during check"}

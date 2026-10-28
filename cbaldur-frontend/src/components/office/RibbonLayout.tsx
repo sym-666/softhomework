@@ -1,0 +1,405 @@
+import React, { useState, useMemo } from 'react';
+import { useLocation } from 'wouter';
+import {
+  Plus,
+  FileJson,
+  FileText,
+  Settings,
+  User,
+  LogOut,
+  LayoutDashboard,
+  List,
+  RefreshCw,
+  Search,
+  Bell,
+  ChevronUp,
+  ChevronDown,
+} from 'lucide-react';
+import { useIntl } from 'react-intl';
+import { useGetCurrentUserQuery, useLogoutMutation } from '@/redux/api/user';
+import { useGetNoticesQuery } from '@/redux/api/notice';
+import { useGetCaseQuery } from '@/redux/api/case';
+import { RibbonTab } from './RibbonTab';
+import { RibbonGroup } from './RibbonGroup';
+import { RibbonButton } from './RibbonButton';
+import { StatusBar } from './StatusBar';
+import {
+  RibbonCollapseProvider,
+  useRibbonCollapse,
+} from './RibbonCollapseContext';
+
+interface RibbonLayoutProps {
+  children: React.ReactNode;
+}
+
+type TabId = 'home' | 'cases' | 'analyze' | 'admin' | 'user' | 'papers' | 'forum';
+
+const getActiveTabFromPath = (path: string): TabId => {
+  if (path.startsWith('/cases/') && path.split('/').length > 3)
+    return 'analyze';
+  if (path.startsWith('/cases') || path.startsWith('/add-cases'))
+    return 'cases';
+  if (path.startsWith('/sadmin')) return 'admin';
+  if (path.startsWith('/user')) return 'user';
+  if (path.startsWith('/papers')) return 'papers';
+  if (path.startsWith('/forum')) return 'forum';
+  return 'home';
+};
+
+const pathWithoutQuery = (path: string) => path.split('?')[0] ?? path;
+
+const isCaseListPath = (path: string) => {
+  const p = pathWithoutQuery(path);
+  return p === '/cases';
+};
+
+const isAddCasesJsonPath = (path: string) => {
+  const p = pathWithoutQuery(path);
+  return p === '/add-cases/json' || p.startsWith('/add-cases/json/');
+};
+
+const isAddCasesNamelistPath = (path: string) =>
+  pathWithoutQuery(path) === '/add-cases/namelist';
+
+const isCreateCasePath = (path: string) => {
+  const p = pathWithoutQuery(path);
+  if (!p.startsWith('/add-cases')) return false;
+  if (isAddCasesJsonPath(p) || isAddCasesNamelistPath(p)) return false;
+  return true;
+};
+
+export const RibbonLayout: React.FC<RibbonLayoutProps> = ({ children }) => (
+  <RibbonCollapseProvider>
+    <RibbonLayoutInner>{children}</RibbonLayoutInner>
+  </RibbonCollapseProvider>
+);
+
+const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
+  const [location, setLocation] = useLocation();
+  const intl = useIntl();
+  const { data: user } = useGetCurrentUserQuery();
+  const { data: notices = [] } = useGetNoticesQuery();
+  const [logout] = useLogoutMutation();
+  const { collapsed, toggle } = useRibbonCollapse();
+
+  const activeTab = getActiveTabFromPath(location);
+  const [ribbonTab, setRibbonTab] = useState<TabId>(activeTab);
+
+  React.useEffect(() => {
+    setRibbonTab(getActiveTabFromPath(location));
+  }, [location]);
+
+  const handleTabClick = (tab: TabId) => {
+    setRibbonTab(tab);
+    const paths: Record<TabId, string> = {
+      home: '/',
+      cases: '/cases',
+      analyze: location,
+      admin: '/sadmin',
+      user: '/user',
+      papers: '/papers',
+      forum: '/forum',
+    };
+    if (tab !== 'analyze' && tab !== ribbonTab) {
+      setLocation(paths[tab]);
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      await logout().unwrap();
+      window.location.href = '/auth/sign-in';
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  const isAnalyzeView = activeTab === 'analyze';
+
+  const caseUuidFromPath = useMemo(() => {
+    if (!isAnalyzeView) return undefined;
+    const parts = pathWithoutQuery(location).split('/');
+    // /cases/:userId/:caseUuid
+    return parts.length >= 4 ? parts[3] : undefined;
+  }, [isAnalyzeView, location]);
+
+  const { data: statusCase } = useGetCaseQuery(caseUuidFromPath!, {
+    skip: !caseUuidFromPath,
+  });
+
+  const caseInfo =
+    statusCase?.caseId != null
+      ? intl.formatMessage({ id: 'status.caseInfo' }, { id: statusCase.caseId })
+      : undefined;
+
+  return (
+    <div className="h-screen flex flex-col overflow-hidden bg-white">
+      {/* Title Bar */}
+      <div className="h-8 bg-[var(--office-blue)] flex items-center px-3 shrink-0 select-none">
+        <div className="flex items-center gap-2 flex-1">
+          <img
+            src="https://s2.loli.net/2024/12/04/nCkNI1J5AmgQ9l6.png"
+            alt="Logo"
+            className="h-4 w-auto brightness-0 invert"
+          />
+          <span className="text-white text-xs font-medium tracking-wide">
+            CBaldur Simulation Platform
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {user && (
+            <button
+              onClick={() => setLocation('/user')}
+              className="flex items-center gap-1 text-white/90 hover:text-white text-xs cursor-pointer"
+            >
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt=""
+                  className="w-4 h-4 rounded-full"
+                />
+              ) : (
+                <User className="w-3.5 h-3.5" />
+              )}
+              <span>{user.username}</span>
+            </button>
+          )}
+          <button
+            onClick={signOut}
+            className="text-white/70 hover:text-white cursor-pointer p-0.5"
+            title={intl.formatMessage({ id: 'sider.logout' })}
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Ribbon Tabs Row */}
+      <div className="flex items-end bg-[var(--ribbon-bg)] border-b border-[var(--ribbon-separator)] shrink-0">
+        <RibbonTab
+          label={intl.formatMessage({ id: 'ribbon.tab.home' })}
+          active={ribbonTab === 'home'}
+          onClick={() => handleTabClick('home')}
+        />
+        <RibbonTab
+          label={intl.formatMessage({ id: 'ribbon.tab.cases' })}
+          active={ribbonTab === 'cases'}
+          onClick={() => handleTabClick('cases')}
+        />
+        {isAnalyzeView && (
+          <RibbonTab
+            label={intl.formatMessage({ id: 'ribbon.tab.analyze' })}
+            active={ribbonTab === 'analyze'}
+            contextual
+            onClick={() => handleTabClick('analyze')}
+          />
+        )}
+        {user && user.roleId >= 2 && (
+          <RibbonTab
+            label={intl.formatMessage({ id: 'ribbon.tab.admin' })}
+            active={ribbonTab === 'admin'}
+            onClick={() => handleTabClick('admin')}
+          />
+        )}
+        <RibbonTab
+          label={intl.formatMessage({ id: 'ribbon.tab.settings' })}
+          active={ribbonTab === 'user'}
+          onClick={() => handleTabClick('user')}
+        />
+        <RibbonTab
+          label={intl.formatMessage({ id: 'ribbon.tab.papers' })}
+          active={ribbonTab === 'papers'}
+          onClick={() => handleTabClick('papers')}
+        />
+        <RibbonTab
+          label={intl.formatMessage({ id: 'ribbon.tab.forum' })}
+          active={ribbonTab === 'forum'}
+          onClick={() => handleTabClick('forum')}
+        />
+
+        <div className="flex-1" />
+        <div className="px-3 py-1 flex items-center gap-1">
+          <div className="relative">
+            <Search className="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder={intl.formatMessage({
+                id: 'ribbon.search.placeholder',
+              })}
+              className="h-6 w-48 bg-white border border-gray-300 rounded-sm pl-7 pr-2 text-xs focus:outline-none focus:border-[var(--office-blue)] focus:ring-1 focus:ring-[var(--office-blue)]/30"
+            />
+          </div>
+          {(ribbonTab === 'home' ||
+            ribbonTab === 'cases' ||
+            ribbonTab === 'user' ||
+            ribbonTab === 'analyze') && (
+            <button
+              type="button"
+              onClick={toggle}
+              className="h-6 w-6 flex items-center justify-center rounded-sm text-gray-500 hover:bg-white/80 hover:text-[var(--office-blue)] cursor-pointer"
+              title={intl.formatMessage({
+                id: collapsed
+                  ? 'ribbon.collapse.expand'
+                  : 'ribbon.collapse.collapse',
+              })}
+              aria-label={intl.formatMessage({
+                id: collapsed
+                  ? 'ribbon.collapse.expand'
+                  : 'ribbon.collapse.collapse',
+              })}
+              aria-expanded={!collapsed}
+            >
+              {collapsed ? (
+                <ChevronDown className="w-3.5 h-3.5" />
+              ) : (
+                <ChevronUp className="w-3.5 h-3.5" />
+              )}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Ribbon Content - hidden for tabs that use their own in-page toolbar */}
+      {!collapsed &&
+        ribbonTab !== 'admin' &&
+        ribbonTab !== 'forum' &&
+        ribbonTab !== 'papers' &&
+        ribbonTab !== 'analyze' && (
+          <div className="bg-[var(--ribbon-content-bg)] border-b border-[var(--ribbon-separator)] shrink-0 min-h-[68px] flex items-stretch px-1">
+            {ribbonTab === 'home' && (
+              <HomeRibbon location={location} onNavigate={setLocation} />
+            )}
+            {ribbonTab === 'cases' && (
+              <CasesRibbon location={location} onNavigate={setLocation} />
+            )}
+            {ribbonTab === 'user' && <UserRibbon />}
+          </div>
+        )}
+
+      {/* Content Area */}
+      <div className="flex-1 overflow-auto bg-[#f5f5f5]">
+        <div className="p-4 min-h-full flex flex-col">{children}</div>
+      </div>
+
+      {/* Status Bar */}
+      <StatusBar
+        userInfo={user?.username}
+        noticeCount={notices.length}
+        caseInfo={caseInfo}
+      />
+    </div>
+  );
+};
+
+const HomeRibbon: React.FC<{
+  location: string;
+  onNavigate: (path: string) => void;
+}> = ({ location, onNavigate }) => {
+  const intl = useIntl();
+  return (
+    <>
+      <RibbonGroup title={intl.formatMessage({ id: 'ribbon.group.view' })}>
+        <RibbonButton
+          icon={LayoutDashboard}
+          label={intl.formatMessage({ id: 'ribbon.button.dashboard' })}
+          active={pathWithoutQuery(location) === '/'}
+        />
+        <RibbonButton
+          icon={List}
+          label={intl.formatMessage({ id: 'ribbon.button.caseList' })}
+          active={isCaseListPath(location)}
+          onClick={() => onNavigate('/cases')}
+        />
+      </RibbonGroup>
+      <RibbonGroup title={intl.formatMessage({ id: 'ribbon.group.new' })}>
+        <RibbonButton
+          icon={Plus}
+          label={intl.formatMessage({ id: 'ribbon.button.newCase' })}
+          active={isCreateCasePath(location)}
+          onClick={() => onNavigate('/add-cases')}
+        />
+        <RibbonButton
+          icon={FileJson}
+          label={intl.formatMessage({ id: 'ribbon.button.importJson' })}
+          active={isAddCasesJsonPath(location)}
+          onClick={() => onNavigate('/add-cases/json/baldur')}
+        />
+        <RibbonButton
+          icon={FileText}
+          label={intl.formatMessage({ id: 'ribbon.button.importNamelist' })}
+          active={isAddCasesNamelistPath(location)}
+          onClick={() => onNavigate('/add-cases/namelist')}
+        />
+      </RibbonGroup>
+      <RibbonGroup
+        title={intl.formatMessage({ id: 'ribbon.group.notifications' })}
+      >
+        <RibbonButton
+          icon={Bell}
+          label={intl.formatMessage({ id: 'ribbon.button.notices' })}
+        />
+      </RibbonGroup>
+    </>
+  );
+};
+
+const CasesRibbon: React.FC<{
+  location: string;
+  onNavigate: (path: string) => void;
+}> = ({ location, onNavigate }) => {
+  const intl = useIntl();
+  return (
+    <>
+      <RibbonGroup title={intl.formatMessage({ id: 'ribbon.group.view' })}>
+        <RibbonButton
+          icon={List}
+          label={intl.formatMessage({ id: 'ribbon.button.caseList' })}
+          active={isCaseListPath(location)}
+          onClick={() => onNavigate('/cases')}
+        />
+        <RibbonButton
+          icon={RefreshCw}
+          label={intl.formatMessage({ id: 'ribbon.button.refresh' })}
+          onClick={() => window.location.reload()}
+        />
+      </RibbonGroup>
+      <RibbonGroup title={intl.formatMessage({ id: 'ribbon.group.new' })}>
+        <RibbonButton
+          icon={Plus}
+          label={intl.formatMessage({ id: 'ribbon.button.createCase' })}
+          active={isCreateCasePath(location)}
+          onClick={() => onNavigate('/add-cases')}
+        />
+      </RibbonGroup>
+      <RibbonGroup title={intl.formatMessage({ id: 'ribbon.group.import' })}>
+        <RibbonButton
+          icon={FileJson}
+          label={intl.formatMessage({ id: 'ribbon.button.json' })}
+          active={isAddCasesJsonPath(location)}
+          onClick={() => onNavigate('/add-cases/json/baldur')}
+        />
+        <RibbonButton
+          icon={FileText}
+          label={intl.formatMessage({ id: 'ribbon.button.namelist' })}
+          active={isAddCasesNamelistPath(location)}
+          onClick={() => onNavigate('/add-cases/namelist')}
+        />
+      </RibbonGroup>
+    </>
+  );
+};
+
+const UserRibbon: React.FC = () => {
+  const intl = useIntl();
+  return (
+    <>
+      <RibbonGroup title={intl.formatMessage({ id: 'ribbon.group.account' })}>
+        <RibbonButton
+          icon={Settings}
+          label={intl.formatMessage({ id: 'ribbon.button.settings' })}
+          active
+        />
+      </RibbonGroup>
+    </>
+  );
+};

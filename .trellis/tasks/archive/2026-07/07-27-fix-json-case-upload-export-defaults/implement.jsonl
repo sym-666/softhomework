@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend guideline index for component/state conventions during JSON page rewrite"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "dynamicForm vs inputSlice state patterns for configName-scoped form data"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "UI composition patterns for upload/download/sync/submit controls"}
+{"file": ".trellis/spec/frontend/hook-guidelines.md", "reason": "Hook usage when wiring schema, form state, and createCase mutation"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "Code quality constraints for shared submission utilities"}

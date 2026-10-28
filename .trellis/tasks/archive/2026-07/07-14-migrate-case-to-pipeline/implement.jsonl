@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "CaseService → PipelineExecutor → pipeline YAML 多层数据流，需要明确各层职责边界"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "避免 CaseService 与 PipelineExecutor 出现重复的 ProcessComment / 文件处理逻辑"}

@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "验收时检查数据是否在各层正确传递、状态一致性是否得到保证"}
+{"file": ".trellis/spec/guides/code-reuse-thinking-guide.md", "reason": "验收时检查是否已删除重复逻辑，统一依赖 PipelineExecutor 实现"}

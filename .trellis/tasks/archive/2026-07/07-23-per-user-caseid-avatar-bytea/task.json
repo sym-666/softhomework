@@ -1,0 +1,29 @@
+{
+  "id": "per-user-caseid-avatar-bytea",
+  "name": "per-user-caseid-avatar-bytea",
+  "title": "用户级 caseID 与头像 BYTEA 存储",
+  "description": "",
+  "status": "completed",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "eziosweet",
+  "assignee": "eziosweet",
+  "createdAt": "2026-07-23",
+  "completedAt": "2026-07-23",
+  "branch": null,
+  "base_branch": "feature/pgsql",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "07-23-per-user-caseid",
+    "07-23-avatar-bytea-storage"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

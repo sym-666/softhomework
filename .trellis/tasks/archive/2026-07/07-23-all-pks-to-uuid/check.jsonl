@@ -1,0 +1,6 @@
+{"_example": "Fill with {\"file\": \"<path>\", \"reason\": \"<why>\"}. Put spec/research files only — no code paths. Run `python3 .trellis/scripts/get_context.py --mode packages` to list available specs. Delete this line once real entries are added."}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "Verify UUID entity mapping"}
+{"file": ".trellis/spec/backend/case-list-payload-contract.md", "reason": "List userId type"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Backend quality"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Frontend id string types"}
+{"file": ".trellis/spec/guides/cross-layer-thinking-guide.md", "reason": "Cross-layer Guid consistency"}

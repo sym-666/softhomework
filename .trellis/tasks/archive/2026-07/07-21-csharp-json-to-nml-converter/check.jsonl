@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend guideline index for check scope"}
+{"file": ".trellis/spec/backend/quality-guidelines.md", "reason": "Quality bar for converter and tests"}
+{"file": ".trellis/tasks/07-21-csharp-json-to-nml-converter/prd.md", "reason": "Acceptance criteria to verify"}
+{"file": ".trellis/tasks/07-21-csharp-json-to-nml-converter/design.md", "reason": "Contract and non-goals for review"}
