@@ -15,8 +15,12 @@ openspec
 
 # OpenCode: node_modules stays local via .opencode/.gitignore
 
-# Docker deployment（仅根目录，避免误伤 cbaldur-backend/data 等）
+# Docker deployment（仅根目录及 docker/，避免误伤 cbaldur-backend/data 等）
 /.env
 /data/
 /postgres/
 /logs/
+/docker/.env
+/docker/data/
+/docker/postgres/
+/docker/logs/
