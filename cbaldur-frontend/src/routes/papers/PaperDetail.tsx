@@ -11,6 +11,7 @@ import { useIntl } from 'react-intl';
 import { toast } from 'sonner';
 import PaperAssistant from '@/components/ai/PaperAssistant';
 import PaperGuide from '@/components/ai/PaperGuide';
+import { NotesPanel } from '@/components/notes/NotesPanel';
 import { IngestStatusNotice } from '@/components/reader/IngestStatusNotice';
 import { useReadingPage } from '@/hooks/useReadingPage';
 import { useDeletePaperMutation, useGetPaperQuery } from '@/redux/api/paper';
@@ -170,6 +171,9 @@ export default function PaperDetail({ id }: { id: string }) {
               <TabsTrigger value="guide">
                 {intl.formatMessage({ id: 'papers.tabGuide' })}
               </TabsTrigger>
+              <TabsTrigger value="notes">
+                {intl.formatMessage({ id: 'papers.tabNotes' })}
+              </TabsTrigger>
               <TabsTrigger value="info">
                 {intl.formatMessage({ id: 'papers.tabInfo' })}
               </TabsTrigger>
@@ -194,6 +198,16 @@ export default function PaperDetail({ id }: { id: string }) {
               <PaperGuide
                 paperId={paper.id}
                 ingestStatus={paper.ingestStatus}
+              />
+            </TabsContent>
+            <TabsContent
+              value="notes"
+              className="min-h-0 flex-1 data-[state=inactive]:hidden"
+            >
+              <NotesPanel
+                paperId={paper.id}
+                currentPage={paper.hasLocalFile ? page : null}
+                onJumpToPage={setPage}
               />
             </TabsContent>
             <TabsContent
