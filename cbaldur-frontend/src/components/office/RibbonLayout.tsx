@@ -25,10 +25,11 @@ interface RibbonLayoutProps {
   children: React.ReactNode;
 }
 
-type TabId = 'home' | 'user' | 'papers' | 'reader';
+type TabId = 'home' | 'user' | 'papers' | 'reader' | 'notes';
 
 const getActiveTabFromPath = (path: string): TabId => {
   if (path.startsWith('/user')) return 'user';
+  if (path.startsWith('/notes')) return 'notes';
   if (/^\/papers\/\d+/.test(path)) return 'reader';
   if (path.startsWith('/papers')) return 'papers';
   return 'home';
@@ -63,6 +64,7 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
       user: '/user',
       papers: '/papers',
       reader: location,
+      notes: '/notes',
     };
     if (tab !== 'reader' && tab !== ribbonTab) {
       setLocation(paths[tab]);
@@ -137,6 +139,11 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
           active={ribbonTab === 'papers'}
           onClick={() => handleTabClick('papers')}
         />
+        <RibbonTab
+          label={intl.formatMessage({ id: 'ribbon.tab.notes' })}
+          active={ribbonTab === 'notes'}
+          onClick={() => handleTabClick('notes')}
+        />
         {activeTab === 'reader' && (
           <RibbonTab
             label={intl.formatMessage({ id: 'ribbon.tab.reader' })}
@@ -188,7 +195,8 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
       {/* Ribbon Content - hidden for tabs that use their own in-page toolbar */}
       {!collapsed &&
         ribbonTab !== 'papers' &&
-        ribbonTab !== 'reader' && (
+        ribbonTab !== 'reader' &&
+        ribbonTab !== 'notes' && (
           <div className="bg-[var(--ribbon-content-bg)] border-b border-[var(--ribbon-separator)] shrink-0 min-h-[68px] flex items-stretch px-1">
             {ribbonTab === 'home' && (
               <HomeRibbon location={location} onNavigate={setLocation} />
