@@ -3,6 +3,7 @@ import type {
   CreatePaper,
   Paper,
   PaperPagedResult,
+  PaperReference,
   PaperSearchResponse,
   ReadingState,
   ReadingStatus,
@@ -44,6 +45,9 @@ export const paperApi = createApi({
       },
       invalidatesTags: ['Papers'],
     }),
+    getReferences: builder.query<PaperReference[], number>({
+      query: (id) => `/${id}/references`,
+    }),
     retryIngestion: builder.mutation<Paper, number>({
       query: (id) => ({ url: `/${id}/ingest`, method: 'POST' }),
       invalidatesTags: (_result, _error, id) => [{ type: 'Papers', id }],
@@ -80,6 +84,7 @@ export const {
   useCreatePaperMutation,
   useDeletePaperMutation,
   useRetryIngestionMutation,
+  useGetReferencesQuery,
   useGetReadingStateQuery,
   useUpdateReadingStateMutation,
 } = paperApi;
