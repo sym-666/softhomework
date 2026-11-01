@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Button } from '@/shadcn/components/ui/button';
@@ -126,11 +127,10 @@ export const SignIn: React.FC = () => {
       <div className="w-full max-w-md bg-card rounded-lg border border-border shadow-lg p-6">
         {/* Logo */}
         <div className="flex flex-col items-center mb-6">
-          <img
-            src="https://s2.loli.net/2024/12/04/nCkNI1J5AmgQ9l6.png"
-            alt="Logo"
-            className="h-20 mb-2"
-          />
+          <BookOpen className="h-10 w-10 text-[var(--office-blue)]" />
+          <p className="mt-2 text-lg font-semibold text-foreground">
+            PaperPilot
+          </p>
         </div>
 
         {/* 登录表单 */}
