@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.db import get_db
+from app.deps import get_current_user
 from app.models import User
 from app.schemas import CamelModel
 from app.security import create_access_token, hash_password, verify_password
@@ -106,3 +107,8 @@ def login(
 def logout(response: Response) -> dict[str, object]:
     response.delete_cookie(AUTH_COOKIE, httponly=True, samesite="lax")
     return {"success": True, "message": "已退出登录"}
+
+
+@router.get("/validate")
+def validate(_user: User = Depends(get_current_user)) -> dict[str, bool]:
+    return {"valid": True}

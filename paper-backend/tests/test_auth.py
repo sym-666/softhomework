@@ -3,6 +3,7 @@ from sqlalchemy import select
 
 from app.db import SessionLocal
 from app.models import User
+from app.security import create_access_token
 
 VALID = {"username": "alice", "email": "alice@example.com", "password": "password123"}
 
@@ -104,3 +105,46 @@ def test_logout_clears_cookie(client: TestClient) -> None:
 
     assert response.status_code == 200
     assert 'AuthToken=""' in response.headers["set-cookie"]
+
+
+def login(client: TestClient) -> None:
+    client.post("/api/Auth/register", json=VALID)
+    client.post("/api/Auth/login", json={"usernameOrEmail": "alice", "password": "password123"})
+
+
+def test_validate_requires_login(client: TestClient) -> None:
+    assert client.get("/api/auth/validate").status_code == 401
+
+
+def test_validate_after_login(client: TestClient) -> None:
+    login(client)
+
+    response = client.get("/api/auth/validate")
+
+    assert response.status_code == 200
+    assert response.json() == {"valid": True}
+
+
+def test_get_user_returns_profile_without_secrets(client: TestClient) -> None:
+    login(client)
+
+    response = client.get("/api/User/GetUser")
+
+    assert response.status_code == 200
+    assert response.json()["email"] == "alice@example.com"
+    assert response.json()["avatar"] is None
+    assert "passwordHash" not in response.json()
+
+
+def test_logout_ends_session(client: TestClient) -> None:
+    login(client)
+
+    client.post("/api/Auth/Logout")
+
+    assert client.get("/api/auth/validate").status_code == 401
+
+
+def test_token_of_deleted_user_is_rejected(client: TestClient) -> None:
+    client.cookies.set("AuthToken", create_access_token("no-such-user"))
+
+    assert client.get("/api/auth/validate").status_code == 401
