@@ -5,24 +5,15 @@ import {
   CardTitle,
   CardDescription,
 } from '@/shadcn/components/ui/card';
-import { Button } from '@/shadcn/components/ui/button';
 import { Badge } from '@/shadcn/components/ui/badge';
-import {
-  useGetCurrentUserQuery,
-  useUploadAvatarMutation,
-} from '@/redux/api/user';
-import { AvatarCropper } from '@/components/user/avatar-cropper';
-import { toast } from 'sonner';
+import { useGetCurrentUserQuery } from '@/redux/api/user';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   User,
   Mail,
-  Building2,
   Shield,
   Loader2,
-  KeyRound,
   Fingerprint,
-  ArrowRight,
 } from 'lucide-react';
 
 // 角色映射
@@ -34,24 +25,7 @@ const roleMap: Record<number, string> = {
 
 export default function UserProfile() {
   const intl = useIntl();
-  const { data: user, isLoading, error, refetch } = useGetCurrentUserQuery();
-  const [uploadAvatar, { isLoading: isUploadingAvatar }] =
-    useUploadAvatarMutation();
-
-  // 处理头像上传
-  const handleAvatarUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append('avatar', file);
-
-    try {
-      await uploadAvatar(formData).unwrap();
-      toast.success(intl.formatMessage({ id: 'user.avatar.uploadSuccess' }));
-      refetch();
-    } catch (err) {
-      toast.error(intl.formatMessage({ id: 'user.avatar.uploadError' }));
-      console.error('Upload error:', err);
-    }
-  };
+  const { data: user, isLoading, error } = useGetCurrentUserQuery();
 
   if (isLoading) {
     return (
@@ -89,15 +63,8 @@ export default function UserProfile() {
 
         <div className="relative px-6 py-8 sm:px-10 sm:py-10">
           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6">
-            <div className="relative shrink-0">
-              <div className="rounded-full p-1.5 bg-white/20 backdrop-blur-sm">
-                <AvatarCropper
-                  currentAvatar={user.avatar}
-                  onUpload={handleAvatarUpload}
-                  isUploading={isUploadingAvatar}
-                  avatarSize={120}
-                />
-              </div>
+            <div className="w-24 h-24 shrink-0 rounded-full bg-white/20 flex items-center justify-center">
+              <User className="w-12 h-12 text-white" />
             </div>
 
             <div className="text-center sm:text-left flex-1 pb-1">
@@ -123,9 +90,8 @@ export default function UserProfile() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* 基本信息卡片 */}
-        <Card className="lg:col-span-2 border-none shadow-sm">
+      {/* 基本信息卡片 */}
+      <Card className="border-none shadow-sm">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-[var(--office-blue-light)]/60 flex items-center justify-center">
@@ -186,59 +152,16 @@ export default function UserProfile() {
                 </div>
               </div>
 
-              {user.organizationId ? (
-                <div className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
-                  <div className="mt-0.5 w-8 h-8 rounded-md bg-[var(--office-blue-light)]/60 flex items-center justify-center shrink-0">
-                    <Building2 className="w-4 h-4 text-[var(--office-blue)]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-muted-foreground mb-0.5">
-                      {intl.formatMessage({ id: 'user.info.organization' })}
-                    </p>
-                    <p className="text-sm font-semibold text-foreground truncate">
-                      {user.organizationId}
-                    </p>
-                  </div>
-                </div>
-              ) : null}
             </div>
           </CardContent>
         </Card>
-
-        {/* 头像卡片 */}
-        <Card className="border-none shadow-sm">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[var(--office-blue-light)]/60 flex items-center justify-center">
-                <Fingerprint className="w-4 h-4 text-[var(--office-blue)]" />
-              </div>
-              <div>
-                <CardTitle className="text-base">
-                  <FormattedMessage id="user.avatar.title" />
-                </CardTitle>
-                <CardDescription>
-                  <FormattedMessage id="user.avatar.description" />
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="flex justify-center py-6">
-            <AvatarCropper
-              currentAvatar={user.avatar}
-              onUpload={handleAvatarUpload}
-              isUploading={isUploadingAvatar}
-              avatarSize={140}
-            />
-          </CardContent>
-        </Card>
-      </div>
 
       {/* 账号安全卡片 */}
       <Card className="border-none shadow-sm">
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-[var(--office-blue-light)]/60 flex items-center justify-center">
-              <KeyRound className="w-4 h-4 text-[var(--office-blue)]" />
+              <Fingerprint className="w-4 h-4 text-[var(--office-blue)]" />
             </div>
             <div>
               <CardTitle className="text-base">
@@ -251,35 +174,6 @@ export default function UserProfile() {
           </div>
         </CardHeader>
         <CardContent className="space-y-1">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-muted/40 hover:bg-muted/60 transition-colors">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-[var(--office-blue-light)]/60 flex items-center justify-center shrink-0">
-                <KeyRound className="w-5 h-5 text-[var(--office-blue)]" />
-              </div>
-              <div>
-                <p className="font-medium">
-                  <FormattedMessage id="user.security.changePassword" />
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  <FormattedMessage id="user.security.changePasswordDesc" />
-                </p>
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              asChild
-              className="shrink-0 group border-[var(--office-blue)]/30 text-[var(--office-blue)] hover:bg-[var(--office-blue-light)]/50 hover:text-[var(--office-blue-dark)]"
-            >
-              <a
-                href="/auth/forgot-password"
-                className="flex items-center gap-1"
-              >
-                <FormattedMessage id="user.security.changePassword" />
-                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-              </a>
-            </Button>
-          </div>
-
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-muted/40 hover:bg-muted/60 transition-colors">
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-full bg-[var(--office-blue-light)]/60 flex items-center justify-center shrink-0">
