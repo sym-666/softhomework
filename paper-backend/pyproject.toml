@@ -37,3 +37,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI 的依赖声明写在参数默认值里，是框架的标准用法
+extend-immutable-calls = ["fastapi.Cookie", "fastapi.Depends", "fastapi.File", "fastapi.Form", "fastapi.Query"]
