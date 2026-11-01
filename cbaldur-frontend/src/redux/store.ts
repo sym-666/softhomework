@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { userApi } from './api/user';
 import { paperApi } from './api/paper';
 import { aiApi } from './api/ai';
+import { noteApi } from './api/note';
 import localeReducer from './slices/localeSlice';
 
 export const store = configureStore({
@@ -10,12 +11,14 @@ export const store = configureStore({
     [userApi.reducerPath]: userApi.reducer,
     [paperApi.reducerPath]: paperApi.reducer,
     [aiApi.reducerPath]: aiApi.reducer,
+    [noteApi.reducerPath]: noteApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       userApi.middleware,
       paperApi.middleware,
       aiApi.middleware,
+      noteApi.middleware,
     ),
 });
 
