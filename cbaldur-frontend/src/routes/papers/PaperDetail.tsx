@@ -81,6 +81,9 @@ export default function PaperDetail({ id }: { id: string }) {
   const [activeTab, setActiveTab] = useState('chat');
   const [askRequest, setAskRequest] = useState<{ text: string } | null>(null);
   const [noteRequest, setNoteRequest] = useState<{ text: string } | null>(null);
+  const [highlightFocus, setHighlightFocus] = useState<{ id: number } | null>(
+    null,
+  );
 
   // 从复习页等处跳转过来时直接打开指定页
   useEffect(() => {
@@ -241,7 +244,10 @@ export default function PaperDetail({ id }: { id: string }) {
                   onNoteSelection={noteSelection}
                   highlights={highlights}
                   onHighlight={addHighlight}
-                  onHighlightClick={() => setActiveTab('notes')}
+                  onHighlightClick={(id) => {
+                    setHighlightFocus({ id });
+                    setActiveTab('notes');
+                  }}
                 />
               )}
             </Suspense>
@@ -308,6 +314,7 @@ export default function PaperDetail({ id }: { id: string }) {
                 currentPage={paper.hasLocalFile ? page : null}
                 onJumpToPage={setPage}
                 draftRequest={noteRequest}
+                highlightFocus={highlightFocus}
               />
             </TabsContent>
             <TabsContent
