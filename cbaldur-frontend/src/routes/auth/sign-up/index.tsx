@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
-import { GithubIcon } from '@/components/icons/GithubIcon';
 import { toast } from 'sonner';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Button } from '@/shadcn/components/ui/button';
 import { Input } from '@/shadcn/components/ui/input';
 import { Label } from '@/shadcn/components/ui/label';
-import {
-  useRegisterMutation,
-  useSendVerificationCodeMutation,
-  useLazyGithubLoginQuery,
-} from '@/redux/api/user';
+import { useRegisterMutation } from '@/redux/api/user';
 
 // 表单数据类型
 interface FormData {
@@ -18,8 +13,6 @@ interface FormData {
   email: string;
   password: string;
   confirmPassword: string;
-  verificationCode: string;
-  roleId: number;
 }
 
 // 错误信息类型
@@ -28,7 +21,6 @@ interface FormErrors {
   email: string;
   password: string;
   confirmPassword: string;
-  verificationCode: string;
 }
 
 export const SignUp: React.FC = () => {
@@ -41,8 +33,6 @@ export const SignUp: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    verificationCode: '',
-    roleId: 1,
   });
 
   const [errors, setErrors] = useState<FormErrors>({
@@ -50,16 +40,10 @@ export const SignUp: React.FC = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    verificationCode: '',
   });
-
-  const [cooldown, setCooldown] = useState(0);
 
   // Redux mutations
   const [register, { isLoading }] = useRegisterMutation();
-  const [sendVerificationCode, { isLoading: sendingCode }] =
-    useSendVerificationCodeMutation();
-  const [triggerGithubLogin] = useLazyGithubLoginQuery();
 
   // 邮箱格式验证
   const isValidEmail = (email: string): boolean => {
@@ -75,8 +59,7 @@ export const SignUp: React.FC = () => {
       email: '',
       password: '',
       confirmPassword: '',
-      verificationCode: '',
-    };
+      };
 
     if (!form.username) {
       newErrors.username = intl.formatMessage({ id: 'auth.signUp.usernameErrorRequired' });
@@ -110,11 +93,6 @@ export const SignUp: React.FC = () => {
       isValid = false;
     }
 
-    if (!form.verificationCode) {
-      newErrors.verificationCode = intl.formatMessage({ id: 'auth.signUp.verificationCodeError' });
-      isValid = false;
-    }
-
     setErrors(newErrors);
     return isValid;
   };
@@ -136,43 +114,6 @@ export const SignUp: React.FC = () => {
       }
     };
 
-  // 发送验证码
-  const handleSendVerificationCode = async () => {
-    if (!form.email) {
-      setErrors((prev) => ({ ...prev, email: intl.formatMessage({ id: 'auth.signUp.emailErrorBeforeSend' }) }));
-      return;
-    }
-
-    if (!isValidEmail(form.email)) {
-      setErrors((prev) => ({ ...prev, email: intl.formatMessage({ id: 'auth.signUp.emailErrorInvalid' }) }));
-      return;
-    }
-
-    try {
-      const result = await sendVerificationCode({ email: form.email }).unwrap();
-
-      if (result.success) {
-        toast.success(intl.formatMessage({ id: 'auth.signUp.sendCodeSuccess' }));
-        // 启动倒计时
-        setCooldown(60);
-        const timer = setInterval(() => {
-          setCooldown((prev) => {
-            if (prev <= 1) {
-              clearInterval(timer);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-      } else {
-        toast.error(intl.formatMessage({ id: 'auth.signUp.sendCodeError' }));
-      }
-    } catch (error) {
-      toast.error(intl.formatMessage({ id: 'auth.signUp.sendCodeError' }));
-      console.error('发送验证码失败:', error);
-    }
-  };
-
   // 处理注册
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,8 +125,6 @@ export const SignUp: React.FC = () => {
         username: form.username,
         email: form.email,
         password: form.password,
-        verificationCode: form.verificationCode,
-        roleId: form.roleId,
       }).unwrap();
 
       if (result.success) {
@@ -197,24 +136,13 @@ export const SignUp: React.FC = () => {
       } else {
         toast.error(intl.formatMessage({ id: 'auth.signUp.failureToast' }));
       }
-    } catch (error) {
-      toast.error(intl.formatMessage({ id: 'auth.signUp.networkError' }));
+    } catch (error: any) {
+      // 用户名或邮箱重复等业务错误由后端给出具体原因
+      toast.error(
+        error?.data?.message ??
+          intl.formatMessage({ id: 'auth.signUp.networkError' }),
+      );
       console.error('注册失败:', error);
-    }
-  };
-
-  // 处理GitHub登录
-  const handleGithubLogin = async () => {
-    try {
-      const result = await triggerGithubLogin(
-        window.location.origin + '/auth/github/callback',
-      ).unwrap();
-      if (result.url) {
-        window.location.href = result.url;
-      }
-    } catch (error) {
-      toast.error(intl.formatMessage({ id: 'auth.signUp.githubError' }));
-      console.error('GitHub登录跳转失败:', error);
     }
   };
 
@@ -310,39 +238,6 @@ export const SignUp: React.FC = () => {
             )}
           </div>
 
-          {/* 验证码 */}
-          <div className="space-y-2">
-            <Label htmlFor="verificationCode">
-              <FormattedMessage id="auth.signUp.verificationCodeLabel" /> <span className="text-destructive">*</span>
-            </Label>
-            <div className="flex space-x-2">
-              <Input
-                id="verificationCode"
-                type="text"
-                value={form.verificationCode}
-                onChange={handleInputChange('verificationCode')}
-                placeholder={intl.formatMessage({ id: 'auth.signUp.verificationCodePlaceholder' })}
-                className={`flex-1 ${errors.verificationCode ? 'border-destructive' : ''}`}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleSendVerificationCode}
-                disabled={cooldown > 0 || sendingCode}
-                className="whitespace-nowrap"
-              >
-                {cooldown > 0
-                  ? intl.formatMessage({ id: 'auth.signUp.sendCodeCooldown' }, { count: cooldown })
-                  : intl.formatMessage({ id: 'auth.signUp.sendCode' })}
-              </Button>
-            </div>
-            {errors.verificationCode && (
-              <span className="text-destructive text-sm">
-                {errors.verificationCode}
-              </span>
-            )}
-          </div>
-
           {/* 注册按钮 */}
           <div className="pt-4">
             <Button type="submit" disabled={isLoading} className="w-full">
@@ -362,28 +257,6 @@ export const SignUp: React.FC = () => {
             </button>
           </div>
         </form>
-
-        {/* 社交登录分隔线 */}
-        <div className="my-6 flex items-center">
-          <div className="flex-grow border-t border-border"></div>
-          <div className="px-4 text-sm text-muted-foreground">
-            <FormattedMessage id="auth.signUp.socialDivider" />
-          </div>
-          <div className="flex-grow border-t border-border"></div>
-        </div>
-
-        {/* GitHub登录按钮 */}
-        <div className="flex justify-center">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleGithubLogin}
-            className="flex items-center justify-center"
-          >
-            <GithubIcon className="w-4 h-4 mr-2" />
-            <span><FormattedMessage id="auth.signUp.githubLogin" /></span>
-          </Button>
-        </div>
       </div>
     </div>
   );
