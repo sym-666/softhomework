@@ -18,6 +18,7 @@ export interface Dashboard {
   reading: number;
   done: number;
   notes: number;
+  dueCards: number;
   activity: DailyActivity[];
   continueReading: ContinueReadingItem[];
 }
