@@ -29,3 +29,29 @@ def clean_database() -> Iterator[None]:
 def client() -> Iterator[TestClient]:
     with TestClient(app) as test_client:
         yield test_client
+
+
+def login_as(client: TestClient, username: str) -> dict:
+    """注册并登录，Cookie 保存在传入的 client 上，返回用户信息。"""
+    password = "password123"
+    client.post(
+        "/api/auth/register",
+        json={"username": username, "email": f"{username}@example.com", "password": password},
+    )
+    response = client.post(
+        "/api/auth/login", json={"usernameOrEmail": username, "password": password}
+    )
+    return response.json()["user"]
+
+
+@pytest.fixture
+def user_client(client: TestClient) -> TestClient:
+    login_as(client, "alice")
+    return client
+
+
+@pytest.fixture
+def other_client() -> Iterator[TestClient]:
+    with TestClient(app) as test_client:
+        login_as(test_client, "bob")
+        yield test_client
