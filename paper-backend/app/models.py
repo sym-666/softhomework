@@ -133,3 +133,32 @@ class PaperChatMessage(Base):
     # JSON 数组，只在读取时展示，不需要查询，单独建表没有意义
     citations: Mapped[str] = mapped_column(Text, default="[]")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class StudyCard(Base):
+    """自测题或闪卡。复习进度因人而异，所以每个用户有自己的一份。"""
+
+    __tablename__ = "study_cards"
+    __table_args__ = (
+        UniqueConstraint("user_id", "paper_id", "question"),
+        Index("ix_study_cards_user_due", "user_id", "due_at"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    paper_id: Mapped[int] = mapped_column(ForeignKey("papers.id", ondelete="CASCADE"))
+    # quiz（选择题）/ flashcard（闪卡）
+    kind: Mapped[str] = mapped_column(String(16))
+    question: Mapped[str] = mapped_column(Text)
+    # 选择题的选项，JSON 数组；闪卡为空数组
+    options: Mapped[str] = mapped_column(Text, default="[]")
+    # 选择题是正确选项的文字，闪卡是背面内容
+    answer: Mapped[str] = mapped_column(Text)
+    explanation: Mapped[str] = mapped_column(Text, default="")
+    page: Mapped[int | None] = mapped_column(Integer)
+    # 间隔重复的盒子序号，答对加一，答错归零
+    box: Mapped[int] = mapped_column(Integer, default=0)
+    due_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+    paper: Mapped[Paper] = relationship()
