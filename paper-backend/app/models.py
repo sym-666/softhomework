@@ -1,8 +1,8 @@
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
 
@@ -23,3 +23,25 @@ class User(Base):
     # 沿用前端约定：1 普通用户、2 管理员、3 超级管理员。注册用户固定为 1
     role_id: Mapped[int] = mapped_column(Integer, default=1)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class Paper(Base):
+    """论文库全站共享；上传者记录在 created_by_user_id。"""
+
+    __tablename__ = "papers"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    created_by_user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    title: Mapped[str] = mapped_column(String(500))
+    authors: Mapped[str] = mapped_column(String(1000))
+    year: Mapped[int] = mapped_column(Integer, index=True)
+    abstract: Mapped[str] = mapped_column(Text, default="")
+    tags: Mapped[str] = mapped_column(String(500), default="")
+    source_url: Mapped[str | None] = mapped_column(String(2048))
+    stored_file_name: Mapped[str | None] = mapped_column(String(128))
+    original_file_name: Mapped[str | None] = mapped_column(String(500))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, index=True
+    )
+
+    created_by: Mapped[User] = relationship()
