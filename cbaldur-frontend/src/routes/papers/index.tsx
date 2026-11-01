@@ -16,6 +16,7 @@ import {
 import { useIntl } from 'react-intl';
 import { toast } from 'sonner';
 import { ExportLink } from '@/components/common/ExportLink';
+import { useSaveGlobalPaper } from '@/hooks/useSaveGlobalPaper';
 import {
   useCreatePaperMutation,
   useGetPapersQuery,
@@ -105,12 +106,12 @@ export default function PapersPage() {
   const [localSearch, setLocalSearch] = useState('');
   const [page, setPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [savingId, setSavingId] = useState<string>();
   const [form, setForm] = useState({ title: '', authors: '', year: currentYear, abstract: '', tags: '', url: '' });
   const [file, setFile] = useState<File>();
   const local = useGetPapersQuery({ search: localSearch || undefined, page, pageSize: 24 });
   const [searchGlobal, global] = useLazySearchGlobalPapersQuery();
   const [createPaper, createState] = useCreatePaperMutation();
+  const { save: saveGlobal, savingId } = useSaveGlobalPaper();
   const pages = Math.max(1, Math.ceil((local.data?.total ?? 0) / 24));
 
   const submitSearch = async (event: FormEvent) => {
@@ -124,17 +125,6 @@ export default function PapersPage() {
     if (!value) return;
     try { await searchGlobal({ query: value, limit: 12 }).unwrap(); }
     catch { toast.error(intl.formatMessage({ id: 'papers.searchError' })); }
-  };
-
-  const saveGlobal = async (paper: GlobalPaper) => {
-    const url = paper.pdfUrl || paper.url;
-    if (!url) return toast.error(intl.formatMessage({ id: 'papers.noSource' }));
-    setSavingId(paper.id);
-    try {
-      await createPaper({ title: paper.title, authors: paper.authors, year: paper.year ?? currentYear, abstract: paper.abstract, tags: 'Semantic Scholar', url }).unwrap();
-      toast.success(intl.formatMessage({ id: 'papers.saved' }));
-    } catch { toast.error(intl.formatMessage({ id: 'papers.saveError' })); }
-    finally { setSavingId(undefined); }
   };
 
   const submitUpload = async (event: FormEvent) => {

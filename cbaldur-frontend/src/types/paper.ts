@@ -1,10 +1,5 @@
 export type IngestStatus =
-  | 'none'
-  | 'pending'
-  | 'processing'
-  | 'ready'
-  | 'no_text'
-  | 'failed';
+  'none' | 'pending' | 'processing' | 'ready' | 'no_text' | 'failed';
 
 export interface Paper {
   id: number;
@@ -61,4 +56,11 @@ export interface ReadingState {
   status: ReadingStatus;
   lastPage: number;
   updatedAt: string | null;
+}
+
+export interface PaperReference {
+  index: number;
+  text: string;
+  title: string;
+  year: number | null;
 }

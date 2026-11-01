@@ -15,6 +15,7 @@ import PaperGuide from '@/components/ai/PaperGuide';
 import { ExportLink } from '@/components/common/ExportLink';
 import { NotesPanel } from '@/components/notes/NotesPanel';
 import { IngestStatusNotice } from '@/components/reader/IngestStatusNotice';
+import { ReferencesPanel } from '@/components/reader/ReferencesPanel';
 import { StudyPanel } from '@/components/study/StudyPanel';
 import { useReadingPage } from '@/hooks/useReadingPage';
 import {
@@ -282,6 +283,9 @@ export default function PaperDetail({ id }: { id: string }) {
               <TabsTrigger value="glossary">
                 {intl.formatMessage({ id: 'papers.tabGlossary' })}
               </TabsTrigger>
+              <TabsTrigger value="references">
+                {intl.formatMessage({ id: 'papers.tabReferences' })}
+              </TabsTrigger>
               <TabsTrigger value="info">
                 {intl.formatMessage({ id: 'papers.tabInfo' })}
               </TabsTrigger>
@@ -342,6 +346,12 @@ export default function PaperDetail({ id }: { id: string }) {
                 ingestStatus={paper.ingestStatus}
                 onJumpToPage={setPage}
               />
+            </TabsContent>
+            <TabsContent
+              value="references"
+              className="min-h-0 flex-1 data-[state=inactive]:hidden"
+            >
+              <ReferencesPanel paperId={paper.id} />
             </TabsContent>
             <TabsContent
               value="info"
