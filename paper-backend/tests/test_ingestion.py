@@ -1,10 +1,13 @@
+import threading
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
+from app import main
 from app.db import SessionLocal
+from app.main import app
 from app.models import Paper, PaperChunk
 from app.services import ingestion
 from app.services.ingestion import ingest_paper, resume_ingestion, unfinished_paper_ids
@@ -119,3 +122,37 @@ def test_unfinished_papers_can_be_resumed(user_client: TestClient) -> None:
 
     assert status_of(user_client, paper_id) == "ready"
     assert unfinished_paper_ids() == []
+
+
+def test_startup_resumes_unfinished_papers(
+    user_client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+    with SessionLocal() as db:
+        db.get(Paper, paper_id).ingest_status = "pending"
+        db.commit()
+    resumed: list[list[int]] = []
+    done = threading.Event()
+
+    def record(paper_ids: list[int]) -> None:
+        resumed.append(paper_ids)
+        done.set()
+
+    monkeypatch.setattr(main, "resume_ingestion", record)
+
+    with TestClient(app):
+        assert done.wait(timeout=5)
+
+    assert resumed == [[paper_id]]
+
+
+def test_startup_does_nothing_without_unfinished_papers(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fail(_paper_ids: list[int]) -> None:
+        raise AssertionError("不应发起恢复")
+
+    monkeypatch.setattr(main, "resume_ingestion", fail)
+
+    with TestClient(app):
+        pass
