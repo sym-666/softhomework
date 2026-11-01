@@ -1,14 +1,15 @@
+import json
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import Field
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import get_current_user
-from app.models import Paper, PaperChunk, PaperGuide, User
+from app.models import Paper, PaperChatMessage, PaperChunk, PaperGuide, User
 from app.schemas import CamelModel, UtcDatetime
 from app.services import llm
 from app.services.paper_chat import ChatTurn, chat_events, save_exchange
@@ -18,6 +19,8 @@ from app.services.retrieval import Passage
 router = APIRouter(prefix="/api/ai", tags=["ai"])
 
 MAX_HISTORY_TURNS = 12
+# 只影响页面恢复多少条，发给模型的历史由 MAX_HISTORY_TURNS 限制
+MAX_RESTORED_MESSAGES = 200
 SSE_HEADERS = {
     # 关闭缓存和反向代理缓冲，否则回答会等到最后才一次性显示
     "Cache-Control": "no-cache, no-store",
@@ -35,6 +38,19 @@ class ChatMessage(CamelModel):
 class PaperChatRequest(CamelModel):
     message: str = Field(min_length=1, max_length=2000)
     history: list[ChatMessage] = Field(default_factory=list, max_length=MAX_HISTORY_TURNS)
+
+
+class Citation(CamelModel):
+    page: int
+    snippet: str
+
+
+class ChatHistoryItem(CamelModel):
+    id: int
+    role: str
+    content: str
+    citations: list[Citation]
+    created_at: UtcDatetime
 
 
 class GuideOut(CamelModel):
@@ -96,6 +112,45 @@ def paper_chat(
         media_type="text/event-stream",
         headers=SSE_HEADERS,
     )
+
+
+@router.get("/paperchat/history", response_model=list[ChatHistoryItem])
+def get_chat_history(
+    paper_id: int = Query(alias="id"),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> list[ChatHistoryItem]:
+    # 先按新到旧取最近的记录，再翻转成阅读顺序
+    rows = db.scalars(
+        select(PaperChatMessage)
+        .where(PaperChatMessage.user_id == user.id, PaperChatMessage.paper_id == paper_id)
+        .order_by(PaperChatMessage.id.desc())
+        .limit(MAX_RESTORED_MESSAGES)
+    ).all()
+    return [
+        ChatHistoryItem(
+            id=row.id,
+            role=row.role,
+            content=row.content,
+            citations=json.loads(row.citations),
+            created_at=row.created_at,
+        )
+        for row in reversed(rows)
+    ]
+
+
+@router.delete("/paperchat/history", status_code=204)
+def clear_chat_history(
+    paper_id: int = Query(alias="id"),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> None:
+    db.execute(
+        delete(PaperChatMessage).where(
+            PaperChatMessage.user_id == user.id, PaperChatMessage.paper_id == paper_id
+        )
+    )
+    db.commit()
 
 
 @router.get("/paperguide", response_model=GuideOut | None)
