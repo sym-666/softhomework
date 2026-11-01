@@ -24,6 +24,8 @@ interface AiChatPanelProps {
   toolbar?: React.ReactNode;
   /** 外部填入输入框的内容；每次传入新对象都会填入一次 */
   draftRequest?: { text: string } | null;
+  /** 重置按钮的说明，默认是“新对话” */
+  resetLabel?: string;
 }
 
 /**
@@ -43,6 +45,7 @@ const AiChatPanel: React.FC<AiChatPanelProps> = ({
   renderExtras,
   toolbar,
   draftRequest,
+  resetLabel,
 }) => {
   const intl = useIntl();
   const [draft, setDraft] = useState('');
@@ -82,7 +85,8 @@ const AiChatPanel: React.FC<AiChatPanelProps> = ({
           variant="ghost"
           size="icon"
           className="h-7 w-7"
-          title={intl.formatMessage({ id: 'ai.newSession' })}
+          title={resetLabel ?? intl.formatMessage({ id: 'ai.newSession' })}
+          aria-label={resetLabel ?? intl.formatMessage({ id: 'ai.newSession' })}
           onClick={onReset}
         >
           <Plus className="h-4 w-4" />
