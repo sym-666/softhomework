@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
@@ -7,11 +8,13 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.db import get_db
 from app.deps import get_current_user
-from app.models import Note, Paper, User
+from app.models import Highlight, Note, Paper, User
 from app.schemas import CamelModel, UtcDatetime
 from app.services.export import notes_to_markdown
 
 router = APIRouter(prefix="/api", tags=["notes"])
+
+RECENT_DAYS = 7
 
 
 class NoteWrite(CamelModel):
@@ -42,6 +45,19 @@ class NotePage(CamelModel):
     total: int
     page: int
     page_size: int
+
+
+class NotePaperCount(CamelModel):
+    paper_id: int
+    title: str
+    count: int
+
+
+class NoteSummary(CamelModel):
+    total: int
+    recent: int
+    highlights: int
+    papers: list[NotePaperCount]
 
 
 def to_note_out(note: Note) -> NoteOut:
@@ -120,15 +136,48 @@ def delete_note(
     db.commit()
 
 
+@router.get("/notes/summary", response_model=NoteSummary)
+def get_note_summary(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> NoteSummary:
+    note_count = func.count(Note.id)
+    rows = db.execute(
+        select(Paper.id, Paper.title, note_count)
+        .join(Note, Note.paper_id == Paper.id)
+        .where(Note.user_id == user.id)
+        .group_by(Paper.id, Paper.title)
+        .order_by(note_count.desc(), Paper.id)
+    ).all()
+    since = datetime.now(UTC) - timedelta(days=RECENT_DAYS)
+    recent = db.scalar(
+        select(func.count())
+        .select_from(Note)
+        .where(Note.user_id == user.id, Note.created_at >= since)
+    )
+    highlights = db.scalar(
+        select(func.count()).select_from(Highlight).where(Highlight.user_id == user.id)
+    )
+    return NoteSummary(
+        total=sum(row[2] for row in rows),
+        recent=recent or 0,
+        highlights=highlights or 0,
+        papers=[NotePaperCount(paper_id=row[0], title=row[1], count=row[2]) for row in rows],
+    )
+
+
 @router.get("/notes", response_model=NotePage)
 def list_my_notes(
     search: str | None = None,
+    paper_id: int | None = Query(default=None, alias="paperId"),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=50, alias="pageSize"),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> NotePage:
     filters = [Note.user_id == user.id]
+    if paper_id is not None:
+        filters.append(Note.paper_id == paper_id)
     if search and search.strip():
         filters.append(Note.content.icontains(search.strip(), autoescape=True))
 

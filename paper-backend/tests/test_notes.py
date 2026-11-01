@@ -1,5 +1,11 @@
-from fastapi.testclient import TestClient
+from datetime import UTC, datetime, timedelta
 
+from fastapi.testclient import TestClient
+from sqlalchemy import update
+
+from app.db import SessionLocal
+from app.models import Note
+from tests.conftest import login_as
 from tests.test_papers import upload
 
 
@@ -168,3 +174,67 @@ def test_export_rejects_unknown_language(user_client: TestClient) -> None:
 
 def test_export_requires_login(client: TestClient) -> None:
     assert export(client).status_code == 401
+
+
+def test_summary_counts_notes_per_paper(user_client: TestClient) -> None:
+    first = upload(user_client)
+    second = upload(user_client)
+    add_note(user_client, first, "a")
+    add_note(user_client, second, "b")
+    add_note(user_client, second, "c")
+
+    body = user_client.get("/api/Notes/summary").json()
+
+    assert body["total"] == 3
+    assert body["recent"] == 3
+    assert body["highlights"] == 0
+    # 笔记多的论文排在前面
+    papers = [(item["paperId"], item["count"]) for item in body["papers"]]
+    assert papers == [(second, 2), (first, 1)]
+
+
+def test_summary_counts_own_highlights_only(
+    user_client: TestClient, other_client: TestClient
+) -> None:
+    paper_id = upload(user_client)
+    rect = {"x": 0.1, "y": 0.1, "width": 0.2, "height": 0.02}
+    body = {"page": 1, "color": "yellow", "text": "idea", "rects": [rect]}
+    user_client.post(f"/api/Papers/{paper_id}/highlights", json=body)
+    add_note(user_client, paper_id, "private")
+
+    assert user_client.get("/api/Notes/summary").json()["highlights"] == 1
+    other = other_client.get("/api/Notes/summary").json()
+    assert (other["total"], other["highlights"], other["papers"]) == (0, 0, [])
+
+
+def test_summary_excludes_old_notes_from_recent(client: TestClient) -> None:
+    login_as(client, "alice")
+    paper_id = upload(client)
+    note_id = add_note(client, paper_id, "old").json()["id"]
+    with SessionLocal() as db:
+        db.execute(
+            update(Note)
+            .where(Note.id == note_id)
+            .values(created_at=datetime.now(UTC) - timedelta(days=30))
+        )
+        db.commit()
+
+    body = client.get("/api/Notes/summary").json()
+
+    assert (body["total"], body["recent"]) == (1, 0)
+
+
+def test_notes_can_be_filtered_by_paper(user_client: TestClient) -> None:
+    first = upload(user_client)
+    second = upload(user_client)
+    add_note(user_client, first, "keep")
+    add_note(user_client, second, "skip")
+
+    body = user_client.get("/api/Notes", params={"paperId": first}).json()
+
+    assert body["total"] == 1
+    assert [note["content"] for note in body["items"]] == ["keep"]
+
+
+def test_summary_requires_login(client: TestClient) -> None:
+    assert client.get("/api/Notes/summary").status_code == 401
