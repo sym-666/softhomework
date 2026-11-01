@@ -2,8 +2,6 @@ import { configureStore } from '@reduxjs/toolkit';
 import { caseApi } from './api/case';
 import { userApi } from './api/user';
 import { plotApi } from './api/plot';
-import { noticeApi } from './api/notice';
-import { organizationApi } from './api/organization';
 import { paperApi } from './api/paper';
 import { aiApi } from './api/ai';
 import inputReducer from './slices/inputSlice';
@@ -22,8 +20,6 @@ export const store = configureStore({
     [caseApi.reducerPath]: caseApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
     [plotApi.reducerPath]: plotApi.reducer,
-    [noticeApi.reducerPath]: noticeApi.reducer,
-    [organizationApi.reducerPath]: organizationApi.reducer,
     [paperApi.reducerPath]: paperApi.reducer,
     [aiApi.reducerPath]: aiApi.reducer,
   },
@@ -32,8 +28,6 @@ export const store = configureStore({
       caseApi.middleware,
       userApi.middleware,
       plotApi.middleware,
-      noticeApi.middleware,
-      organizationApi.middleware,
       paperApi.middleware,
       aiApi.middleware,
     ),

@@ -11,13 +11,11 @@ import {
   List,
   RefreshCw,
   Search,
-  Bell,
   ChevronUp,
   ChevronDown,
 } from 'lucide-react';
 import { useIntl } from 'react-intl';
 import { useGetCurrentUserQuery, useLogoutMutation } from '@/redux/api/user';
-import { useGetNoticesQuery } from '@/redux/api/notice';
 import { useGetCaseQuery } from '@/redux/api/case';
 import { RibbonTab } from './RibbonTab';
 import { RibbonGroup } from './RibbonGroup';
@@ -32,14 +30,13 @@ interface RibbonLayoutProps {
   children: React.ReactNode;
 }
 
-type TabId = 'home' | 'cases' | 'analyze' | 'admin' | 'user' | 'papers';
+type TabId = 'home' | 'cases' | 'analyze' | 'user' | 'papers';
 
 const getActiveTabFromPath = (path: string): TabId => {
   if (path.startsWith('/cases/') && path.split('/').length > 3)
     return 'analyze';
   if (path.startsWith('/cases') || path.startsWith('/add-cases'))
     return 'cases';
-  if (path.startsWith('/sadmin')) return 'admin';
   if (path.startsWith('/user')) return 'user';
   if (path.startsWith('/papers')) return 'papers';
   return 'home';
@@ -77,7 +74,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
   const [location, setLocation] = useLocation();
   const intl = useIntl();
   const { data: user } = useGetCurrentUserQuery();
-  const { data: notices = [] } = useGetNoticesQuery();
   const [logout] = useLogoutMutation();
   const { collapsed, toggle } = useRibbonCollapse();
 
@@ -94,7 +90,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
       home: '/',
       cases: '/cases',
       analyze: location,
-      admin: '/sadmin',
       user: '/user',
       papers: '/papers',
     };
@@ -192,13 +187,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
             onClick={() => handleTabClick('analyze')}
           />
         )}
-        {user && user.roleId >= 2 && (
-          <RibbonTab
-            label={intl.formatMessage({ id: 'ribbon.tab.admin' })}
-            active={ribbonTab === 'admin'}
-            onClick={() => handleTabClick('admin')}
-          />
-        )}
         <RibbonTab
           label={intl.formatMessage({ id: 'ribbon.tab.settings' })}
           active={ribbonTab === 'user'}
@@ -254,7 +242,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
 
       {/* Ribbon Content - hidden for tabs that use their own in-page toolbar */}
       {!collapsed &&
-        ribbonTab !== 'admin' &&
         ribbonTab !== 'papers' &&
         ribbonTab !== 'analyze' && (
           <div className="bg-[var(--ribbon-content-bg)] border-b border-[var(--ribbon-separator)] shrink-0 min-h-[68px] flex items-stretch px-1">
@@ -276,7 +263,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
       {/* Status Bar */}
       <StatusBar
         userInfo={user?.username}
-        noticeCount={notices.length}
         caseInfo={caseInfo}
       />
     </div>
@@ -321,14 +307,6 @@ const HomeRibbon: React.FC<{
           label={intl.formatMessage({ id: 'ribbon.button.importNamelist' })}
           active={isAddCasesNamelistPath(location)}
           onClick={() => onNavigate('/add-cases/namelist')}
-        />
-      </RibbonGroup>
-      <RibbonGroup
-        title={intl.formatMessage({ id: 'ribbon.group.notifications' })}
-      >
-        <RibbonButton
-          icon={Bell}
-          label={intl.formatMessage({ id: 'ribbon.button.notices' })}
         />
       </RibbonGroup>
     </>
