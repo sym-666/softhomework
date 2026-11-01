@@ -12,6 +12,7 @@ interface PaperAssistantProps {
   paperId: number;
   ingestStatus: IngestStatus;
   onJumpToPage: (page: number) => void;
+  draftRequest?: { text: string } | null;
 }
 
 const SHORTCUTS = ['summary', 'method', 'result', 'concept'];
@@ -21,6 +22,7 @@ const PaperAssistant: React.FC<PaperAssistantProps> = ({
   paperId,
   ingestStatus,
   onJumpToPage,
+  draftRequest,
 }) => {
   const intl = useIntl();
   const { data: status, isLoading } = useGetAiStatusQuery();
@@ -102,6 +104,7 @@ const PaperAssistant: React.FC<PaperAssistantProps> = ({
       onStop={chat.stop}
       onReset={chat.reset}
       renderExtras={renderExtras}
+      draftRequest={draftRequest}
     />
   );
 };
