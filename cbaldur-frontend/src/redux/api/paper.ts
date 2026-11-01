@@ -18,6 +18,10 @@ export const paperApi = createApi({
       query: (params) => ({ url: '', params }),
       providesTags: ['Papers'],
     }),
+    getPaper: builder.query<Paper, number>({
+      query: (id) => `/${id}`,
+      providesTags: (_result, _error, id) => [{ type: 'Papers', id }],
+    }),
     searchGlobalPapers: builder.query<
       PaperSearchResponse,
       { query: string; limit?: number }
@@ -38,11 +42,17 @@ export const paperApi = createApi({
       },
       invalidatesTags: ['Papers'],
     }),
+    deletePaper: builder.mutation<void, number>({
+      query: (id) => ({ url: `/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['Papers'],
+    }),
   }),
 });
 
 export const {
   useGetPapersQuery,
+  useGetPaperQuery,
   useLazySearchGlobalPapersQuery,
   useCreatePaperMutation,
+  useDeletePaperMutation,
 } = paperApi;

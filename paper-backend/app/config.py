@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     # 生产环境走 HTTPS 时设为 true
     cookie_secure: bool = False
 
+    # 可选：没有 Key 也能检索，但共享限流更严格
+    semantic_scholar_api_key: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:
