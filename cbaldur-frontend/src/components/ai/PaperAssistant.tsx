@@ -1,8 +1,13 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { FileText, Info } from 'lucide-react';
 import { useIntl } from 'react-intl';
+import { toast } from 'sonner';
 import { useAiChatStream } from '@/hooks/useAiChatStream';
-import { useGetAiStatusQuery } from '@/redux/api/ai';
+import {
+  useClearChatHistoryMutation,
+  useGetAiStatusQuery,
+  useGetChatHistoryQuery,
+} from '@/redux/api/ai';
 import type { AiChatItem, AiChatMessage } from '@/types/Ai';
 import type { IngestStatus } from '@/types/paper';
 import { selectCitedSources } from '@/utils/citations';
@@ -38,6 +43,33 @@ const PaperAssistant: React.FC<PaperAssistantProps> = ({
     buildBody,
     errorText: intl.formatMessage({ id: 'ai.error' }),
   });
+  const { hydrate, reset } = chat;
+  // 对话在流结束时才写入服务端，缓存的结果可能已经过期
+  const { data: history } = useGetChatHistoryQuery(paperId, {
+    refetchOnMountOrArgChange: true,
+  });
+  const [clearHistory] = useClearChatHistoryMutation();
+
+  useEffect(() => {
+    if (!history) return;
+    hydrate(
+      history.map(({ id, role, content, citations }) => ({
+        id: `saved-${id}`,
+        role,
+        content,
+        citations,
+      })),
+    );
+  }, [history, hydrate]);
+
+  const clearChat = async () => {
+    reset();
+    try {
+      await clearHistory(paperId).unwrap();
+    } catch {
+      toast.error(intl.formatMessage({ id: 'ai.paper.clearError' }));
+    }
+  };
 
   const shortcuts = useMemo(
     () =>
@@ -64,10 +96,7 @@ const PaperAssistant: React.FC<PaperAssistantProps> = ({
             className="inline-flex items-center gap-1 rounded-sm border border-gray-200 px-1.5 py-0.5 text-[var(--office-blue)] hover:border-[var(--office-blue)]"
           >
             <FileText className="h-3 w-3" />
-            {intl.formatMessage(
-              { id: 'ai.paper.page' },
-              { page: source.page },
-            )}
+            {intl.formatMessage({ id: 'ai.paper.page' }, { page: source.page })}
           </button>
         ))}
       </div>
@@ -102,7 +131,8 @@ const PaperAssistant: React.FC<PaperAssistantProps> = ({
       shortcuts={shortcuts}
       onSend={chat.send}
       onStop={chat.stop}
-      onReset={chat.reset}
+      onReset={clearChat}
+      resetLabel={intl.formatMessage({ id: 'ai.paper.clear' })}
       renderExtras={renderExtras}
       draftRequest={draftRequest}
     />

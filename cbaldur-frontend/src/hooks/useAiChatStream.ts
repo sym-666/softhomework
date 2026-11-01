@@ -43,7 +43,7 @@ const nextId = () => `ai-${Date.now()}-${idSeed++}`;
 
 /**
  * AI 助手流式对话：POST + fetch 读取 SSE（EventSource 只支持 GET）
- * 历史只保存在组件内存中，刷新即清空。
+ * 这里只管理当前页面的消息，持久化的历史由调用方通过 hydrate 填入。
  */
 export function useAiChatStream({
   url,
@@ -223,9 +223,16 @@ export function useAiChatStream({
     abortRef.current?.abort();
   }, []);
 
+  /** 填入已保存的记录；已经开始对话时不覆盖，晚到的结果不能冲掉新消息 */
+  const hydrate = useCallback((saved: AiChatItem[]) => {
+    if (itemsRef.current.length > 0 || abortRef.current) return;
+    itemsRef.current = saved;
+    setItems(saved);
+  }, []);
+
   const reset = useCallback(() => {
     startNewSession(url);
   }, [url, startNewSession]);
 
-  return { items, isStreaming, send, stop, reset };
+  return { items, isStreaming, send, stop, reset, hydrate };
 }
