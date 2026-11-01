@@ -6,7 +6,6 @@ import { Bot, Loader2, Plus, Send, Square, X } from 'lucide-react';
 import { Button } from '@/shadcn/components/ui/button';
 import { Textarea } from '@/shadcn/components/ui/textarea';
 import type { AiChatItem } from '@/types/Ai';
-import { AgentPlanCard, ArtifactGallery, ToolRunList } from './AgentActivity';
 
 interface AiChatPanelProps {
   title: string;
@@ -19,14 +18,14 @@ interface AiChatPanelProps {
   onStop: () => void;
   onReset: () => void;
   onClose?: () => void;
-  /** 在助手消息下方渲染结构化结果（参数建议 / 绘图请求） */
+  /** 在助手消息下方渲染结构化结果 */
   renderExtras?: (item: AiChatItem) => React.ReactNode;
-  /** 标题栏下方的附加控件（深度分析开关、参数预检等） */
+  /** 标题栏下方的附加控件 */
   toolbar?: React.ReactNode;
 }
 
 /**
- * AI 助手侧边栏（迁移自 fusim-ai-assistant 的 AgentChatSidebar.razor）
+ * AI 助手对话面板：消息列表、快捷问题与输入框
  */
 const AiChatPanel: React.FC<AiChatPanelProps> = ({
   title,
@@ -114,12 +113,6 @@ const AiChatPanel: React.FC<AiChatPanelProps> = ({
             </div>
           ) : (
             <div key={item.id} className="space-y-2">
-              {item.plan && (
-                <AgentPlanCard plan={item.plan} toolRuns={item.toolRuns} />
-              )}
-              {item.toolRuns && item.toolRuns.length > 0 && (
-                <ToolRunList runs={item.toolRuns} />
-              )}
               <div
                 className={`max-w-full rounded-md border px-3 py-2 text-sm ${
                   item.error
@@ -142,9 +135,6 @@ const AiChatPanel: React.FC<AiChatPanelProps> = ({
                   )
                 )}
               </div>
-              {item.artifacts && item.artifacts.length > 0 && (
-                <ArtifactGallery artifacts={item.artifacts} />
-              )}
               {renderExtras?.(item)}
             </div>
           ),
