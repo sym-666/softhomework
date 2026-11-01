@@ -14,6 +14,7 @@ import PaperGuide from '@/components/ai/PaperGuide';
 import { ExportLink } from '@/components/common/ExportLink';
 import { NotesPanel } from '@/components/notes/NotesPanel';
 import { IngestStatusNotice } from '@/components/reader/IngestStatusNotice';
+import { StudyPanel } from '@/components/study/StudyPanel';
 import { useReadingPage } from '@/hooks/useReadingPage';
 import {
   useDeletePaperMutation,
@@ -241,6 +242,9 @@ export default function PaperDetail({ id }: { id: string }) {
               <TabsTrigger value="notes">
                 {intl.formatMessage({ id: 'papers.tabNotes' })}
               </TabsTrigger>
+              <TabsTrigger value="study">
+                {intl.formatMessage({ id: 'papers.tabStudy' })}
+              </TabsTrigger>
               <TabsTrigger value="info">
                 {intl.formatMessage({ id: 'papers.tabInfo' })}
               </TabsTrigger>
@@ -278,6 +282,17 @@ export default function PaperDetail({ id }: { id: string }) {
                 currentPage={paper.hasLocalFile ? page : null}
                 onJumpToPage={setPage}
                 draftRequest={noteRequest}
+              />
+            </TabsContent>
+            <TabsContent
+              forceMount
+              value="study"
+              className="min-h-0 flex-1 data-[state=inactive]:hidden"
+            >
+              <StudyPanel
+                paperId={paper.id}
+                ingestStatus={paper.ingestStatus}
+                onJumpToPage={setPage}
               />
             </TabsContent>
             <TabsContent
