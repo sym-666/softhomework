@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Link } from 'wouter';
 import {
   BookOpen,
   ExternalLink,
@@ -48,7 +49,7 @@ function PaperCard({ paper }: { paper: Paper }) {
           </span>
           <span className="rounded-sm bg-gray-100 px-2 py-1 text-[11px] text-gray-600">{paper.year}</span>
         </div>
-        <h2 className="line-clamp-2 text-sm font-semibold leading-5 text-gray-900 group-hover:text-[var(--office-blue)]">{paper.title}</h2>
+        <h2 className="line-clamp-2 text-sm font-semibold leading-5 text-gray-900 group-hover:text-[var(--office-blue)]"><Link href={`/papers/${paper.id}`}>{paper.title}</Link></h2>
         <div className="mt-2 flex items-start gap-1.5 text-[11px] text-gray-500">
           <User size={12} className="mt-0.5 shrink-0" />
           <span className="line-clamp-2">{paper.authors}</span>
@@ -62,9 +63,9 @@ function PaperCard({ paper }: { paper: Paper }) {
       </div>
       <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-2.5 text-[11px] text-gray-500">
         <span>{paper.createdByUserName}</span>
-        <button onClick={() => window.open(paper.downloadUrl, '_blank', 'noopener,noreferrer')} className="inline-flex items-center gap-1 font-medium text-[var(--office-blue)] hover:underline">
-          <ExternalLink size={12} />{intl.formatMessage({ id: 'papers.read' })}
-        </button>
+        <Link href={`/papers/${paper.id}`} className="inline-flex items-center gap-1 font-medium text-[var(--office-blue)] hover:underline">
+          <BookOpen size={12} />{intl.formatMessage({ id: 'papers.read' })}
+        </Link>
       </div>
     </article>
   );
@@ -148,7 +149,11 @@ export default function PapersPage() {
       setForm({ title: '', authors: '', year: currentYear, abstract: '', tags: '', url: '' });
       setFile(undefined);
       setMode('library');
-    } catch { toast.error(intl.formatMessage({ id: 'papers.uploadError' })); }
+    } catch (error) {
+      // 文件校验失败等业务错误由后端给出具体原因
+      const message = (error as { data?: { message?: string } })?.data?.message;
+      toast.error(message ?? intl.formatMessage({ id: 'papers.uploadError' }));
+    }
   };
 
   return (

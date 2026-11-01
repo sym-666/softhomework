@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from app.middleware import LowercaseApiPathMiddleware
+from app.middleware import LowercaseApiPathMiddleware, UploadSizeLimitMiddleware
 
 
 def build_client() -> TestClient:
@@ -43,3 +43,40 @@ def test_query_string_case_is_preserved() -> None:
         return {"value": value}
 
     assert TestClient(app).get("/api/Echo?value=MixedCase").json() == {"value": "MixedCase"}
+
+
+def build_upload_client() -> TestClient:
+    app = FastAPI()
+    app.add_middleware(UploadSizeLimitMiddleware, path="/api/upload", max_bytes=10)
+
+    @app.post("/api/upload")
+    def upload() -> dict[str, bool]:
+        return {"ok": True}
+
+    @app.post("/api/other")
+    def other() -> dict[str, bool]:
+        return {"ok": True}
+
+    return TestClient(app)
+
+
+def test_oversized_upload_is_rejected() -> None:
+    response = build_upload_client().post("/api/upload", content=b"x" * 11)
+
+    assert response.status_code == 413
+    assert response.json() == {"success": False, "message": "上传内容过大"}
+
+
+def test_upload_at_limit_is_allowed() -> None:
+    assert build_upload_client().post("/api/upload", content=b"x" * 10).status_code == 200
+
+
+def test_upload_without_content_length_is_rejected() -> None:
+    def chunks():
+        yield b"x"
+
+    assert build_upload_client().post("/api/upload", content=chunks()).status_code == 411
+
+
+def test_size_limit_applies_only_to_upload_path() -> None:
+    assert build_upload_client().post("/api/other", content=b"x" * 11).status_code == 200
