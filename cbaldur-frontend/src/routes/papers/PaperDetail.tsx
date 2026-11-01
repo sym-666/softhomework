@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { Link, useLocation } from 'wouter';
+import { Link, useLocation, useSearch } from 'wouter';
 import {
   ArrowLeft,
   ExternalLink,
@@ -67,11 +67,18 @@ export default function PaperDetail({ id }: { id: string }) {
   const [deletePaper, deleteState] = useDeletePaperMutation();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { page, setPage } = useReadingPage(paperId);
+  const search = useSearch();
   const { data: readingState } = useGetReadingStateQuery(paperId);
   const [updateReadingState] = useUpdateReadingStateMutation();
   const [activeTab, setActiveTab] = useState('chat');
   const [askRequest, setAskRequest] = useState<{ text: string } | null>(null);
   const [noteRequest, setNoteRequest] = useState<{ text: string } | null>(null);
+
+  // 从复习页等处跳转过来时直接打开指定页
+  useEffect(() => {
+    const target = Number(new URLSearchParams(search).get('page'));
+    if (Number.isInteger(target) && target > 0) setPage(target);
+  }, [search, setPage]);
 
   // 解析在后台进行，完成前定期刷新状态
   const ingesting =
