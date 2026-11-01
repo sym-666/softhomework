@@ -16,3 +16,18 @@ export interface DueCards {
   items: StudyCard[];
   total: number;
 }
+
+export interface StudySummary {
+  total: number;
+  due: number;
+  mastered: number;
+  nextDueAt: string | null;
+  forecast: { date: string; count: number }[];
+  papers: {
+    paperId: number;
+    title: string;
+    total: number;
+    due: number;
+    mastered: number;
+  }[];
+}
