@@ -9,6 +9,7 @@ import { SignUp } from './routes/auth/sign-up';
 import { Toaster } from '@/shadcn/components/ui/sonner';
 import Home from './routes';
 import UserProfile from './routes/user';
+import NotesPage from './routes/notes';
 import PapersPage from './routes/papers';
 import PaperDetail from './routes/papers/PaperDetail';
 
@@ -23,6 +24,7 @@ const MainApp = () => {
             <RibbonLayout>
               <Route path="/" component={Home} />
               <Route path="/user" component={UserProfile} />
+              <Route path="/notes" component={NotesPage} />
               <Route path="/papers" component={PapersPage} />
               <Route path="/papers/:id">
                 {(params) => <PaperDetail key={params.id} id={params.id} />}
