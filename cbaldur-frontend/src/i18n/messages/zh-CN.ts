@@ -14,14 +14,12 @@ const messages: Record<string, string> = {
 
   'ribbon.group.library': '论文库',
   'ribbon.button.papers': '论文库',
-  'ribbon.search.placeholder': '搜索...',
   'ribbon.collapse.collapse': '折叠功能区',
   'ribbon.collapse.expand': '展开功能区',
   'ribbon.group.view': '视图',
   'ribbon.group.account': '账户',
   'ribbon.button.dashboard': '仪表盘',
   'ribbon.button.settings': '设置',
-  'status.connected': '已连接',
   'status.language': '语言',
 
   'auth.signIn.usernameOrEmailPlaceholder': '请输入用户名或邮箱',

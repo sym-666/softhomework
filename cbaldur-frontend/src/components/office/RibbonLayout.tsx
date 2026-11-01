@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import {
+  BookOpen,
   Settings,
   User,
   LogOut,
   LayoutDashboard,
   Library,
-  Search,
+  NotebookPen,
   ChevronUp,
   ChevronDown,
 } from 'lucide-react';
@@ -85,13 +86,9 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
       {/* Title Bar */}
       <div className="h-8 bg-[var(--office-blue)] flex items-center px-3 shrink-0 select-none">
         <div className="flex items-center gap-2 flex-1">
-          <img
-            src="https://s2.loli.net/2024/12/04/nCkNI1J5AmgQ9l6.png"
-            alt="Logo"
-            className="h-4 w-auto brightness-0 invert"
-          />
+          <BookOpen className="h-4 w-4 text-white" />
           <span className="text-white text-xs font-medium tracking-wide">
-            CBaldur Simulation Platform
+            PaperPilot
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -155,16 +152,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
 
         <div className="flex-1" />
         <div className="px-3 py-1 flex items-center gap-1">
-          <div className="relative">
-            <Search className="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder={intl.formatMessage({
-                id: 'ribbon.search.placeholder',
-              })}
-              className="h-6 w-48 bg-white border border-gray-300 rounded-sm pl-7 pr-2 text-xs focus:outline-none focus:border-[var(--office-blue)] focus:ring-1 focus:ring-[var(--office-blue)]/30"
-            />
-          </div>
           {(ribbonTab === 'home' || ribbonTab === 'user') && (
             <button
               type="button"
@@ -235,6 +222,11 @@ const HomeRibbon: React.FC<{
           icon={Library}
           label={intl.formatMessage({ id: 'ribbon.button.papers' })}
           onClick={() => onNavigate('/papers')}
+        />
+        <RibbonButton
+          icon={NotebookPen}
+          label={intl.formatMessage({ id: 'ribbon.tab.notes' })}
+          onClick={() => onNavigate('/notes')}
         />
       </RibbonGroup>
     </>

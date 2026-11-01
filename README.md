@@ -1,102 +1,86 @@
-# CBaldur 项目总览
+# PaperPilot
 
-CBaldur 是一个集成前后端的案例管理与仿真平台，包含后端（ASP.NET Core 8）、前端（React 19+ Tailwind CSS + TypeScript）及沙箱环境。支持案例管理、用户管理、仿真任务、数据可视化等功能。
+AI 论文学习网站：上传论文，在站内阅读 PDF，向 AI 提问并追溯到原文页码，记录笔记和学习进度。
 
-- `cbaldur-backend/` 后端服务，基于 .NET 8
-- `cbaldur-frontend/` 前端项目，基于 React 19
-- `docker/` Docker 容器编排与部署配置（`docker-compose.yml`、`nginx.conf`、数据库初始化脚本、字体文件等）
+本项目是软件工程课程作业，界面框架基于 [fusion-simulation/cbaldur](https://github.com/fusion-simulation/cbaldur) 的前端改造，后端用 FastAPI 重新实现。
 
-## AI 辅助编程使用须知
+## 功能
 
-如果使用诸如Codex、Github Copilot等AI辅助编程工具，请注意：
-- 请使用兼容`AGENTS.md`的代码工具，如果使用Claude Code请手动迁移至`CLAUDE.md`。
-- *务必*在AI辅助编程工具中添加`context7` MCP，以确保AI工具能访问最新的项目文档和代码规范，可以参考[https://github.com/upstash/context7](https://github.com/upstash/context7)。
+- **论文库**：上传 PDF、保存外链论文、搜索，通过 Semantic Scholar 检索在线文献
+- **PDF 阅读**：站内阅读、翻页缩放，自动记住上次页码
+- **全文问答**：基于论文全文流式回答，标注来源页，点击跳转到 PDF 对应页
+- **AI 导读**：生成研究问题、方法、结论、关键概念和难点，按语言缓存
+- **笔记**：边读边记，记录页码，支持跨论文搜索
+- **学习看板**：在读和已读统计、最近活动、继续阅读
+- **中英文界面**
 
+## 技术栈
 
+| 部分 | 技术 |
+| :--- | :--- |
+| 前端 | React 19、TypeScript、Redux Toolkit、Tailwind CSS 4、shadcn/ui、react-pdf、ECharts、Rsbuild |
+| 后端 | FastAPI、SQLAlchemy 2、Alembic、SQLite、PyMuPDF、rank-bm25 |
+| AI | OpenAI 兼容接口，默认 DeepSeek |
 
-## 安装与运行
+## 本地运行
 
-### 写在前面
-
-建议使用`vlt`作为前端包管理器，可以跳过corepack的锁定
-
-天天忘记锁定版本导致package.json被重写，浪费时间
-
-但是`npm`也不是不行
-
-```bash
-npm install -g vlt
-```
+需要 Node.js ≥ 22 和 Python ≥ 3.12。
 
 ### 后端
 
-1. 进入 `cbaldur-backend` 目录。
-2. 推荐开发工具：Rider > Visual Studio > VS Code。
-3. 运行命令：
-
-   ```bash
-   dotnet run         # 仅运行
-   dotnet watch       # 运行并监听文件变更
-   ```
-
-4. 配置数据库连接、JWT 密钥、Memcached 等（见 `appsettings.json`）。
+```bash
+cd paper-backend
+python3 -m venv .venv
+.venv/bin/pip install -e ".[dev]"
+cp .env.example .env              # 填写 JWT_KEY，使用 AI 时填写 AI_OPENAI_*
+.venv/bin/alembic upgrade head
+.venv/bin/uvicorn app.main:app --port 5168 --reload
+```
 
 ### 前端
 
-1. 进入 `cbaldur-frontend` 目录。
+```bash
+cd cbaldur-frontend
+npm install
+npm run dev
+```
 
-2. 安装依赖：
-
-   ```bash
-   vlt i
-   ```
-
-3. 启动开发环境：
-
-   ```bash
-   vlt r dev
-   ```
-
-4. 构建生产包：
-
-   ```bash
-   vlt r build
-   ```
+开发服务器会把 `/api` 代理到 `localhost:5168`。
 
 ### Docker 部署
 
 ```bash
 cd docker
-cp .env.example .env   # 填写 POSTGRES_PASSWORD、JWT_KEY 等
+cp .env.example .env              # 填写 JWT_KEY
 docker compose up -d --build
 ```
 
-前端、后端、PostgreSQL、Memcached 一键启动，详见 [docker/DEPLOY.md](docker/DEPLOY.md)。
+详见 [docker/DEPLOY.md](docker/DEPLOY.md)。
 
-## 配置说明
+## 开发检查
 
-- 后端配置文件：`cbaldur-backend/appsettings.json`
-  - 数据库连接字符串、JWT 密钥、Memcached 主机等
+```bash
+# 后端
+cd paper-backend && .venv/bin/ruff check . && .venv/bin/python -m pytest
 
-## 主要功能
+# 前端
+cd cbaldur-frontend && npm run lint && npm run typecheck && npm run build
+```
 
-- [x] 用户注册、登录、权限管理
-- [x] 案例的创建、编辑、运行、结果可视化
-- [ ] 文件上传、下载、在线编辑与执行（支持 Python 等）
-- [x] 通知、组织、分享等模块
-- [ ] 支持中英文界面与中文字体
+## 全文问答的工作方式
 
-## 依赖与环境
+1. 上传 PDF 后，后台按页提取文字并切块，保留页码。
+2. 提问时在这篇论文的切块中做 BM25 检索。中文问题问英文论文时，先由模型改写成英文关键词。
+3. 把相关切块交给模型，要求只依据论文内容回答，并用 `[p.页码]` 标注来源。
+4. 前端只显示回答实际引用且确实检索到的页码。
 
-- Node.js ≥ 22（前端）
-- .NET 8 SDK（后端）
-- PostgreSQL 数据库（schemas：`auth` / `cbaldur`）
-- Memcached 缓存服务
-- Docker（可选，支持容器化部署）
+## 已知限制
 
-## 贡献与开发
+- 扫描版 PDF 没有文字层，不做 OCR，AI 只能基于摘要回答。
+- 外链论文不在服务端抓取 PDF，AI 同样只基于摘要回答。
+- 学习活动统计的是每天活跃的论文数和新增笔记数，不是阅读时长。
+- SQLite 适合单机部署，不适合多实例。
 
-- 前后端均支持主流开发环境
-- 代码风格与提交规范请参考各自子项目 README
+## 第三方许可
 
-如需详细开发文档，请分别查阅 `cbaldur-backend/README.MD` 与 `cbaldur-frontend/README.md`。
+PDF 解析使用的 [PyMuPDF](https://github.com/pymupdf/PyMuPDF) 采用 AGPL-3.0 许可，公开分发或对外提供服务前需要确认合规。
