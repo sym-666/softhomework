@@ -1,4 +1,4 @@
-# 构建 React 前端并用 nginx 托管；/api 与 /hubs 反向代理到 compose 中的 backend 服务
+# 构建 React 前端并用 nginx 托管；/api 反向代理到 compose 中的 backend 服务
 ARG NODE_IMAGE=node:22-alpine
 ARG NGINX_IMAGE=nginx:1.27-alpine
 
