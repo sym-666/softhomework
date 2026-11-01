@@ -166,3 +166,96 @@ def test_uploaded_paper_appears_in_list(user_client: TestClient) -> None:
     user_client.post("/api/Papers", data=FORM, files=pdf_upload())
 
     assert user_client.get("/api/Papers").json()["total"] == 1
+
+
+def upload(client: TestClient, content: bytes = PDF_BYTES) -> int:
+    return client.post("/api/Papers", data=FORM, files=pdf_upload(content)).json()["id"]
+
+
+def test_get_paper_returns_detail(user_client: TestClient) -> None:
+    paper_id = upload(user_client)
+
+    response = user_client.get(f"/api/Papers/{paper_id}")
+
+    assert response.status_code == 200
+    assert response.json()["title"] == "Paper"
+
+
+def test_get_unknown_paper_is_404(user_client: TestClient) -> None:
+    response = user_client.get("/api/Papers/999")
+
+    assert response.status_code == 404
+    assert response.json()["message"] == "论文不存在"
+
+
+def test_download_serves_pdf_inline(user_client: TestClient) -> None:
+    paper_id = upload(user_client)
+
+    response = user_client.get(f"/api/Papers/{paper_id}/download")
+
+    assert response.status_code == 200
+    assert response.content == PDF_BYTES
+    assert response.headers["content-type"] == "application/pdf"
+    assert response.headers["content-disposition"].startswith("inline")
+
+
+def test_download_supports_range_requests(user_client: TestClient) -> None:
+    paper_id = upload(user_client)
+
+    response = user_client.get(
+        f"/api/Papers/{paper_id}/download", headers={"Range": "bytes=0-4"}
+    )
+
+    assert response.status_code == 206
+    assert response.content == b"%PDF-"
+
+
+def test_download_handles_non_ascii_title(user_client: TestClient) -> None:
+    response = user_client.post(
+        "/api/Papers", data={**FORM, "Title": "注意力机制"}, files=pdf_upload()
+    )
+
+    download = user_client.get(f"/api/Papers/{response.json()['id']}/download")
+
+    assert download.status_code == 200
+
+
+def test_download_redirects_for_external_paper(user_client: TestClient) -> None:
+    created = user_client.post("/api/Papers", data={**FORM, "Url": "https://example.com/a"})
+
+    response = user_client.get(
+        f"/api/Papers/{created.json()['id']}/download", follow_redirects=False
+    )
+
+    assert response.status_code == 302
+    assert response.headers["location"] == "https://example.com/a"
+
+
+def test_download_requires_login(user_client: TestClient, client: TestClient) -> None:
+    paper_id = upload(user_client)
+    user_client.cookies.clear()
+
+    assert user_client.get(f"/api/Papers/{paper_id}/download").status_code == 401
+
+
+def test_owner_can_delete_paper_and_file(user_client: TestClient) -> None:
+    paper_id = upload(user_client)
+    with SessionLocal() as db:
+        stored = paper_storage_dir() / db.get(Paper, paper_id).stored_file_name
+
+    response = user_client.delete(f"/api/Papers/{paper_id}")
+
+    assert response.status_code == 204
+    assert user_client.get(f"/api/Papers/{paper_id}").status_code == 404
+    assert not stored.exists()
+
+
+def test_other_user_cannot_delete_paper(
+    user_client: TestClient, other_client: TestClient
+) -> None:
+    paper_id = upload(user_client)
+
+    response = other_client.delete(f"/api/Papers/{paper_id}")
+
+    assert response.status_code == 403
+    assert user_client.get(f"/api/Papers/{paper_id}").status_code == 200

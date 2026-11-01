@@ -5,6 +5,7 @@ from pathlib import Path, PurePosixPath
 from urllib.parse import urlsplit
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, joinedload
 
@@ -98,6 +99,13 @@ def list_papers(
         page=page,
         page_size=page_size,
     )
+
+
+def _get_paper_or_404(paper_id: int, db: Session) -> Paper:
+    paper = db.get(Paper, paper_id)
+    if paper is None:
+        raise HTTPException(status_code=404, detail="论文不存在")
+    return paper
 
 
 def paper_storage_dir() -> Path:
@@ -210,3 +218,52 @@ async def create_paper(
 
     paper.created_by = user
     return to_paper_out(paper)
+
+
+@router.get("/{paper_id}", response_model=PaperOut)
+def get_paper(
+    paper_id: int,
+    _user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> PaperOut:
+    return to_paper_out(_get_paper_or_404(paper_id, db))
+
+
+@router.get("/{paper_id}/download", response_model=None)
+def download_paper(
+    paper_id: int,
+    _user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Response:
+    paper = _get_paper_or_404(paper_id, db)
+    if paper.stored_file_name:
+        path = paper_storage_dir() / paper.stored_file_name
+        if path.is_file():
+            # inline 让阅读器和浏览器直接显示；FileResponse 支持 Range 请求
+            return FileResponse(
+                path,
+                media_type="application/pdf",
+                filename=f"{paper.title[:120]}.pdf",
+                content_disposition_type="inline",
+            )
+    if paper.source_url:
+        return RedirectResponse(paper.source_url, status_code=302)
+    raise HTTPException(status_code=404, detail="论文文件或来源链接不可用")
+
+
+@router.delete("/{paper_id}", status_code=204)
+def delete_paper(
+    paper_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> None:
+    paper = _get_paper_or_404(paper_id, db)
+    if paper.created_by_user_id != user.id:
+        raise HTTPException(status_code=403, detail="只有上传者可以删除论文")
+
+    stored_name = paper.stored_file_name
+    db.delete(paper)
+    db.commit()
+    # 提交成功后再删文件：反过来的话，提交失败会留下指向空文件的记录
+    if stored_name:
+        (paper_storage_dir() / stored_name).unlink(missing_ok=True)
