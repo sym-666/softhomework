@@ -33,9 +33,12 @@ def build_engine(database_url: str) -> Engine:
     engine = create_engine(database_url, connect_args={"check_same_thread": False})
 
     @event.listens_for(engine, "connect")
-    def enable_foreign_keys(connection, _record) -> None:  # SQLite 默认不校验外键
+    def configure_sqlite(connection, _record) -> None:
         cursor = connection.cursor()
+        # SQLite 默认不校验外键
         cursor.execute("PRAGMA foreign_keys=ON")
+        # 后台解析写入切块时，页面的读请求不被阻塞
+        cursor.execute("PRAGMA journal_mode=WAL")
         cursor.close()
 
     return engine

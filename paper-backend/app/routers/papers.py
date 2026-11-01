@@ -1,20 +1,30 @@
 import logging
 import uuid
 from datetime import UTC, datetime
-from pathlib import Path, PurePosixPath
+from pathlib import PurePosixPath
 from urllib.parse import urlsplit
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    UploadFile,
+)
 from fastapi.responses import FileResponse, RedirectResponse, Response
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, joinedload
 
-from app.config import get_settings
 from app.db import get_db
 from app.deps import get_current_user
 from app.models import Paper, User
 from app.schemas import CamelModel, UtcDatetime
+from app.services.ingestion import ingest_paper
 from app.services.semantic_scholar import SearchUnavailableError, search_papers
+from app.services.storage import paper_storage_dir
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +45,7 @@ class PaperOut(CamelModel):
     source_url: str | None
     download_url: str
     has_local_file: bool
+    ingest_status: str
     created_by_user_id: str
     created_by_user_name: str
     created_at: UtcDatetime
@@ -74,6 +85,7 @@ def to_paper_out(paper: Paper) -> PaperOut:
         source_url=paper.source_url,
         download_url=f"/api/Papers/{paper.id}/download",
         has_local_file=paper.stored_file_name is not None,
+        ingest_status=paper.ingest_status,
         created_by_user_id=paper.created_by_user_id,
         created_by_user_name=paper.created_by.username,
         created_at=paper.created_at,
@@ -146,10 +158,6 @@ def _get_paper_or_404(paper_id: int, db: Session) -> Paper:
     return paper
 
 
-def paper_storage_dir() -> Path:
-    return get_settings().data_dir / "papers"
-
-
 def _required(value: str, label: str, max_length: int) -> str:
     value = value.strip()
     if not value:
@@ -208,6 +216,7 @@ async def _save_pdf(file: UploadFile) -> str:
 
 @router.post("", response_model=PaperOut, status_code=201)
 async def create_paper(
+    background_tasks: BackgroundTasks,
     title: str = Form(alias="Title"),
     authors: str = Form(alias="Authors"),
     year: int = Form(alias="Year"),
@@ -243,6 +252,7 @@ async def create_paper(
         source_url=source_url,
         stored_file_name=stored_name,
         original_file_name=(file.filename or "")[:500] if has_file else None,
+        ingest_status="pending" if stored_name else "none",
     )
     db.add(paper)
     try:
@@ -255,6 +265,8 @@ async def create_paper(
         raise
 
     paper.created_by = user
+    if stored_name is not None:
+        background_tasks.add_task(ingest_paper, paper.id)
     return to_paper_out(paper)
 
 
@@ -305,3 +317,24 @@ def delete_paper(
     # 提交成功后再删文件：反过来的话，提交失败会留下指向空文件的记录
     if stored_name:
         (paper_storage_dir() / stored_name).unlink(missing_ok=True)
+
+
+@router.post("/{paper_id}/ingest", response_model=PaperOut, status_code=202)
+def retry_ingestion(
+    paper_id: int,
+    background_tasks: BackgroundTasks,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> PaperOut:
+    paper = _get_paper_or_404(paper_id, db)
+    if paper.created_by_user_id != user.id:
+        raise HTTPException(status_code=403, detail="只有上传者可以重新解析")
+    if paper.stored_file_name is None:
+        raise HTTPException(status_code=400, detail="这篇论文没有本地 PDF")
+    if paper.ingest_status in ("pending", "processing"):
+        raise HTTPException(status_code=409, detail="论文正在解析中")
+
+    paper.ingest_status = "pending"
+    db.commit()
+    background_tasks.add_task(ingest_paper, paper.id)
+    return to_paper_out(paper)

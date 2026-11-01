@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
   ArrowLeft,
@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useIntl } from 'react-intl';
 import { toast } from 'sonner';
+import { IngestStatusNotice } from '@/components/reader/IngestStatusNotice';
 import { useReadingPage } from '@/hooks/useReadingPage';
 import { useDeletePaperMutation, useGetPaperQuery } from '@/redux/api/paper';
 import { useGetCurrentUserQuery } from '@/redux/api/user';
@@ -28,6 +29,8 @@ import {
   TabsTrigger,
 } from '@/shadcn/components/ui/tabs';
 
+const INGEST_POLL_MS = 2000;
+
 // pdf.js 体积较大，只在打开论文时加载
 const PdfReader = lazy(() => import('@/components/reader/PdfReader'));
 
@@ -35,11 +38,23 @@ export default function PaperDetail({ id }: { id: string }) {
   const intl = useIntl();
   const [, setLocation] = useLocation();
   const paperId = Number(id);
-  const { data: paper, isLoading, isError } = useGetPaperQuery(paperId);
+  const [pollingInterval, setPollingInterval] = useState(0);
+  const {
+    data: paper,
+    isLoading,
+    isError,
+  } = useGetPaperQuery(paperId, { pollingInterval });
   const { data: user } = useGetCurrentUserQuery();
   const [deletePaper, deleteState] = useDeletePaperMutation();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { page, setPage } = useReadingPage(paperId);
+
+  // 解析在后台进行，完成前定期刷新状态
+  const ingesting =
+    paper?.ingestStatus === 'pending' || paper?.ingestStatus === 'processing';
+  useEffect(() => {
+    setPollingInterval(ingesting ? INGEST_POLL_MS : 0);
+  }, [ingesting]);
 
   const confirmDelete = async () => {
     try {
@@ -155,6 +170,11 @@ export default function PaperDetail({ id }: { id: string }) {
               value="info"
               className="min-h-0 flex-1 overflow-auto px-4 pb-4"
             >
+              <IngestStatusNotice
+                paperId={paper.id}
+                status={paper.ingestStatus}
+                canRetry={user?.id === paper.createdByUserId}
+              />
               {!paper.hasLocalFile && (
                 <p className="mb-3 rounded-sm bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-700">
                   {intl.formatMessage({ id: 'papers.externalOnly' })}

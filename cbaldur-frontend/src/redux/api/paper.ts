@@ -44,6 +44,10 @@ export const paperApi = createApi({
       },
       invalidatesTags: ['Papers'],
     }),
+    retryIngestion: builder.mutation<Paper, number>({
+      query: (id) => ({ url: `/${id}/ingest`, method: 'POST' }),
+      invalidatesTags: (_result, _error, id) => [{ type: 'Papers', id }],
+    }),
     getReadingState: builder.query<ReadingState, number>({
       query: (id) => `/${id}/reading-state`,
       providesTags: (_result, _error, id) => [{ type: 'ReadingState', id }],
@@ -75,6 +79,7 @@ export const {
   useLazySearchGlobalPapersQuery,
   useCreatePaperMutation,
   useDeletePaperMutation,
+  useRetryIngestionMutation,
   useGetReadingStateQuery,
   useUpdateReadingStateMutation,
 } = paperApi;
