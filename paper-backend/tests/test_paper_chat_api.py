@@ -1,0 +1,139 @@
+from collections.abc import Iterator
+
+import pytest
+from fastapi.testclient import TestClient
+
+from app.config import get_settings
+from app.services import paper_chat
+from tests.pdf_factory import make_pdf
+from tests.test_papers import upload
+
+LONG_TEXT = "Attention lets a model focus on relevant tokens. " * 12
+
+
+@pytest.fixture
+def ai_enabled(monkeypatch: pytest.MonkeyPatch) -> Iterator[list]:
+    monkeypatch.setenv("AI_OPENAI_API_KEY", "key")
+    monkeypatch.setenv("AI_OPENAI_MODEL_ID", "model")
+    get_settings.cache_clear()
+    captured: list = []
+
+    def stream(messages):
+        captured.append(messages)
+        yield "答案 [p.1]"
+
+    monkeypatch.setattr(paper_chat.llm, "stream", stream)
+    yield captured
+    get_settings.cache_clear()
+
+
+def chat(client: TestClient, paper_id: int, message: str = "what is attention", **extra):
+    return client.post(
+        "/api/Ai/PaperChat", params={"id": paper_id}, json={"message": message, **extra}
+    )
+
+
+def test_chat_streams_events(user_client: TestClient, ai_enabled: list) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+
+    response = chat(user_client, paper_id)
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/event-stream")
+    assert response.headers["x-accel-buffering"] == "no"
+    assert "event: citations" in response.text
+    assert '"page": 1' in response.text
+    assert "event: delta" in response.text
+    assert response.text.endswith('event: done\ndata: {}\n\n')
+
+
+def test_chat_sends_paper_text_to_model(user_client: TestClient, ai_enabled: list) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+
+    chat(user_client, paper_id, history=[{"role": "user", "content": "earlier"}])
+
+    messages = ai_enabled[0]
+    assert messages[1] == {"role": "user", "content": "earlier"}
+    assert "Attention lets a model" in messages[-1]["content"]
+
+
+def test_external_paper_uses_abstract(user_client: TestClient, ai_enabled: list) -> None:
+    created = user_client.post(
+        "/api/Papers",
+        data={
+            "Title": "T",
+            "Authors": "A",
+            "Year": "2020",
+            "Abstract": "Abstract text here",
+            "Url": "https://example.com",
+        },
+    )
+
+    response = chat(user_client, created.json()["id"])
+
+    assert response.status_code == 200
+    assert "Abstract text here" in ai_enabled[0][-1]["content"]
+
+
+def test_chat_requires_login(user_client: TestClient, ai_enabled: list) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+    user_client.cookies.clear()
+
+    assert chat(user_client, paper_id).status_code == 401
+
+
+def test_chat_reports_missing_configuration(
+    user_client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("AI_OPENAI_API_KEY", "")
+    get_settings.cache_clear()
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+
+    response = chat(user_client, paper_id)
+
+    assert response.status_code == 503
+    assert response.json()["message"] == "AI 功能未配置，请联系管理员"
+    monkeypatch.undo()
+    get_settings.cache_clear()
+
+
+def test_chat_rejects_unknown_paper(user_client: TestClient, ai_enabled: list) -> None:
+    assert chat(user_client, 999).status_code == 404
+
+
+def test_chat_rejects_blank_and_oversized_messages(
+    user_client: TestClient, ai_enabled: list
+) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+
+    assert chat(user_client, paper_id, message="   ").status_code == 400
+    assert chat(user_client, paper_id, message="x" * 2001).status_code == 422
+
+
+def test_chat_rejects_invalid_history_role(user_client: TestClient, ai_enabled: list) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+
+    response = chat(user_client, paper_id, history=[{"role": "system", "content": "x"}])
+
+    assert response.status_code == 422
+
+
+def test_chat_waits_for_ingestion(user_client: TestClient, ai_enabled: list) -> None:
+    from app.db import SessionLocal
+    from app.models import Paper
+
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+    with SessionLocal() as db:
+        db.get(Paper, paper_id).ingest_status = "processing"
+        db.commit()
+
+    assert chat(user_client, paper_id).status_code == 409
+
+
+def test_chat_rejects_paper_without_content(user_client: TestClient, ai_enabled: list) -> None:
+    created = user_client.post(
+        "/api/Papers",
+        data={"Title": "T", "Authors": "A", "Year": "2020", "Url": "https://example.com"},
+    )
+
+    assert chat(user_client, created.json()["id"]).status_code == 400
