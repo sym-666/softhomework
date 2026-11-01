@@ -25,7 +25,7 @@ const MainApp = () => {
               <Route path="/user" component={UserProfile} />
               <Route path="/papers" component={PapersPage} />
               <Route path="/papers/:id">
-                {(params) => <PaperDetail id={params.id} />}
+                {(params) => <PaperDetail key={params.id} id={params.id} />}
               </Route>
             </RibbonLayout>
           </Route>

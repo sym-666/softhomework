@@ -4,12 +4,14 @@ import type {
   Paper,
   PaperPagedResult,
   PaperSearchResponse,
+  ReadingState,
+  ReadingStatus,
 } from '@/types/paper';
 
 export const paperApi = createApi({
   reducerPath: 'paperApi',
   baseQuery: fetchBaseQuery({ baseUrl: '/api/Papers', credentials: 'include' }),
-  tagTypes: ['Papers'],
+  tagTypes: ['Papers', 'ReadingState'],
   endpoints: (builder) => ({
     getPapers: builder.query<
       PaperPagedResult,
@@ -42,6 +44,24 @@ export const paperApi = createApi({
       },
       invalidatesTags: ['Papers'],
     }),
+    getReadingState: builder.query<ReadingState, number>({
+      query: (id) => `/${id}/reading-state`,
+      providesTags: (_result, _error, id) => [{ type: 'ReadingState', id }],
+    }),
+    updateReadingState: builder.mutation<
+      ReadingState,
+      { paperId: number; lastPage?: number; status?: ReadingStatus }
+    >({
+      query: ({ paperId, ...body }) => ({
+        url: `/${paperId}/reading-state`,
+        method: 'PUT',
+        body,
+      }),
+      // 让缓存失效，否则一分钟内重新打开论文会恢复到旧页码
+      invalidatesTags: (_result, _error, { paperId }) => [
+        { type: 'ReadingState', id: paperId },
+      ],
+    }),
     deletePaper: builder.mutation<void, number>({
       query: (id) => ({ url: `/${id}`, method: 'DELETE' }),
       invalidatesTags: ['Papers'],
@@ -55,4 +75,6 @@ export const {
   useLazySearchGlobalPapersQuery,
   useCreatePaperMutation,
   useDeletePaperMutation,
+  useGetReadingStateQuery,
+  useUpdateReadingStateMutation,
 } = paperApi;
