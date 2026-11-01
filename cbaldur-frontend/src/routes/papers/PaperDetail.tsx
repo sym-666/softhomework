@@ -11,9 +11,15 @@ import { useIntl } from 'react-intl';
 import { toast } from 'sonner';
 import PaperAssistant from '@/components/ai/PaperAssistant';
 import PaperGuide from '@/components/ai/PaperGuide';
+import { NotesPanel } from '@/components/notes/NotesPanel';
 import { IngestStatusNotice } from '@/components/reader/IngestStatusNotice';
 import { useReadingPage } from '@/hooks/useReadingPage';
-import { useDeletePaperMutation, useGetPaperQuery } from '@/redux/api/paper';
+import {
+  useDeletePaperMutation,
+  useGetPaperQuery,
+  useGetReadingStateQuery,
+  useUpdateReadingStateMutation,
+} from '@/redux/api/paper';
 import { useGetCurrentUserQuery } from '@/redux/api/user';
 import { Button } from '@/shadcn/components/ui/button';
 import {
@@ -25,13 +31,22 @@ import {
   DialogTitle,
 } from '@/shadcn/components/ui/dialog';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shadcn/components/ui/select';
+import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from '@/shadcn/components/ui/tabs';
+import type { ReadingStatus } from '@/types/paper';
 
 const INGEST_POLL_MS = 2000;
+const READING_STATUSES: ReadingStatus[] = ['unread', 'reading', 'done'];
 
 // pdf.js 体积较大，只在打开论文时加载
 const PdfReader = lazy(() => import('@/components/reader/PdfReader'));
@@ -50,6 +65,8 @@ export default function PaperDetail({ id }: { id: string }) {
   const [deletePaper, deleteState] = useDeletePaperMutation();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { page, setPage } = useReadingPage(paperId);
+  const { data: readingState } = useGetReadingStateQuery(paperId);
+  const [updateReadingState] = useUpdateReadingStateMutation();
 
   // 解析在后台进行，完成前定期刷新状态
   const ingesting =
@@ -57,6 +74,14 @@ export default function PaperDetail({ id }: { id: string }) {
   useEffect(() => {
     setPollingInterval(ingesting ? INGEST_POLL_MS : 0);
   }, [ingesting]);
+
+  const changeStatus = async (status: ReadingStatus) => {
+    try {
+      await updateReadingState({ paperId, status }).unwrap();
+    } catch {
+      toast.error(intl.formatMessage({ id: 'papers.statusError' }));
+    }
+  };
 
   const confirmDelete = async () => {
     try {
@@ -114,6 +139,27 @@ export default function PaperDetail({ id }: { id: string }) {
             </p>
           </div>
           <div className="flex shrink-0 gap-2">
+            {readingState && (
+              <Select
+                value={readingState.status}
+                onValueChange={(value) => changeStatus(value as ReadingStatus)}
+              >
+                <SelectTrigger
+                  size="sm"
+                  className="w-24 rounded-sm text-xs"
+                  aria-label={intl.formatMessage({ id: 'papers.status' })}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {READING_STATUSES.map((status) => (
+                    <SelectItem key={status} value={status} className="text-xs">
+                      {intl.formatMessage({ id: `papers.status.${status}` })}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             <Button asChild size="sm" variant="outline" className="rounded-sm">
               <a href={paper.downloadUrl} target="_blank" rel="noreferrer">
                 <ExternalLink />
@@ -170,6 +216,9 @@ export default function PaperDetail({ id }: { id: string }) {
               <TabsTrigger value="guide">
                 {intl.formatMessage({ id: 'papers.tabGuide' })}
               </TabsTrigger>
+              <TabsTrigger value="notes">
+                {intl.formatMessage({ id: 'papers.tabNotes' })}
+              </TabsTrigger>
               <TabsTrigger value="info">
                 {intl.formatMessage({ id: 'papers.tabInfo' })}
               </TabsTrigger>
@@ -194,6 +243,16 @@ export default function PaperDetail({ id }: { id: string }) {
               <PaperGuide
                 paperId={paper.id}
                 ingestStatus={paper.ingestStatus}
+              />
+            </TabsContent>
+            <TabsContent
+              value="notes"
+              className="min-h-0 flex-1 data-[state=inactive]:hidden"
+            >
+              <NotesPanel
+                paperId={paper.id}
+                currentPage={paper.hasLocalFile ? page : null}
+                onJumpToPage={setPage}
               />
             </TabsContent>
             <TabsContent

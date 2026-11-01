@@ -1,0 +1,98 @@
+import { useState } from 'react';
+import { Loader2, Plus } from 'lucide-react';
+import { useIntl } from 'react-intl';
+import { toast } from 'sonner';
+import { useCreateNoteMutation, useGetPaperNotesQuery } from '@/redux/api/note';
+import { Button } from '@/shadcn/components/ui/button';
+import { Textarea } from '@/shadcn/components/ui/textarea';
+import { NoteItem } from './NoteItem';
+
+interface NotesPanelProps {
+  paperId: number;
+  /** 当前阅读页，新笔记会记录下来；外链论文为 null */
+  currentPage: number | null;
+  onJumpToPage: (page: number) => void;
+}
+
+export function NotesPanel({
+  paperId,
+  currentPage,
+  onJumpToPage,
+}: NotesPanelProps) {
+  const intl = useIntl();
+  const { data: notes, isLoading } = useGetPaperNotesQuery(paperId);
+  const [createNote, createState] = useCreateNoteMutation();
+  const [draft, setDraft] = useState('');
+
+  const add = async () => {
+    const content = draft.trim();
+    if (!content) return;
+    try {
+      await createNote({ paperId, content, page: currentPage }).unwrap();
+      setDraft('');
+    } catch {
+      toast.error(intl.formatMessage({ id: 'notes.saveError' }));
+    }
+  };
+
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="shrink-0 border-b border-gray-100 px-2 pb-2">
+        <Textarea
+          value={draft}
+          rows={3}
+          maxLength={10000}
+          placeholder={intl.formatMessage({ id: 'notes.placeholder' })}
+          aria-label={intl.formatMessage({ id: 'notes.placeholder' })}
+          onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
+              event.preventDefault();
+              add();
+            }
+          }}
+          className="resize-none text-sm"
+        />
+        <div className="mt-2 flex items-center justify-between">
+          <span className="text-[11px] text-gray-400">
+            {currentPage !== null &&
+              intl.formatMessage(
+                { id: 'notes.currentPage' },
+                { page: currentPage },
+              )}
+          </span>
+          <Button
+            type="button"
+            size="sm"
+            className="h-7 rounded-sm bg-[var(--office-blue)] text-xs"
+            disabled={createState.isLoading || !draft.trim()}
+            onClick={add}
+          >
+            {createState.isLoading ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              <Plus />
+            )}
+            {intl.formatMessage({ id: 'notes.add' })}
+          </Button>
+        </div>
+      </div>
+
+      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto bg-gray-50 p-2">
+        {isLoading && (
+          <p className="py-8 text-center text-sm text-gray-400">
+            {intl.formatMessage({ id: 'common.loading' })}
+          </p>
+        )}
+        {notes?.length === 0 && (
+          <p className="py-8 text-center text-sm text-gray-400">
+            {intl.formatMessage({ id: 'notes.empty' })}
+          </p>
+        )}
+        {notes?.map((note) => (
+          <NoteItem key={note.id} note={note} onJumpToPage={onJumpToPage} />
+        ))}
+      </div>
+    </div>
+  );
+}

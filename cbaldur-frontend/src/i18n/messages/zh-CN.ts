@@ -87,9 +87,6 @@ const messages: Record<string, string> = {
   'user.security.title': '安全设置',
   'user.security.userId': '用户 ID',
   'user.security.userIdDesc': '账号的唯一标识',
-  'home.title': '欢迎使用论文学习平台',
-  'home.subtitle': '学习看板正在建设中，可以先到论文库浏览和上传论文。',
-  'home.openLibrary': '打开论文库',
 };
 
 export default messages;
