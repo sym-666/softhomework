@@ -19,3 +19,10 @@ def test_sqlite_foreign_keys_are_enabled(tmp_path: Path) -> None:
 
     with engine.connect() as connection:
         assert connection.execute(text("PRAGMA foreign_keys")).scalar() == 1
+
+
+def test_sqlite_uses_write_ahead_log(tmp_path: Path) -> None:
+    engine = build_engine(f"sqlite:///{tmp_path / 'app.db'}")
+
+    with engine.connect() as connection:
+        assert connection.execute(text("PRAGMA journal_mode")).scalar() == "wal"
