@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { Loader2, Plus } from 'lucide-react';
 import { useIntl } from 'react-intl';
 import { toast } from 'sonner';
+import { ExportLink } from '@/components/common/ExportLink';
 import { useCreateNoteMutation, useGetPaperNotesQuery } from '@/redux/api/note';
+import { useAppSelector } from '@/redux/hooks';
 import { Button } from '@/shadcn/components/ui/button';
 import { Textarea } from '@/shadcn/components/ui/textarea';
 import { NoteItem } from './NoteItem';
@@ -23,6 +25,7 @@ export function NotesPanel({
   draftRequest,
 }: NotesPanelProps) {
   const intl = useIntl();
+  const language = useAppSelector((state) => state.locale.locale);
   const { data: notes, isLoading } = useGetPaperNotesQuery(paperId);
   const [createNote, createState] = useCreateNoteMutation();
   const [draft, setDraft] = useState('');
@@ -108,6 +111,15 @@ export function NotesPanel({
         {notes?.map((note) => (
           <NoteItem key={note.id} note={note} onJumpToPage={onJumpToPage} />
         ))}
+        {notes && notes.length > 0 && (
+          <div className="flex justify-end pt-1">
+            <ExportLink
+              href={`/api/Notes/export?paperId=${paperId}&lang=${language}`}
+              label={intl.formatMessage({ id: 'export.markdown' })}
+              className="h-7 text-xs"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
