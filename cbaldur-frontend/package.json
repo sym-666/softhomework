@@ -28,7 +28,6 @@
     "radix-ui": "^1.6.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-easy-crop": "^6.2.4",
     "react-intl": "^12.1.6",
     "react-markdown": "^10.1.0",
     "react-redux": "^9.2.0",
