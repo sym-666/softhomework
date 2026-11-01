@@ -22,6 +22,7 @@ from app.db import get_db
 from app.deps import get_current_user
 from app.models import Paper, User
 from app.schemas import CamelModel, UtcDatetime
+from app.services.export import papers_to_bibtex
 from app.services.ingestion import ingest_paper
 from app.services.semantic_scholar import SearchUnavailableError, search_papers
 from app.services.storage import paper_storage_dir
@@ -268,6 +269,34 @@ async def create_paper(
     if stored_name is not None:
         background_tasks.add_task(ingest_paper, paper.id)
     return to_paper_out(paper)
+
+
+def _bibtex_response(content: str, filename: str) -> Response:
+    return Response(
+        content,
+        media_type="application/x-bibtex; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+# 必须在 /{paper_id} 之前声明，否则 bibtex 会被当成论文编号
+@router.get("/bibtex", response_model=None)
+def export_library_bibtex(
+    _user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Response:
+    papers = db.scalars(select(Paper).order_by(Paper.created_at, Paper.id)).all()
+    return _bibtex_response(papers_to_bibtex(papers), "paperpilot-library.bib")
+
+
+@router.get("/{paper_id}/bibtex", response_model=None)
+def export_paper_bibtex(
+    paper_id: int,
+    _user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Response:
+    paper = _get_paper_or_404(paper_id, db)
+    return _bibtex_response(papers_to_bibtex([paper]), f"paper-{paper_id}.bib")
 
 
 @router.get("/{paper_id}", response_model=PaperOut)
