@@ -270,3 +270,19 @@ def test_truncated_answer_is_reported_and_not_saved(
 
     assert "被截断" in response.text
     assert stored_messages() == []
+
+
+def test_page_being_read_reaches_the_model(user_client: TestClient, ai_enabled: list) -> None:
+    pages = ["Attention lets a model focus on tokens. " * 12, "Quantum zebra marker text. " * 12]
+    paper_id = upload(user_client, make_pdf(pages))
+
+    chat(user_client, paper_id, "what is attention", page=2)
+
+    assert "Quantum zebra marker" in ai_enabled[0][-1]["content"]
+    assert "用户正在阅读第 2 页" in ai_enabled[0][-1]["content"]
+
+
+def test_invalid_page_is_rejected(user_client: TestClient, ai_enabled: list) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+
+    assert chat(user_client, paper_id, page=0).status_code == 422
