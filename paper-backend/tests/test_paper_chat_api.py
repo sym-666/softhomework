@@ -1,10 +1,15 @@
+import json
 from collections.abc import Iterator
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 
 from app.config import get_settings
+from app.db import SessionLocal
+from app.models import PaperChatMessage
 from app.services import paper_chat
+from app.services.llm import LlmError
 from tests.pdf_factory import make_pdf
 from tests.test_papers import upload
 
@@ -137,3 +142,47 @@ def test_chat_rejects_paper_without_content(user_client: TestClient, ai_enabled:
     )
 
     assert chat(user_client, created.json()["id"]).status_code == 400
+
+
+def stored_messages() -> list[PaperChatMessage]:
+    with SessionLocal() as db:
+        return list(db.scalars(select(PaperChatMessage).order_by(PaperChatMessage.id)))
+
+
+def test_finished_answer_is_saved(user_client: TestClient, ai_enabled: list) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+
+    chat(user_client, paper_id, "what is attention")
+
+    user_message, answer = stored_messages()
+    assert (user_message.role, user_message.content) == ("user", "what is attention")
+    assert (answer.role, answer.content) == ("assistant", "答案 [p.1]")
+    assert json.loads(answer.citations)[0]["page"] == 1
+
+
+def test_failed_answer_is_not_saved(
+    user_client: TestClient, ai_enabled: list, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+
+    def partial(messages):
+        yield "只说了一半"
+        raise LlmError
+
+    monkeypatch.setattr(paper_chat.llm, "stream", partial)
+
+    response = chat(user_client, paper_id)
+
+    assert "event: error" in response.text
+    assert stored_messages() == []
+
+
+def test_empty_answer_is_not_saved(
+    user_client: TestClient, ai_enabled: list, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+    monkeypatch.setattr(paper_chat.llm, "stream", lambda messages: iter(()))
+
+    chat(user_client, paper_id)
+
+    assert stored_messages() == []
