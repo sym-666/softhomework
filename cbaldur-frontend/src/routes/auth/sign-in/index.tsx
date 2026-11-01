@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { GithubIcon } from '@/components/icons/GithubIcon';
 import { toast } from 'sonner';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Button } from '@/shadcn/components/ui/button';
 import { Input } from '@/shadcn/components/ui/input';
 import { Label } from '@/shadcn/components/ui/label';
-import { Checkbox } from '@/shadcn/components/ui/checkbox';
 import {
   useLoginMutation,
-  useLazyGithubLoginQuery,
   useValidateAuthQuery,
 } from '@/redux/api/user';
 
@@ -47,11 +44,8 @@ export const SignIn: React.FC = () => {
     password: '',
   });
 
-  const [rememberMe, setRememberMe] = useState(false);
-
   // Redux mutations
   const [login, { isLoading }] = useLoginMutation();
-  const [triggerGithubLogin] = useLazyGithubLoginQuery();
 
   // 表单验证
   const validateForm = (): boolean => {
@@ -127,21 +121,6 @@ export const SignIn: React.FC = () => {
     }
   };
 
-  // 处理GitHub登录
-  const handleGithubLogin = async () => {
-    try {
-      const result = await triggerGithubLogin(
-        window.location.origin + '/auth/github/callback',
-      ).unwrap();
-      if (result.url) {
-        window.location.href = result.url;
-      }
-    } catch (error) {
-      toast.error(intl.formatMessage({ id: 'auth.signIn.githubError' }));
-      console.error('GitHub登录跳转失败:', error);
-    }
-  };
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-md bg-card rounded-lg border border-border shadow-lg p-6">
@@ -197,29 +176,6 @@ export const SignIn: React.FC = () => {
           </div>
 
           {/* 记住我和忘记密码 */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="rememberMe"
-                checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked === true)}
-              />
-              <Label
-                htmlFor="rememberMe"
-                className="text-sm text-muted-foreground"
-              >
-                <FormattedMessage id="auth.signIn.rememberMe" />
-              </Label>
-            </div>
-            <button
-              type="button"
-              onClick={() => setLocation('/auth/forgot-password')}
-              className="text-sm text-primary hover:underline"
-            >
-              <FormattedMessage id="auth.signIn.forgotPassword" />
-            </button>
-          </div>
-
           {/* 登录按钮 */}
           <div className="pt-4">
             <Button type="submit" disabled={isLoading} className="w-full">
@@ -239,28 +195,6 @@ export const SignIn: React.FC = () => {
             </button>
           </div>
         </form>
-
-        {/* 社交登录分隔线 */}
-        <div className="my-6 flex items-center">
-          <div className="flex-grow border-t border-border"></div>
-          <div className="px-4 text-sm text-muted-foreground">
-            <FormattedMessage id="auth.signIn.socialDivider" />
-          </div>
-          <div className="flex-grow border-t border-border"></div>
-        </div>
-
-        {/* GitHub登录按钮 */}
-        <div className="flex justify-center">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleGithubLogin}
-            className="flex items-center justify-center"
-          >
-            <GithubIcon className="w-4 h-4 mr-2" />
-            <span><FormattedMessage id="auth.signIn.githubLogin" /></span>
-          </Button>
-        </div>
       </div>
     </div>
   );

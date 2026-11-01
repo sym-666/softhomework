@@ -5,8 +5,10 @@ description = "AI 论文学习网站后端"
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.13",
+    "argon2-cffi>=23.1",
     "fastapi>=0.115",
     "pydantic-settings>=2.4",
+    "pyjwt>=2.9",
     "sqlalchemy>=2.0",
     "uvicorn[standard]>=0.30",
 ]
@@ -35,3 +37,7 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI 的依赖声明写在参数默认值里，是框架的标准用法
+extend-immutable-calls = ["fastapi.Cookie", "fastapi.Depends", "fastapi.File", "fastapi.Form", "fastapi.Query"]

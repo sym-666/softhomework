@@ -3,22 +3,10 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 // 用户类型定义
 export interface User {
   username: string;
-  /** Same-origin avatar URL (`/api/User/Avatar?v=…`) when set; never Base64. */
   avatar: string | null;
   roleId: number;
   id: string;
   email?: string;
-  organizationId?: string | null;
-  isActive?: boolean;
-}
-
-// 更新用户信息请求类型
-export interface UpdateUserRequest {
-  id: string;
-  username: string;
-  email: string;
-  roleId: number;
-  organizationId?: string | null;
 }
 
 // 登录请求类型
@@ -32,37 +20,6 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
-  verificationCode: string;
-  roleId: number;
-}
-
-// 发送验证码请求类型
-export interface SendVerificationCodeRequest {
-  email: string;
-}
-
-// 发送重置密码验证码请求类型
-export interface SendResetPasswordCodeRequest {
-  email: string;
-}
-
-// 重置密码请求类型
-export interface ResetPasswordRequest {
-  email: string;
-  verificationCode: string;
-  newPassword: string;
-}
-
-export interface AdminCreateUserRequest {
-  username: string;
-  email: string;
-  password: string;
-  roleId: number;
-  organizationId?: string | null;
-}
-
-export interface DeleteUserRequest {
-  userId: string;
 }
 
 // API响应类型
@@ -70,11 +27,6 @@ export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
   message?: string;
-}
-
-// GitHub登录响应类型
-export interface GitHubLoginResponse {
-  url: string;
 }
 
 // 验证响应类型
@@ -91,15 +43,6 @@ export const userApi = createApi({
   }),
   tagTypes: ['User', 'Auth'],
   endpoints: (builder) => ({
-    // 获取用户列表（管理员）
-    getUsers: builder.query<User[], { includeInactive?: boolean } | void>({
-      query: (params) => ({
-        url: '/User/GetUsers',
-        params: { includeInactive: params?.includeInactive ?? false },
-      }),
-      providesTags: ['User'],
-    }),
-
     // 获取当前用户信息
     getCurrentUser: builder.query<User, void>({
       query: () => '/User/GetUser',
@@ -131,35 +74,6 @@ export const userApi = createApi({
       }),
     }),
 
-    // 发送验证码
-    sendVerificationCode: builder.mutation<
-      ApiResponse,
-      SendVerificationCodeRequest
-    >({
-      query: (data) => ({
-        url: '/Auth/send-verification-code',
-        method: 'POST',
-        body: data,
-      }),
-    }),
-
-    // GitHub登录
-    githubLogin: builder.query<GitHubLoginResponse, string>({
-      query: (redirectUri) => ({
-        url: '/Auth/github-login',
-        params: { redirectUri },
-      }),
-    }),
-
-    // GitHub回调处理
-    githubCallback: builder.query<any, { code: string; redirectUri: string }>({
-      query: ({ code, redirectUri }) => ({
-        url: '/Auth/github-callback',
-        params: { code, redirectUri },
-      }),
-      providesTags: ['User', 'Auth'],
-    }),
-
     // 用户登出
     logout: builder.mutation<void, void>({
       query: () => ({
@@ -168,95 +82,14 @@ export const userApi = createApi({
       }),
       invalidatesTags: ['User', 'Auth'],
     }),
-
-    // 发送重置密码验证码
-    sendResetPasswordCode: builder.mutation<
-      ApiResponse,
-      SendResetPasswordCodeRequest
-    >({
-      query: (data) => ({
-        url: '/Auth/send-reset-password-code',
-        method: 'POST',
-        body: data,
-      }),
-    }),
-
-    // 重置密码
-    resetPassword: builder.mutation<ApiResponse, ResetPasswordRequest>({
-      query: (data) => ({
-        url: '/Auth/reset-password',
-        method: 'POST',
-        body: data,
-      }),
-    }),
-
-    // 更新用户信息
-    updateUser: builder.mutation<ApiResponse, UpdateUserRequest>({
-      query: (data) => ({
-        url: '/User/UpdateUser',
-        method: 'POST',
-        body: data,
-      }),
-      invalidatesTags: ['User'],
-    }),
-
-    // 创建用户（超级管理员）
-    createUser: builder.mutation<ApiResponse, AdminCreateUserRequest>({
-      query: (data) => ({
-        url: '/User/CreateUser',
-        method: 'POST',
-        body: data,
-      }),
-      invalidatesTags: ['User'],
-    }),
-
-    // 删除用户（软删除）
-    deleteUser: builder.mutation<ApiResponse, DeleteUserRequest>({
-      query: (data) => ({
-        url: '/User/DeleteUser',
-        method: 'POST',
-        body: data,
-      }),
-      invalidatesTags: ['User'],
-    }),
-
-    // 自助注销
-    deactivateSelf: builder.mutation<ApiResponse, void>({
-      query: () => ({
-        url: '/User/DeactivateSelf',
-        method: 'POST',
-      }),
-      invalidatesTags: ['User', 'Auth'],
-    }),
-
-    // 上传头像
-    uploadAvatar: builder.mutation<ApiResponse, FormData>({
-      query: (formData) => ({
-        url: '/User/UploadAvatar',
-        method: 'POST',
-        body: formData,
-      }),
-      invalidatesTags: ['User'],
-    }),
   }),
 });
 
 // 导出hooks
 export const {
-  useGetUsersQuery,
   useGetCurrentUserQuery,
   useValidateAuthQuery,
   useLoginMutation,
   useRegisterMutation,
-  useSendVerificationCodeMutation,
-  useLazyGithubLoginQuery,
-  useLazyGithubCallbackQuery,
   useLogoutMutation,
-  useSendResetPasswordCodeMutation,
-  useResetPasswordMutation,
-  useUpdateUserMutation,
-  useCreateUserMutation,
-  useDeleteUserMutation,
-  useDeactivateSelfMutation,
-  useUploadAvatarMutation,
 } = userApi;

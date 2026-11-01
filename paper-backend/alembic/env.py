@@ -1,6 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
+from app import models  # noqa: F401  注册所有表，autogenerate 才能发现
 from app.config import get_settings
 from app.db import Base, build_engine
 
