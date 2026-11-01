@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import {
   BookOpen,
+  BookOpenCheck,
   Settings,
   User,
   LogOut,
@@ -26,11 +27,12 @@ interface RibbonLayoutProps {
   children: React.ReactNode;
 }
 
-type TabId = 'home' | 'user' | 'papers' | 'reader' | 'notes';
+type TabId = 'home' | 'user' | 'papers' | 'reader' | 'notes' | 'review';
 
 const getActiveTabFromPath = (path: string): TabId => {
   if (path.startsWith('/user')) return 'user';
   if (path.startsWith('/notes')) return 'notes';
+  if (path.startsWith('/review')) return 'review';
   if (/^\/papers\/\d+/.test(path)) return 'reader';
   if (path.startsWith('/papers')) return 'papers';
   return 'home';
@@ -66,6 +68,7 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
       papers: '/papers',
       reader: location,
       notes: '/notes',
+      review: '/review',
     };
     if (tab !== 'reader' && tab !== ribbonTab) {
       setLocation(paths[tab]);
@@ -141,6 +144,11 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
           active={ribbonTab === 'notes'}
           onClick={() => handleTabClick('notes')}
         />
+        <RibbonTab
+          label={intl.formatMessage({ id: 'ribbon.tab.review' })}
+          active={ribbonTab === 'review'}
+          onClick={() => handleTabClick('review')}
+        />
         {activeTab === 'reader' && (
           <RibbonTab
             label={intl.formatMessage({ id: 'ribbon.tab.reader' })}
@@ -183,7 +191,8 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
       {!collapsed &&
         ribbonTab !== 'papers' &&
         ribbonTab !== 'reader' &&
-        ribbonTab !== 'notes' && (
+        ribbonTab !== 'notes' &&
+        ribbonTab !== 'review' && (
           <div className="bg-[var(--ribbon-content-bg)] border-b border-[var(--ribbon-separator)] shrink-0 min-h-[68px] flex items-stretch px-1">
             {ribbonTab === 'home' && (
               <HomeRibbon location={location} onNavigate={setLocation} />
@@ -227,6 +236,11 @@ const HomeRibbon: React.FC<{
           icon={NotebookPen}
           label={intl.formatMessage({ id: 'ribbon.tab.notes' })}
           onClick={() => onNavigate('/notes')}
+        />
+        <RibbonButton
+          icon={BookOpenCheck}
+          label={intl.formatMessage({ id: 'ribbon.tab.review' })}
+          onClick={() => onNavigate('/review')}
         />
       </RibbonGroup>
     </>
