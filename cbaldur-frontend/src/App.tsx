@@ -1,4 +1,4 @@
-import { Router, Route } from 'wouter';
+import { Router, Route, Switch } from 'wouter';
 import { Provider } from 'react-redux';
 import { store } from './redux/store';
 import { I18nProvider } from './i18n/I18nProvider';
@@ -15,14 +15,17 @@ const MainApp = () => {
   return (
     <Router>
       <AuthGuard>
-        <Route path="/auth/sign-in" component={SignIn} />
-        <Route path="/auth/sign-up" component={SignUp} />
-
-        <RibbonLayout>
-          <Route path="/" component={Home} />
-          <Route path="/user" component={UserProfile} />
-          <Route path="/papers" component={PapersPage} />
-        </RibbonLayout>
+        <Switch>
+          <Route path="/auth/sign-in" component={SignIn} />
+          <Route path="/auth/sign-up" component={SignUp} />
+          <Route>
+            <RibbonLayout>
+              <Route path="/" component={Home} />
+              <Route path="/user" component={UserProfile} />
+              <Route path="/papers" component={PapersPage} />
+            </RibbonLayout>
+          </Route>
+        </Switch>
       </AuthGuard>
       <Toaster />
     </Router>
