@@ -1,30 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type {
-  AgentPlan,
-  AiArtifact,
-  AiChatItem,
-  AiChatMessage,
-  AiToolRun,
-  PlotRequest,
-  ProposedFieldChange,
-} from '@/types/Ai';
-
-/** 按 runId 合并工具执行状态（started → completed / failed） */
-export function mergeToolRun(
-  runs: AiToolRun[] | undefined,
-  update: AiToolRun,
-): AiToolRun[] {
-  const list = runs ?? [];
-  const index = list.findIndex((run) => run.runId === update.runId);
-  if (index < 0) return [...list, update];
-  const next = [...list];
-  next[index] = {
-    ...list[index],
-    ...update,
-    code: update.code ?? list[index].code,
-  };
-  return next;
-}
+import type { AiChatItem, AiChatMessage } from '@/types/Ai';
 
 /** 与后端保持一致：每次只发送最近 12 条历史 */
 const MAX_HISTORY = 12;
@@ -207,39 +182,6 @@ export function useAiChatStream({
                 patchActive((item) => ({
                   ...item,
                   content: item.content + (data.text ?? ''),
-                }));
-                break;
-              case 'plan':
-                patchActive((item) => ({
-                  ...item,
-                  plan: data as AgentPlan,
-                }));
-                break;
-              case 'tool':
-                patchActive((item) => ({
-                  ...item,
-                  toolRuns: mergeToolRun(item.toolRuns, data as AiToolRun),
-                }));
-                break;
-              case 'artifact':
-                patchActive((item) => ({
-                  ...item,
-                  artifacts: [...(item.artifacts ?? []), data as AiArtifact],
-                }));
-                break;
-              case 'suggestions':
-                patchActive((item) => ({
-                  ...item,
-                  suggestions: [
-                    ...(item.suggestions ?? []),
-                    ...(data as ProposedFieldChange[]),
-                  ],
-                }));
-                break;
-              case 'plot':
-                patchActive((item) => ({
-                  ...item,
-                  plots: [...(item.plots ?? []), data as PlotRequest],
                 }));
                 break;
               case 'error':
