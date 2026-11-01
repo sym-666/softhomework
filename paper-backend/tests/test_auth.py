@@ -50,3 +50,57 @@ def test_register_validates_input(client: TestClient) -> None:
     assert client.post("/api/Auth/register", json={**VALID, "email": "bad"}).status_code == 422
     assert client.post("/api/Auth/register", json={**VALID, "password": "short"}).status_code == 422
     assert client.post("/api/Auth/register", json={**VALID, "username": "  a  "}).status_code == 422
+
+
+def test_login_with_username_sets_http_only_cookie(client: TestClient) -> None:
+    client.post("/api/Auth/register", json=VALID)
+
+    response = client.post(
+        "/api/Auth/login", json={"usernameOrEmail": "alice", "password": "password123"}
+    )
+
+    assert response.status_code == 200
+    assert response.json()["user"]["username"] == "alice"
+    assert response.json()["user"]["roleId"] == 1
+    cookie = response.headers["set-cookie"]
+    assert cookie.startswith("AuthToken=")
+    assert "HttpOnly" in cookie
+    assert "SameSite=lax" in cookie
+
+
+def test_login_with_email_is_case_insensitive(client: TestClient) -> None:
+    client.post("/api/Auth/register", json=VALID)
+
+    response = client.post(
+        "/api/Auth/login", json={"usernameOrEmail": "ALICE@example.com", "password": "password123"}
+    )
+
+    assert response.status_code == 200
+
+
+def test_login_response_never_contains_password_hash(client: TestClient) -> None:
+    client.post("/api/Auth/register", json=VALID)
+
+    response = client.post(
+        "/api/Auth/login", json={"usernameOrEmail": "alice", "password": "password123"}
+    )
+
+    assert "password" not in response.text.lower()
+
+
+def test_wrong_password_and_unknown_user_look_identical(client: TestClient) -> None:
+    client.post("/api/Auth/register", json=VALID)
+
+    wrong = client.post("/api/Auth/login", json={"usernameOrEmail": "alice", "password": "nope"})
+    unknown = client.post("/api/Auth/login", json={"usernameOrEmail": "bob", "password": "nope"})
+
+    assert wrong.status_code == unknown.status_code == 401
+    assert wrong.json() == unknown.json()
+    assert "set-cookie" not in wrong.headers
+
+
+def test_logout_clears_cookie(client: TestClient) -> None:
+    response = client.post("/api/Auth/Logout")
+
+    assert response.status_code == 200
+    assert 'AuthToken=""' in response.headers["set-cookie"]
