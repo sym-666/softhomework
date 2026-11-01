@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from app.errors import register_error_handlers
 from app.middleware import LowercaseApiPathMiddleware, UploadSizeLimitMiddleware
-from app.routers import auth, papers, users
+from app.routers import auth, papers, reading, users
 from app.routers.papers import MAX_PDF_BYTES
 
 app = FastAPI(title="Paper Learning API")
@@ -15,6 +15,7 @@ register_error_handlers(app)
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(papers.router)
+app.include_router(reading.router)
 
 
 @app.get("/api/health")
