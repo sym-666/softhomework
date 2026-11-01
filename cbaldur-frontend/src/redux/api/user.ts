@@ -32,8 +32,6 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
-  verificationCode: string;
-  roleId: number;
 }
 
 // 发送验证码请求类型
