@@ -162,3 +162,22 @@ class StudyCard(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
 
     paper: Mapped[Paper] = relationship()
+
+
+class Highlight(Base):
+    """PDF 高亮，只有本人可见。"""
+
+    __tablename__ = "highlights"
+    __table_args__ = (Index("ix_highlights_user_paper", "user_id", "paper_id"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    paper_id: Mapped[int] = mapped_column(ForeignKey("papers.id", ondelete="CASCADE"))
+    page: Mapped[int] = mapped_column(Integer)
+    color: Mapped[str] = mapped_column(String(16))
+    text: Mapped[str] = mapped_column(Text)
+    # JSON 数组，坐标是相对页面的比例，缩放后仍然准确
+    rects: Mapped[str] = mapped_column(Text)
+    # 笔记删除后高亮保留，只解除关联
+    note_id: Mapped[int | None] = mapped_column(ForeignKey("notes.id", ondelete="SET NULL"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
