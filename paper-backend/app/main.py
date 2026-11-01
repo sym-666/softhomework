@@ -6,7 +6,7 @@ from fastapi import FastAPI
 
 from app.errors import register_error_handlers
 from app.middleware import LowercaseApiPathMiddleware, UploadSizeLimitMiddleware
-from app.routers import ai, auth, papers, reading, users
+from app.routers import ai, auth, dashboard, notes, papers, reading, users
 from app.routers.papers import MAX_PDF_BYTES
 from app.services.ingestion import resume_ingestion, unfinished_paper_ids
 
@@ -31,6 +31,8 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(papers.router)
 app.include_router(reading.router)
+app.include_router(notes.router)
+app.include_router(dashboard.router)
 app.include_router(ai.router)
 
 
