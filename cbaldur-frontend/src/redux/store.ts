@@ -4,6 +4,7 @@ import { paperApi } from './api/paper';
 import { aiApi } from './api/ai';
 import { studyApi } from './api/study';
 import { noteApi } from './api/note';
+import { highlightApi } from './api/highlight';
 import { dashboardApi } from './api/dashboard';
 import localeReducer from './slices/localeSlice';
 
@@ -15,6 +16,7 @@ export const store = configureStore({
     [aiApi.reducerPath]: aiApi.reducer,
     [studyApi.reducerPath]: studyApi.reducer,
     [noteApi.reducerPath]: noteApi.reducer,
+    [highlightApi.reducerPath]: highlightApi.reducer,
     [dashboardApi.reducerPath]: dashboardApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -24,6 +26,7 @@ export const store = configureStore({
       aiApi.middleware,
       studyApi.middleware,
       noteApi.middleware,
+      highlightApi.middleware,
       dashboardApi.middleware,
     ),
 });

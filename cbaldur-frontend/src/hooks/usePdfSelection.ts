@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState, type RefObject } from 'react';
+import type { HighlightRect } from '@/types/highlight';
+import { toHighlightRects } from '@/utils/highlightRects';
 import { cleanSelectedText } from '@/utils/selection';
 
 export interface PdfSelection {
@@ -6,6 +8,8 @@ export interface PdfSelection {
   /** 选区的视口坐标，工具条据此定位 */
   top: number;
   left: number;
+  /** 相对页面的比例；选区不在页面内时为空 */
+  rects: HighlightRect[];
 }
 
 /** 跟踪容器内的文字选区；松开鼠标时才读取，拖动过程中工具条不会闪动 */
@@ -34,11 +38,22 @@ export function usePdfSelection(containerRef: RefObject<HTMLElement | null>) {
         setSelection(null);
         return;
       }
-      const rect = current.getRangeAt(0).getBoundingClientRect();
+      const range = current.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      const anchor = current.anchorNode;
+      const pageElement = (
+        anchor instanceof Element ? anchor : anchor?.parentElement
+      )?.closest('.react-pdf__Page');
       setSelection({
         text,
         top: rect.top,
         left: rect.left + rect.width / 2,
+        rects: pageElement
+          ? toHighlightRects(
+              [...range.getClientRects()],
+              pageElement.getBoundingClientRect(),
+            )
+          : [],
       });
     };
 

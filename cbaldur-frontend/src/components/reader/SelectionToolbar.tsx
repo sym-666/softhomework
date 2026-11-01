@@ -1,5 +1,7 @@
 import type { ComponentType, ReactNode } from 'react';
 import type { PdfSelection } from '@/hooks/usePdfSelection';
+import type { HighlightColor } from '@/types/highlight';
+import { HIGHLIGHT_COLORS } from './HighlightLayer';
 
 const TOOLBAR_HEIGHT = 40;
 const VIEWPORT_MARGIN = 8;
@@ -48,6 +50,28 @@ export function SelectionAction({
     >
       <Icon className="h-3.5 w-3.5" />
       {label}
+    </button>
+  );
+}
+
+interface SelectionColorProps {
+  color: HighlightColor;
+  label: string;
+  onClick: () => void;
+}
+
+export function SelectionColor({ color, label, onClick }: SelectionColorProps) {
+  return (
+    <button
+      type="button"
+      title={label}
+      aria-label={label}
+      onClick={onClick}
+      className="flex h-7 w-6 items-center justify-center rounded-sm hover:bg-gray-100"
+    >
+      <span
+        className={`h-3.5 w-3.5 rounded-full ${HIGHLIGHT_COLORS[color].swatch}`}
+      />
     </button>
   );
 }
