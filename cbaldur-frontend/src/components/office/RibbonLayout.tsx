@@ -11,6 +11,7 @@ import {
   NotebookPen,
   ChevronUp,
   ChevronDown,
+  GitCompareArrows,
 } from 'lucide-react';
 import { useIntl } from 'react-intl';
 import { useGetCurrentUserQuery, useLogoutMutation } from '@/redux/api/user';
@@ -27,12 +28,14 @@ interface RibbonLayoutProps {
   children: React.ReactNode;
 }
 
-type TabId = 'home' | 'user' | 'papers' | 'reader' | 'notes' | 'review';
+type TabId =
+  'home' | 'user' | 'papers' | 'reader' | 'notes' | 'review' | 'compare';
 
 const getActiveTabFromPath = (path: string): TabId => {
   if (path.startsWith('/user')) return 'user';
   if (path.startsWith('/notes')) return 'notes';
   if (path.startsWith('/review')) return 'review';
+  if (path.startsWith('/compare')) return 'compare';
   if (/^\/papers\/\d+/.test(path)) return 'reader';
   if (path.startsWith('/papers')) return 'papers';
   return 'home';
@@ -69,6 +72,7 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
       reader: location,
       notes: '/notes',
       review: '/review',
+      compare: '/compare',
     };
     if (tab !== 'reader' && tab !== ribbonTab) {
       setLocation(paths[tab]);
@@ -149,6 +153,11 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
           active={ribbonTab === 'review'}
           onClick={() => handleTabClick('review')}
         />
+        <RibbonTab
+          label={intl.formatMessage({ id: 'ribbon.tab.compare' })}
+          active={ribbonTab === 'compare'}
+          onClick={() => handleTabClick('compare')}
+        />
         {activeTab === 'reader' && (
           <RibbonTab
             label={intl.formatMessage({ id: 'ribbon.tab.reader' })}
@@ -192,7 +201,8 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
         ribbonTab !== 'papers' &&
         ribbonTab !== 'reader' &&
         ribbonTab !== 'notes' &&
-        ribbonTab !== 'review' && (
+        ribbonTab !== 'review' &&
+        ribbonTab !== 'compare' && (
           <div className="bg-[var(--ribbon-content-bg)] border-b border-[var(--ribbon-separator)] shrink-0 min-h-[68px] flex items-stretch px-1">
             {ribbonTab === 'home' && (
               <HomeRibbon location={location} onNavigate={setLocation} />
@@ -241,6 +251,11 @@ const HomeRibbon: React.FC<{
           icon={BookOpenCheck}
           label={intl.formatMessage({ id: 'ribbon.tab.review' })}
           onClick={() => onNavigate('/review')}
+        />
+        <RibbonButton
+          icon={GitCompareArrows}
+          label={intl.formatMessage({ id: 'ribbon.tab.compare' })}
+          onClick={() => onNavigate('/compare')}
         />
       </RibbonGroup>
     </>
