@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     # 可选：没有 Key 也能检索，但共享限流更严格
     semantic_scholar_api_key: str = ""
 
+    # OpenAI 兼容接口，默认 DeepSeek；未配置时站点照常运行，只是 AI 功能不可用
+    ai_openai_base_url: str = "https://api.deepseek.com/v1"
+    ai_openai_model_id: str = ""
+    ai_openai_api_key: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:
