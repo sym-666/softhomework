@@ -1,10 +1,22 @@
-from app.models import Paper
-from app.services.llm import Message
-from app.services.paper_chat import build_context
+import logging
+from collections.abc import Iterator
+
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+
+from app.config import get_settings
+from app.db import SessionLocal
+from app.models import Paper, PaperGuide
+from app.services import llm
+from app.services.llm import LlmError, Message
+from app.services.paper_chat import build_context, sse_event
 from app.services.retrieval import Passage
+
+logger = logging.getLogger(__name__)
 
 # 约等于 1 万 token，留足回答空间，常见模型的上下文都放得下
 MAX_GUIDE_CHARS = 40_000
+MAX_GUIDE_TOKENS = 2500
 
 SECTIONS = {
     "zh-CN": """请用简体中文写一份论文导读，帮助初学者读懂这篇论文。
@@ -56,3 +68,42 @@ def build_guide_messages(
         {"role": "user", "content": f"{context}\n\n{SECTIONS[language]}"},
     ]
 
+
+def save_guide(paper_id: int, language: str, content: str) -> None:
+    with SessionLocal() as db:
+        guide = db.scalar(
+            select(PaperGuide).where(
+                PaperGuide.paper_id == paper_id, PaperGuide.language == language
+            )
+        )
+        model = get_settings().ai_openai_model_id
+        if guide is None:
+            db.add(PaperGuide(paper_id=paper_id, language=language, content=content, model=model))
+        else:
+            guide.content = content
+            guide.model = model
+        try:
+            db.commit()
+        except IntegrityError:
+            # 两人同时生成，或生成期间论文被删除，这份结果不保存即可
+            db.rollback()
+            logger.info("论文 %d 的导读未保存", paper_id)
+
+
+def guide_events(paper: Paper, passages: list[Passage], language: str) -> Iterator[str]:
+    """完整生成后才写缓存：失败或用户中途停止时不能留下半篇导读。"""
+    parts: list[str] = []
+    try:
+        messages = build_guide_messages(paper, passages, language)
+        for text in llm.stream(messages, max_tokens=MAX_GUIDE_TOKENS):
+            parts.append(text)
+            yield sse_event("delta", {"text": text})
+    except LlmError:
+        yield sse_event("error", {"message": "AI 服务暂时不可用，请稍后再试"})
+        yield sse_event("done", {})
+        return
+
+    content = "".join(parts).strip()
+    if content:
+        save_guide(paper.id, language, content)
+    yield sse_event("done", {})
