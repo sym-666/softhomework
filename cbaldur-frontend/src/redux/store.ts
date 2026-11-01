@@ -4,7 +4,6 @@ import { userApi } from './api/user';
 import { plotApi } from './api/plot';
 import { noticeApi } from './api/notice';
 import { organizationApi } from './api/organization';
-import { forumApi } from './api/forum';
 import { paperApi } from './api/paper';
 import { aiApi } from './api/ai';
 import inputReducer from './slices/inputSlice';
@@ -25,7 +24,6 @@ export const store = configureStore({
     [plotApi.reducerPath]: plotApi.reducer,
     [noticeApi.reducerPath]: noticeApi.reducer,
     [organizationApi.reducerPath]: organizationApi.reducer,
-    [forumApi.reducerPath]: forumApi.reducer,
     [paperApi.reducerPath]: paperApi.reducer,
     [aiApi.reducerPath]: aiApi.reducer,
   },
@@ -36,7 +34,6 @@ export const store = configureStore({
       plotApi.middleware,
       noticeApi.middleware,
       organizationApi.middleware,
-      forumApi.middleware,
       paperApi.middleware,
       aiApi.middleware,
     ),

@@ -35,10 +35,6 @@ import AddCasesDynamic from './routes/add-cases/dynamic';
 import AddCasesIndexDynamic from './routes/add-cases/index-dynamic';
 import UserProfile from './routes/user';
 import AdminPage from './routes/admin';
-import Forum from './routes/forum';
-import ForumNewTopicPage from './routes/forum/ForumNewTopicPage';
-import ForumTopicDetailPage from './routes/forum/ForumTopicDetailPage';
-import ForumBookmarksPage from './routes/forum/ForumBookmarksPage';
 import PapersPage from './routes/papers';
 
 const MainApp = () => {
@@ -103,12 +99,6 @@ const MainApp = () => {
           <Route path="/user" component={UserProfile} />
           <Route path="/sadmin" component={AdminPage} />
           <Route path="/papers" component={PapersPage} />
-          <Route path="/forum" component={Forum} />
-          <Route path="/forum/new" component={ForumNewTopicPage} />
-          <Route path="/forum/bookmarks" component={ForumBookmarksPage} />
-          <Route path="/forum/topics/:id">
-            {(params) => <ForumTopicDetailPage id={params.id} />}
-          </Route>
         </RibbonLayout>
       </AuthGuard>
       <Toaster />
