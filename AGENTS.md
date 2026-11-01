@@ -4,8 +4,8 @@
 PaperPilot 是 AI 论文学习网站。
 
 `paper-backend/` 是 FastAPI 后端：
-- `app/routers/` - HTTP 接口（auth、users、papers、reading、notes、dashboard、ai）
-- `app/services/` - 业务逻辑（PDF 提取、切块、后台解析、检索、论文问答、导读、模型调用、在线检索）
+- `app/routers/` - HTTP 接口（auth、users、papers、reading、notes、highlights、study、dashboard、ai）
+- `app/services/` - 业务逻辑（PDF 提取、切块、后台解析、检索、论文问答、多论文对比、导读、术语表、学习卡片、参考文献、导出、模型调用、在线检索）
 - `app/models.py` - SQLAlchemy 模型
 - `app/schemas.py` - 接口模型基类，输出 camelCase
 - `app/deps.py`、`app/security.py` - 当前用户、密码哈希和 JWT
@@ -14,7 +14,7 @@ PaperPilot 是 AI 论文学习网站。
 
 `cbaldur-frontend/` 是 React 前端（RSBuild 构建），目录名沿用原项目：
 - `src/routes/` - 页面（wouter 路由）
-- `src/components/` - 组件，`office/` 是 Ribbon 界面框架，`reader/` 是 PDF 阅读器，`ai/` 是问答和导读，`notes/` 是笔记
+- `src/components/` - 组件，`office/` 是 Ribbon 界面框架，`reader/` 是 PDF 阅读器、高亮和参考文献，`ai/` 是问答、导读和术语表，`notes/` 是笔记和高亮列表，`study/` 是自测和复习
 - `src/hooks/` - 自定义 Hooks
 - `src/redux/` - store 和 RTK Query 接口
 - `src/i18n/` - 中英文翻译
@@ -32,9 +32,9 @@ PaperPilot 是 AI 论文学习网站。
 ## 后端注意事项
 - **接口约定**：路径由 `LowercaseApiPathMiddleware` 转小写，前端可以大小写混用；响应字段是 camelCase，错误体是 `{ success, message }`。
 - **认证**：JWT 存放在 HttpOnly Cookie `AuthToken`，受保护接口依赖 `get_current_user`。
-- **数据隔离**：论文库全站共享；阅读状态和笔记按用户隔离，访问别人的笔记返回 404。
+- **数据隔离**：论文库、导读和术语表全站共享；阅读状态、笔记、高亮、对话记录和学习卡片按用户隔离，访问别人的数据返回 404。
 - **数据库**：修改模型后用 `alembic revision --autogenerate` 生成迁移，`tests/test_migrations.py` 会检查迁移与模型一致。
-- **AI**：论文内容必须通过 `build_context` 放入分隔标签，声明为数据而非指令；流式接口要在开始输出前完成校验。
+- **AI**：论文内容必须通过 `build_context` 放入分隔标签，声明为数据而非指令；流式接口要在开始输出前完成校验。需要结构化结果时用 `complete_json`，并逐条校验模型返回的内容，页码必须能在上下文或全文中确认。
 
 ## 安装方式
 见 `README.md` 的“本地运行”。
