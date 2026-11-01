@@ -2,7 +2,7 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 export type Locale = 'zh-CN' | 'en';
 
-const STORAGE_KEY = 'cbaldur.locale';
+const STORAGE_KEY = 'paperpilot.locale';
 
 const getInitialLocale = (): Locale => {
   if (typeof window !== 'undefined') {

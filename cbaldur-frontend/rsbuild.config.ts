@@ -4,7 +4,7 @@ import { pluginReact } from '@rsbuild/plugin-react';
 export default defineConfig({
   plugins: [pluginReact()],
   html: {
-    title: 'CBaldur',
+    title: 'PaperPilot',
   },
   server: {
     historyApiFallback: true,

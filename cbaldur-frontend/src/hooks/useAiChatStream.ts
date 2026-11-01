@@ -74,7 +74,7 @@ export function useAiChatStream({
     setIsStreaming(false);
   }, []);
 
-  // URL 变化（例如同一路由切换到另一算例）时作废旧会话，旧历史与旧流不得带入
+  // URL 变化（例如同一路由切换到另一篇论文）时作废旧会话，旧历史与旧流不得带入
   useEffect(() => {
     if (sessionUrlRef.current === url) return;
     startNewSession(url);
