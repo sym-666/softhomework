@@ -1,4 +1,4 @@
-import { lazy, Suspense, type ComponentType } from 'react';
+import { lazy, Suspense } from 'react';
 import { Link } from 'wouter';
 import {
   BookCheck,
@@ -10,6 +10,7 @@ import {
   NotebookPen,
 } from 'lucide-react';
 import { useIntl } from 'react-intl';
+import { StatCard } from '@/components/common/StatCard';
 import { useGetDashboardQuery } from '@/redux/api/dashboard';
 import { Button } from '@/shadcn/components/ui/button';
 
@@ -17,46 +18,6 @@ import { Button } from '@/shadcn/components/ui/button';
 const ActivityChart = lazy(
   () => import('@/components/dashboard/ActivityChart'),
 );
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  href,
-}: {
-  icon: ComponentType<{ size?: number; className?: string }>;
-  label: string;
-  value: number;
-  /** 提供时整张卡片可以点击 */
-  href?: string;
-}) {
-  const content = (
-    <>
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-blue-50 text-[var(--office-blue)]">
-        <Icon size={20} />
-      </span>
-      <div>
-        <p className="text-xs text-gray-500">{label}</p>
-        <p className="text-2xl font-semibold tabular-nums text-gray-900">
-          {value}
-        </p>
-      </div>
-    </>
-  );
-  const className =
-    'flex items-center gap-3 border border-gray-200 bg-white p-4';
-
-  return href ? (
-    <Link
-      href={href}
-      className={`${className} hover:border-[var(--office-blue)]`}
-    >
-      {content}
-    </Link>
-  ) : (
-    <div className={className}>{content}</div>
-  );
-}
 
 export default function Home() {
   const intl = useIntl();
