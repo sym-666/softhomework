@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import {
   Plus,
@@ -8,7 +8,6 @@ import {
   User,
   LogOut,
   LayoutDashboard,
-  List,
   RefreshCw,
   Search,
   ChevronUp,
@@ -16,7 +15,6 @@ import {
 } from 'lucide-react';
 import { useIntl } from 'react-intl';
 import { useGetCurrentUserQuery, useLogoutMutation } from '@/redux/api/user';
-import { useGetCaseQuery } from '@/redux/api/case';
 import { RibbonTab } from './RibbonTab';
 import { RibbonGroup } from './RibbonGroup';
 import { RibbonButton } from './RibbonButton';
@@ -30,24 +28,16 @@ interface RibbonLayoutProps {
   children: React.ReactNode;
 }
 
-type TabId = 'home' | 'cases' | 'analyze' | 'user' | 'papers';
+type TabId = 'home' | 'cases' | 'user' | 'papers';
 
 const getActiveTabFromPath = (path: string): TabId => {
-  if (path.startsWith('/cases/') && path.split('/').length > 3)
-    return 'analyze';
-  if (path.startsWith('/cases') || path.startsWith('/add-cases'))
-    return 'cases';
+  if (path.startsWith('/add-cases')) return 'cases';
   if (path.startsWith('/user')) return 'user';
   if (path.startsWith('/papers')) return 'papers';
   return 'home';
 };
 
 const pathWithoutQuery = (path: string) => path.split('?')[0] ?? path;
-
-const isCaseListPath = (path: string) => {
-  const p = pathWithoutQuery(path);
-  return p === '/cases';
-};
 
 const isAddCasesJsonPath = (path: string) => {
   const p = pathWithoutQuery(path);
@@ -88,12 +78,11 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
     setRibbonTab(tab);
     const paths: Record<TabId, string> = {
       home: '/',
-      cases: '/cases',
-      analyze: location,
+      cases: '/add-cases',
       user: '/user',
       papers: '/papers',
     };
-    if (tab !== 'analyze' && tab !== ribbonTab) {
+    if (tab !== ribbonTab) {
       setLocation(paths[tab]);
     }
   };
@@ -106,24 +95,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
       console.error('Logout failed:', error);
     }
   };
-
-  const isAnalyzeView = activeTab === 'analyze';
-
-  const caseUuidFromPath = useMemo(() => {
-    if (!isAnalyzeView) return undefined;
-    const parts = pathWithoutQuery(location).split('/');
-    // /cases/:userId/:caseUuid
-    return parts.length >= 4 ? parts[3] : undefined;
-  }, [isAnalyzeView, location]);
-
-  const { data: statusCase } = useGetCaseQuery(caseUuidFromPath!, {
-    skip: !caseUuidFromPath,
-  });
-
-  const caseInfo =
-    statusCase?.caseId != null
-      ? intl.formatMessage({ id: 'status.caseInfo' }, { id: statusCase.caseId })
-      : undefined;
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-white">
@@ -179,14 +150,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
           active={ribbonTab === 'cases'}
           onClick={() => handleTabClick('cases')}
         />
-        {isAnalyzeView && (
-          <RibbonTab
-            label={intl.formatMessage({ id: 'ribbon.tab.analyze' })}
-            active={ribbonTab === 'analyze'}
-            contextual
-            onClick={() => handleTabClick('analyze')}
-          />
-        )}
         <RibbonTab
           label={intl.formatMessage({ id: 'ribbon.tab.settings' })}
           active={ribbonTab === 'user'}
@@ -212,8 +175,7 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
           </div>
           {(ribbonTab === 'home' ||
             ribbonTab === 'cases' ||
-            ribbonTab === 'user' ||
-            ribbonTab === 'analyze') && (
+            ribbonTab === 'user') && (
             <button
               type="button"
               onClick={toggle}
@@ -242,8 +204,7 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
 
       {/* Ribbon Content - hidden for tabs that use their own in-page toolbar */}
       {!collapsed &&
-        ribbonTab !== 'papers' &&
-        ribbonTab !== 'analyze' && (
+        ribbonTab !== 'papers' && (
           <div className="bg-[var(--ribbon-content-bg)] border-b border-[var(--ribbon-separator)] shrink-0 min-h-[68px] flex items-stretch px-1">
             {ribbonTab === 'home' && (
               <HomeRibbon location={location} onNavigate={setLocation} />
@@ -261,10 +222,7 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
       </div>
 
       {/* Status Bar */}
-      <StatusBar
-        userInfo={user?.username}
-        caseInfo={caseInfo}
-      />
+      <StatusBar userInfo={user?.username} />
     </div>
   );
 };
@@ -281,12 +239,6 @@ const HomeRibbon: React.FC<{
           icon={LayoutDashboard}
           label={intl.formatMessage({ id: 'ribbon.button.dashboard' })}
           active={pathWithoutQuery(location) === '/'}
-        />
-        <RibbonButton
-          icon={List}
-          label={intl.formatMessage({ id: 'ribbon.button.caseList' })}
-          active={isCaseListPath(location)}
-          onClick={() => onNavigate('/cases')}
         />
       </RibbonGroup>
       <RibbonGroup title={intl.formatMessage({ id: 'ribbon.group.new' })}>
@@ -321,12 +273,6 @@ const CasesRibbon: React.FC<{
   return (
     <>
       <RibbonGroup title={intl.formatMessage({ id: 'ribbon.group.view' })}>
-        <RibbonButton
-          icon={List}
-          label={intl.formatMessage({ id: 'ribbon.button.caseList' })}
-          active={isCaseListPath(location)}
-          onClick={() => onNavigate('/cases')}
-        />
         <RibbonButton
           icon={RefreshCw}
           label={intl.formatMessage({ id: 'ribbon.button.refresh' })}

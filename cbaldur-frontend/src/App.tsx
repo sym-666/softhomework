@@ -1,6 +1,6 @@
 import { Router, Route } from 'wouter';
 import { Provider, useDispatch } from 'react-redux';
-import { useEffect, Suspense, lazy } from 'react';
+import { useEffect } from 'react';
 import { useGetInitialQuery } from './redux/api/case';
 import { useGetSupercomputersQuery } from './redux/api/user';
 import { setSchemasFromYaml } from './redux/slices/inputsSlice';
@@ -14,8 +14,6 @@ import { ForgotPassword } from './routes/auth/forgot-password';
 import { GithubCallback } from './routes/auth/github-callback';
 import { Toaster } from '@/shadcn/components/ui/sonner';
 import Home from './routes';
-import Cases from './routes/cases';
-const Case = lazy(() => import('./routes/cases/Case'));
 import AddCasesIndex from './routes/add-cases';
 import AddCasesBase from './routes/add-cases/base';
 import AddCasesJson from './routes/add-cases/json';
@@ -64,14 +62,6 @@ const MainApp = () => {
 
         <RibbonLayout>
           <Route path="/" component={Home} />
-          <Route path="/cases" component={Cases} />
-          <Route path="/cases/:userId/:caseId">
-            {(params) => (
-              <Suspense fallback={<div>Loading...</div>}>
-                <Case {...params} />
-              </Suspense>
-            )}
-          </Route>
           <Route path="/add-cases" component={AddCasesIndex} />
           <Route path="/add-cases/base" component={AddCasesBase} />
           <Route path="/add-cases/impurity" component={AddCasesImpurity} />

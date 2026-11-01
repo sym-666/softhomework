@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { FormattedMessage } from 'react-intl';
 import { useValidateAuthQuery } from '@/redux/api/user';
-import { useCaseStatusEvents } from '@/hooks/useCaseStatusEvents';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -11,11 +10,6 @@ interface AuthGuardProps {
 export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
   const [location, setLocation] = useLocation();
   const { data, isLoading, error } = useValidateAuthQuery();
-  const isAuthenticated =
-    !location.startsWith('/auth/') && !isLoading && !error && !!data?.valid;
-
-  // Single shared SSE connection for /cases + home dashboard
-  useCaseStatusEvents(isAuthenticated);
 
   useEffect(() => {
     // 如果当前在认证页面，不需要验证
