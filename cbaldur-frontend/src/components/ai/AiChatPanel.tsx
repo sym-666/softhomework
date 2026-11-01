@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { Bot, Loader2, Plus, Send, Square, X } from 'lucide-react';
 import { Button } from '@/shadcn/components/ui/button';
 import { Textarea } from '@/shadcn/components/ui/textarea';
 import type { AiChatItem } from '@/types/Ai';
+import { MarkdownView } from './MarkdownView';
 
 interface AiChatPanelProps {
   title: string;
@@ -136,9 +135,7 @@ const AiChatPanel: React.FC<AiChatPanelProps> = ({
               >
                 {item.content ? (
                   <div className="ai-markdown break-words">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {item.content}
-                    </ReactMarkdown>
+                    <MarkdownView>{item.content}</MarkdownView>
                   </div>
                 ) : (
                   item.streaming && (

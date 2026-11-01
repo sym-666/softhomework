@@ -1,6 +1,4 @@
 import { useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { Info, Loader2, RotateCw, Sparkles, Square } from 'lucide-react';
 import { useIntl } from 'react-intl';
 import { useGuideStream } from '@/hooks/useGuideStream';
@@ -8,6 +6,7 @@ import { useGetAiStatusQuery, useGetPaperGuideQuery } from '@/redux/api/ai';
 import { useAppSelector } from '@/redux/hooks';
 import { Button } from '@/shadcn/components/ui/button';
 import type { IngestStatus } from '@/types/paper';
+import { MarkdownView } from './MarkdownView';
 
 interface PaperGuideProps {
   paperId: number;
@@ -102,7 +101,7 @@ export default function PaperGuide({ paperId, ingestStatus }: PaperGuideProps) {
         )}
         {content ? (
           <div className="ai-markdown break-words text-sm leading-6 text-gray-700">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+            <MarkdownView>{content}</MarkdownView>
           </div>
         ) : stream.isGenerating || isLoading ? (
           <p className="flex items-center justify-center gap-1.5 py-10 text-sm text-gray-400">
