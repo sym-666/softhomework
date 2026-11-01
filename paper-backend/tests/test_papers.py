@@ -1,11 +1,14 @@
 from datetime import UTC, datetime
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
 from app.db import SessionLocal
 from app.models import Paper, User
+from app.routers import papers as papers_router
 from app.routers.papers import MAX_PDF_BYTES, paper_storage_dir
+from app.services.semantic_scholar import SearchResult, SearchUnavailableError
 
 PDF_BYTES = b"%PDF-1.4\nminimal test content\n%%EOF\n"
 FORM = {"Title": " Paper ", "Authors": "A. Author", "Year": "2020", "Abstract": "text"}
@@ -259,3 +262,47 @@ def test_other_user_cannot_delete_paper(
 
     assert response.status_code == 403
     assert user_client.get(f"/api/Papers/{paper_id}").status_code == 200
+
+
+def test_online_search_returns_frontend_contract(
+    user_client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    result = SearchResult(
+        id="abc",
+        title="T",
+        authors="A",
+        year=2020,
+        abstract=None,
+        url=None,
+        pdf_url="https://example.com/a.pdf",
+    )
+    monkeypatch.setattr(papers_router, "search_papers", lambda query, limit: [result])
+
+    response = user_client.get("/api/Papers/search", params={"query": " fusion ", "limit": 5})
+
+    assert response.status_code == 200
+    assert response.json()["query"] == "fusion"
+    assert response.json()["totalCount"] == 1
+    assert response.json()["papers"][0]["pdfUrl"] == "https://example.com/a.pdf"
+
+
+def test_online_search_rejects_blank_query(user_client: TestClient) -> None:
+    assert user_client.get("/api/Papers/search", params={"query": "  "}).status_code == 400
+
+
+def test_online_search_reports_upstream_failure(
+    user_client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def fail(_query: str, _limit: int) -> list[SearchResult]:
+        raise SearchUnavailableError
+
+    monkeypatch.setattr(papers_router, "search_papers", fail)
+
+    response = user_client.get("/api/Papers/search", params={"query": "x"})
+
+    assert response.status_code == 503
+    assert response.json()["message"] == "学术检索服务暂时不可用，请稍后再试"
+
+
+def test_online_search_requires_login(client: TestClient) -> None:
+    assert client.get("/api/Papers/search", params={"query": "x"}).status_code == 401
