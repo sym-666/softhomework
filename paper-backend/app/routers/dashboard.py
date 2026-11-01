@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.deps import get_current_user
 from app.models import Note, Paper, ReadingState, User
+from app.routers.study import count_due_cards
 from app.schemas import CamelModel
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
@@ -33,6 +34,7 @@ class Dashboard(CamelModel):
     reading: int
     done: int
     notes: int
+    due_cards: int
     activity: list[DailyActivity]
     continue_reading: list[ContinueReadingItem]
 
@@ -105,6 +107,7 @@ def get_dashboard(
         done=_count_states(db, user, "done"),
         notes=db.scalar(select(func.count()).select_from(Note).where(Note.user_id == user.id))
         or 0,
+        due_cards=count_due_cards(db, user.id, now),
         activity=build_activity(list(reading_times), list(note_times), now, tz_offset),
         continue_reading=[
             ContinueReadingItem(paper_id=row[0], title=row[1], authors=row[2], last_page=row[3])

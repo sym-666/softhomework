@@ -2,7 +2,10 @@ from datetime import UTC, date, datetime, timedelta
 
 from fastapi.testclient import TestClient
 
+from app.db import SessionLocal
+from app.models import StudyCard
 from app.routers.dashboard import build_activity
+from tests.conftest import login_as
 from tests.test_notes import add_note
 from tests.test_papers import upload
 from tests.test_reading import state_url
@@ -105,3 +108,24 @@ def test_dashboard_requires_login(client: TestClient) -> None:
 
 def test_invalid_timezone_is_rejected(user_client: TestClient) -> None:
     assert user_client.get("/api/Dashboard", params={"tzOffset": 9999}).status_code == 422
+
+
+def test_dashboard_counts_due_cards(client: TestClient) -> None:
+    user = login_as(client, "alice")
+    paper_id = upload(client)
+    now = datetime.now(UTC)
+    with SessionLocal() as db:
+        db.add_all(
+            StudyCard(
+                user_id=user["id"],
+                paper_id=paper_id,
+                kind="flashcard",
+                question=question,
+                answer="a",
+                due_at=due_at,
+            )
+            for question, due_at in [("due", now), ("later", now + timedelta(days=3))]
+        )
+        db.commit()
+
+    assert client.get("/api/Dashboard").json()["dueCards"] == 1
