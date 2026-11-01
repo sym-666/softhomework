@@ -32,6 +32,7 @@ export default function PaperDetail({ id }: { id: string }) {
   const { data: user } = useGetCurrentUserQuery();
   const [deletePaper, deleteState] = useDeletePaperMutation();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const confirmDelete = async () => {
     try {
@@ -132,7 +133,11 @@ export default function PaperDetail({ id }: { id: string }) {
               </div>
             }
           >
-            <PdfReader url={paper.downloadUrl} />
+            <PdfReader
+              url={paper.downloadUrl}
+              page={currentPage}
+              onPageChange={setCurrentPage}
+            />
           </Suspense>
         </div>
       )}
