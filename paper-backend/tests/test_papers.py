@@ -53,6 +53,7 @@ def test_list_returns_frontend_contract(user_client: TestClient) -> None:
     assert item["tags"] == ["nlp", "transformer"]
     assert item["downloadUrl"] == f"/api/Papers/{paper_id}/download"
     assert item["hasLocalFile"] is False
+    assert item["ingestStatus"] == "none"
     assert item["createdByUserName"] == "alice"
     assert item["createdAt"].endswith("Z")
 
