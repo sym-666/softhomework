@@ -28,6 +28,8 @@ const messages: Record<string, string> = {
 
   // Forum placeholder
 
+  'ribbon.group.library': 'Library',
+  'ribbon.button.papers': 'Papers',
   'ribbon.search.placeholder': 'Search...',
   'ribbon.collapse.collapse': 'Collapse ribbon',
   'ribbon.collapse.expand': 'Expand ribbon',
