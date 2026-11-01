@@ -98,6 +98,21 @@ class PaperGuide(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
 
 
+class PaperGlossary(Base):
+    """AI 提取的术语表，全站共享，每篇论文每种语言一份，避免重复调用模型。"""
+
+    __tablename__ = "paper_glossaries"
+    __table_args__ = (UniqueConstraint("paper_id", "language"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    paper_id: Mapped[int] = mapped_column(ForeignKey("papers.id", ondelete="CASCADE"))
+    language: Mapped[str] = mapped_column(String(8))
+    # JSON 数组，每项是 term、explanation、page
+    terms: Mapped[str] = mapped_column(Text)
+    model: Mapped[str] = mapped_column(String(200))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
 class Note(Base):
     """用户的阅读笔记，只有本人可见。"""
 
