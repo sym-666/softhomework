@@ -14,6 +14,7 @@ from app.db import get_db
 from app.deps import get_current_user
 from app.models import Paper, User
 from app.schemas import CamelModel, UtcDatetime
+from app.services.semantic_scholar import SearchUnavailableError, search_papers
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,22 @@ class PaperPage(CamelModel):
     total: int
     page: int
     page_size: int
+
+
+class GlobalPaperOut(CamelModel):
+    id: str
+    title: str
+    authors: str
+    year: int | None
+    abstract: str | None
+    url: str | None
+    pdf_url: str | None
+
+
+class PaperSearchResponse(CamelModel):
+    query: str
+    total_count: int
+    papers: list[GlobalPaperOut]
 
 
 def to_paper_out(paper: Paper) -> PaperOut:
@@ -98,6 +115,27 @@ def list_papers(
         total=total,
         page=page,
         page_size=page_size,
+    )
+
+
+# 必须放在 /{paper_id} 之前，否则 search 会被当成论文 id 匹配
+@router.get("/search", response_model=PaperSearchResponse)
+def search_online(
+    query: str = Query(max_length=300),
+    limit: int = Query(default=12, ge=1, le=50),
+    _user: User = Depends(get_current_user),
+) -> PaperSearchResponse:
+    query = query.strip()
+    if not query:
+        raise HTTPException(status_code=400, detail="搜索关键词不能为空")
+    try:
+        papers = search_papers(query, limit)
+    except SearchUnavailableError as exc:
+        raise HTTPException(status_code=503, detail="学术检索服务暂时不可用，请稍后再试") from exc
+    return PaperSearchResponse(
+        query=query,
+        total_count=len(papers),
+        papers=[GlobalPaperOut.model_validate(paper) for paper in papers],
     )
 
 
