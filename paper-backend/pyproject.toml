@@ -5,6 +5,7 @@ description = "AI 论文学习网站后端"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",
+    "pydantic-settings>=2.4",
     "uvicorn[standard]>=0.30",
 ]
 
