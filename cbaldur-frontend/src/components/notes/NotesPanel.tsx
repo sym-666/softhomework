@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Loader2, Plus } from 'lucide-react';
 import { useIntl } from 'react-intl';
 import { toast } from 'sonner';
@@ -12,17 +12,32 @@ interface NotesPanelProps {
   /** 当前阅读页，新笔记会记录下来；外链论文为 null */
   currentPage: number | null;
   onJumpToPage: (page: number) => void;
+  /** 外部填入输入框的内容；每次传入新对象都会填入一次 */
+  draftRequest?: { text: string } | null;
 }
 
 export function NotesPanel({
   paperId,
   currentPage,
   onJumpToPage,
+  draftRequest,
 }: NotesPanelProps) {
   const intl = useIntl();
   const { data: notes, isLoading } = useGetPaperNotesQuery(paperId);
   const [createNote, createState] = useCreateNoteMutation();
   const [draft, setDraft] = useState('');
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    if (!draftRequest) return;
+    // 追加而不是覆盖：连续摘录时不能丢掉已经写好的内容
+    setDraft((current) =>
+      current.trim()
+        ? `${current.trimEnd()}\n\n${draftRequest.text}`
+        : draftRequest.text,
+    );
+    inputRef.current?.focus();
+  }, [draftRequest]);
 
   const add = async () => {
     const content = draft.trim();
@@ -39,6 +54,7 @@ export function NotesPanel({
     <div className="flex h-full min-h-0 flex-col">
       <div className="shrink-0 border-b border-gray-100 px-2 pb-2">
         <Textarea
+          ref={inputRef}
           value={draft}
           rows={3}
           maxLength={10000}
