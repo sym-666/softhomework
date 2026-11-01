@@ -1,5 +1,12 @@
 export const paperMessagesZh: Record<string, string> = {
   'ribbon.tab.papers': '论文',
+  'papers.back': '返回论文库',
+  'papers.notFound': '论文不存在或已被删除',
+  'papers.delete': '删除',
+  'papers.deleteTitle': '删除论文',
+  'papers.deleteDescription': '确定删除《{title}》吗？PDF 文件也会一起删除，此操作无法撤销。',
+  'papers.deleted': '论文已删除',
+  'papers.deleteError': '删除失败，请稍后再试',
   'papers.title': '论文资料库',
   'papers.subtitle': '管理聚变研究文献，并通过 Semantic Scholar 检索全球学术资源',
   'papers.library': '本地资料库',
@@ -41,6 +48,13 @@ export const paperMessagesZh: Record<string, string> = {
 
 export const paperMessagesEn: Record<string, string> = {
   'ribbon.tab.papers': 'Papers',
+  'papers.back': 'Back to library',
+  'papers.notFound': 'This paper does not exist or has been deleted',
+  'papers.delete': 'Delete',
+  'papers.deleteTitle': 'Delete paper',
+  'papers.deleteDescription': 'Delete "{title}"? The PDF file is removed too. This cannot be undone.',
+  'papers.deleted': 'Paper deleted',
+  'papers.deleteError': 'Could not delete the paper. Please try again later.',
   'papers.title': 'Paper Library',
   'papers.subtitle': 'Manage fusion research papers and search global literature through Semantic Scholar',
   'papers.library': 'Library',
