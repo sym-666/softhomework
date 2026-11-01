@@ -40,6 +40,10 @@ class Paper(Base):
     source_url: Mapped[str | None] = mapped_column(String(2048))
     stored_file_name: Mapped[str | None] = mapped_column(String(128))
     original_file_name: Mapped[str | None] = mapped_column(String(500))
+    # none（无本地 PDF）/ pending / processing / ready / no_text / failed
+    ingest_status: Mapped[str] = mapped_column(
+        String(16), default="none", server_default="none", index=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now, index=True
     )
@@ -64,3 +68,17 @@ class ReadingState(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now, onupdate=utc_now
     )
+
+
+class PaperChunk(Base):
+    """论文全文切块，带页码，供检索和引用。"""
+
+    __tablename__ = "paper_chunks"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    paper_id: Mapped[int] = mapped_column(
+        ForeignKey("papers.id", ondelete="CASCADE"), index=True
+    )
+    chunk_index: Mapped[int] = mapped_column(Integer)
+    page: Mapped[int] = mapped_column(Integer)
+    text: Mapped[str] = mapped_column(Text)
