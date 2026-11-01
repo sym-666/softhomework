@@ -192,3 +192,44 @@ def test_study_routes_require_login(client: TestClient) -> None:
     assert client.get("/api/Study-Cards/due").status_code == 401
     assert client.get(cards_url(1)).status_code == 401
     assert client.post("/api/Study-Cards/1/review", json={"correct": True}).status_code == 401
+
+
+def test_summary_reports_progress_by_paper(user_client: TestClient, ai_enabled: dict) -> None:
+    paper_id = make_paper(user_client)
+    first, _second = generate(user_client, paper_id).json()
+    user_client.post(f"/api/Study-Cards/{first['id']}/review", json={"correct": True})
+
+    body = user_client.get("/api/Study-Cards/summary", params={"tzOffset": -480}).json()
+
+    assert (body["total"], body["due"], body["mastered"]) == (2, 1, 0)
+    assert body["nextDueAt"].endswith("Z")
+    assert len(body["forecast"]) == 7
+    assert body["papers"] == [
+        {"paperId": paper_id, "title": "Paper", "total": 2, "due": 1, "mastered": 0}
+    ]
+
+
+def test_summary_is_private(
+    user_client: TestClient, other_client: TestClient, ai_enabled: dict
+) -> None:
+    generate(user_client, make_paper(user_client))
+
+    body = other_client.get("/api/Study-Cards/summary").json()
+
+    assert (body["total"], body["papers"]) == (0, [])
+
+
+def test_due_cards_can_be_filtered_by_paper(user_client: TestClient, ai_enabled: dict) -> None:
+    first = make_paper(user_client)
+    second = make_paper(user_client)
+    generate(user_client, first)
+    generate(user_client, second)
+
+    body = user_client.get("/api/Study-Cards/due", params={"paperId": second}).json()
+
+    assert body["total"] == 2
+    assert {card["paperId"] for card in body["items"]} == {second}
+
+
+def test_summary_requires_login(client: TestClient) -> None:
+    assert client.get("/api/Study-Cards/summary").status_code == 401

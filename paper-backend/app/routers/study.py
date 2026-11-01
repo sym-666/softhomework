@@ -1,5 +1,5 @@
 import json
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, select
@@ -7,9 +7,9 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.db import get_db
 from app.deps import get_current_user
-from app.models import StudyCard, User
+from app.models import Paper, StudyCard, User
 from app.schemas import CamelModel, UtcDatetime
-from app.services.study_cards import schedule_review
+from app.services.study_cards import CardProgress, schedule_review, summarize_progress
 
 router = APIRouter(prefix="/api", tags=["study"])
 
@@ -33,6 +33,28 @@ class StudyCardOut(CamelModel):
 class DueCards(CamelModel):
     items: list[StudyCardOut]
     total: int
+
+
+class ForecastDay(CamelModel):
+    date: date
+    count: int
+
+
+class PaperProgressOut(CamelModel):
+    paper_id: int
+    title: str
+    total: int
+    due: int
+    mastered: int
+
+
+class StudySummary(CamelModel):
+    total: int
+    due: int
+    mastered: int
+    next_due_at: UtcDatetime | None
+    forecast: list[ForecastDay]
+    papers: list[PaperProgressOut]
 
 
 class ReviewRequest(CamelModel):
@@ -89,24 +111,50 @@ def list_paper_cards(
     return [to_card_out(card) for card in cards]
 
 
+@router.get("/study-cards/summary", response_model=StudySummary)
+def get_study_summary(
+    tz_offset: int = Query(default=0, ge=-840, le=840, alias="tzOffset"),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> StudySummary:
+    rows = db.execute(
+        select(StudyCard.paper_id, Paper.title, StudyCard.box, StudyCard.due_at)
+        .join(Paper, Paper.id == StudyCard.paper_id)
+        .where(StudyCard.user_id == user.id)
+    ).all()
+    progress = summarize_progress(
+        [CardProgress(*row) for row in rows], datetime.now(UTC), tz_offset
+    )
+    return StudySummary(
+        total=progress.total,
+        due=progress.due,
+        mastered=progress.mastered,
+        next_due_at=progress.next_due_at,
+        forecast=[ForecastDay(date=day, count=count) for day, count in progress.forecast],
+        papers=[PaperProgressOut.model_validate(paper) for paper in progress.papers],
+    )
+
+
 @router.get("/study-cards/due", response_model=DueCards)
 def list_due_cards(
     limit: int = Query(default=MAX_DUE_CARDS, ge=1, le=MAX_DUE_CARDS),
+    paper_id: int | None = Query(default=None, alias="paperId"),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> DueCards:
     now = datetime.now(UTC)
+    filters = [StudyCard.user_id == user.id, StudyCard.due_at <= now]
+    if paper_id is not None:
+        filters.append(StudyCard.paper_id == paper_id)
     cards = db.scalars(
         select(StudyCard)
         .options(joinedload(StudyCard.paper))
-        .where(StudyCard.user_id == user.id, StudyCard.due_at <= now)
+        .where(*filters)
         .order_by(StudyCard.due_at, StudyCard.id)
         .limit(limit)
     ).all()
-    return DueCards(
-        items=[to_card_out(card) for card in cards],
-        total=count_due_cards(db, user.id, now),
-    )
+    total = db.scalar(select(func.count()).select_from(StudyCard).where(*filters)) or 0
+    return DueCards(items=[to_card_out(card) for card in cards], total=total)
 
 
 @router.post("/study-cards/{card_id}/review", response_model=StudyCardOut)
