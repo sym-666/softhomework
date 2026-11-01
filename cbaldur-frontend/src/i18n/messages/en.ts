@@ -6,6 +6,10 @@ const messages: Record<string, string> = {
   // Common
   'common.loading': 'Loading...',
 
+  'home.title': 'Welcome to the paper learning platform',
+  'home.subtitle': 'The learning dashboard is on its way. Browse or upload papers in the library for now.',
+  'home.openLibrary': 'Open library',
+
   // Sidebar
   'sider.home': 'Home',
   'sider.cases': 'Cases',

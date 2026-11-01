@@ -6,6 +6,10 @@ const messages: Record<string, string> = {
   // 通用
   'common.loading': '加载中...',
 
+  'home.title': '欢迎使用论文学习平台',
+  'home.subtitle': '学习看板正在建设中，可以先到论文库浏览和上传论文。',
+  'home.openLibrary': '打开论文库',
+
   // 侧边栏
   'sider.home': '首页',
   'sider.cases': '算例管理',
