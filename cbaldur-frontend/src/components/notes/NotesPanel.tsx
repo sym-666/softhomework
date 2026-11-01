@@ -3,10 +3,12 @@ import { Loader2, Plus } from 'lucide-react';
 import { useIntl } from 'react-intl';
 import { toast } from 'sonner';
 import { ExportLink } from '@/components/common/ExportLink';
+import { useGetHighlightsQuery } from '@/redux/api/highlight';
 import { useCreateNoteMutation, useGetPaperNotesQuery } from '@/redux/api/note';
 import { useAppSelector } from '@/redux/hooks';
 import { Button } from '@/shadcn/components/ui/button';
 import { Textarea } from '@/shadcn/components/ui/textarea';
+import { HighlightItem } from './HighlightItem';
 import { NoteItem } from './NoteItem';
 
 interface NotesPanelProps {
@@ -16,6 +18,8 @@ interface NotesPanelProps {
   onJumpToPage: (page: number) => void;
   /** 外部填入输入框的内容；每次传入新对象都会填入一次 */
   draftRequest?: { text: string } | null;
+  /** 在 PDF 上点击高亮时定位到列表里的对应条目 */
+  highlightFocus?: { id: number } | null;
 }
 
 export function NotesPanel({
@@ -23,10 +27,12 @@ export function NotesPanel({
   currentPage,
   onJumpToPage,
   draftRequest,
+  highlightFocus = null,
 }: NotesPanelProps) {
   const intl = useIntl();
   const language = useAppSelector((state) => state.locale.locale);
   const { data: notes, isLoading } = useGetPaperNotesQuery(paperId);
+  const { data: highlights } = useGetHighlightsQuery(paperId);
   const [createNote, createState] = useCreateNoteMutation();
   const [draft, setDraft] = useState('');
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -110,6 +116,24 @@ export function NotesPanel({
         )}
         {notes?.map((note) => (
           <NoteItem key={note.id} note={note} onJumpToPage={onJumpToPage} />
+        ))}
+        {highlights && highlights.length > 0 && (
+          <h3 className="pt-2 text-[11px] font-medium text-gray-500">
+            {intl.formatMessage(
+              { id: 'highlight.section' },
+              { count: highlights.length },
+            )}
+          </h3>
+        )}
+        {highlights?.map((highlight) => (
+          <HighlightItem
+            key={highlight.id}
+            highlight={highlight}
+            onJumpToPage={onJumpToPage}
+            focusRequest={
+              highlightFocus?.id === highlight.id ? highlightFocus : null
+            }
+          />
         ))}
         {notes && notes.length > 0 && (
           <div className="flex justify-end pt-1">
