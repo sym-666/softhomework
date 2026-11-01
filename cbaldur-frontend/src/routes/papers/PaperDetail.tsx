@@ -69,6 +69,7 @@ export default function PaperDetail({ id }: { id: string }) {
   const [updateReadingState] = useUpdateReadingStateMutation();
   const [activeTab, setActiveTab] = useState('chat');
   const [askRequest, setAskRequest] = useState<{ text: string } | null>(null);
+  const [noteRequest, setNoteRequest] = useState<{ text: string } | null>(null);
 
   // 解析在后台进行，完成前定期刷新状态
   const ingesting =
@@ -82,6 +83,11 @@ export default function PaperDetail({ id }: { id: string }) {
       text: intl.formatMessage({ id: 'reader.selection.askPrompt' }, { text }),
     });
     setActiveTab('chat');
+  };
+
+  const noteSelection = (text: string) => {
+    setNoteRequest({ text: `> ${text}\n\n` });
+    setActiveTab('notes');
   };
 
   const changeStatus = async (status: ReadingStatus) => {
@@ -207,6 +213,7 @@ export default function PaperDetail({ id }: { id: string }) {
                   page={page}
                   onPageChange={setPage}
                   onAskSelection={askSelection}
+                  onNoteSelection={noteSelection}
                 />
               )}
             </Suspense>
@@ -237,7 +244,7 @@ export default function PaperDetail({ id }: { id: string }) {
                 {intl.formatMessage({ id: 'papers.tabInfo' })}
               </TabsTrigger>
             </TabsList>
-            {/* forceMount：默认切走标签会卸载组件，对话记录和生成中的导读就丢了 */}
+            {/* forceMount：默认切走标签会卸载组件，对话记录、生成中的导读和未保存的笔记就丢了 */}
             <TabsContent
               forceMount
               value="chat"
@@ -261,6 +268,7 @@ export default function PaperDetail({ id }: { id: string }) {
               />
             </TabsContent>
             <TabsContent
+              forceMount
               value="notes"
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
             >
@@ -268,6 +276,7 @@ export default function PaperDetail({ id }: { id: string }) {
                 paperId={paper.id}
                 currentPage={paper.hasLocalFile ? page : null}
                 onJumpToPage={setPage}
+                draftRequest={noteRequest}
               />
             </TabsContent>
             <TabsContent

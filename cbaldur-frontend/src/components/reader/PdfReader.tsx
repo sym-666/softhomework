@@ -4,6 +4,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  NotebookPen,
   Sparkles,
   ZoomIn,
   ZoomOut,
@@ -34,6 +35,8 @@ interface PdfReaderProps {
   onPageChange: (page: number) => void;
   /** 针对选中文字提问 */
   onAskSelection: (text: string) => void;
+  /** 把选中文字记为笔记 */
+  onNoteSelection: (text: string) => void;
 }
 
 export default function PdfReader({
@@ -41,6 +44,7 @@ export default function PdfReader({
   page,
   onPageChange,
   onAskSelection,
+  onNoteSelection,
 }: PdfReaderProps) {
   const intl = useIntl();
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -185,6 +189,14 @@ export default function PdfReader({
             label={intl.formatMessage({ id: 'reader.selection.ask' })}
             onClick={() => {
               onAskSelection(selection.text);
+              clearSelection();
+            }}
+          />
+          <SelectionAction
+            icon={NotebookPen}
+            label={intl.formatMessage({ id: 'reader.selection.note' })}
+            onClick={() => {
+              onNoteSelection(selection.text);
               clearSelection();
             }}
           />
