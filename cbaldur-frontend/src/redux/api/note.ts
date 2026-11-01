@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type { Note, NotePage } from '@/types/note';
+import type { Note, NotePage, NoteSummary } from '@/types/note';
 
 export const noteApi = createApi({
   reducerPath: 'noteApi',
@@ -12,9 +12,13 @@ export const noteApi = createApi({
     }),
     getMyNotes: builder.query<
       NotePage,
-      { search?: string; page?: number; pageSize?: number }
+      { search?: string; paperId?: number; page?: number; pageSize?: number }
     >({
       query: (params) => ({ url: '/Notes', params }),
+      providesTags: ['Notes'],
+    }),
+    getNoteSummary: builder.query<NoteSummary, void>({
+      query: () => '/Notes/summary',
       providesTags: ['Notes'],
     }),
     createNote: builder.mutation<
@@ -49,6 +53,7 @@ export const noteApi = createApi({
 export const {
   useGetPaperNotesQuery,
   useGetMyNotesQuery,
+  useGetNoteSummaryQuery,
   useCreateNoteMutation,
   useUpdateNoteMutation,
   useDeleteNoteMutation,

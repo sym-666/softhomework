@@ -14,3 +14,10 @@ export interface NotePage {
   page: number;
   pageSize: number;
 }
+
+export interface NoteSummary {
+  total: number;
+  recent: number;
+  highlights: number;
+  papers: { paperId: number; title: string; count: number }[];
+}
