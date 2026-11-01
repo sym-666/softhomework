@@ -160,11 +160,6 @@ export const userApi = createApi({
       providesTags: ['User', 'Auth'],
     }),
 
-    // 获取超算列表
-    getSupercomputers: builder.query<string[], void>({
-      query: () => '/User/GetSupercomputers',
-    }),
-
     // 用户登出
     logout: builder.mutation<void, void>({
       query: () => ({
@@ -257,7 +252,6 @@ export const {
   useLazyGithubLoginQuery,
   useLazyGithubCallbackQuery,
   useLogoutMutation,
-  useGetSupercomputersQuery,
   useSendResetPasswordCodeMutation,
   useResetPasswordMutation,
   useUpdateUserMutation,

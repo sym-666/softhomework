@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import {
-  Plus,
-  FileJson,
-  FileText,
   Settings,
   User,
   LogOut,
   LayoutDashboard,
-  RefreshCw,
+  Library,
   Search,
   ChevronUp,
   ChevronDown,
@@ -28,31 +25,15 @@ interface RibbonLayoutProps {
   children: React.ReactNode;
 }
 
-type TabId = 'home' | 'cases' | 'user' | 'papers';
+type TabId = 'home' | 'user' | 'papers';
 
 const getActiveTabFromPath = (path: string): TabId => {
-  if (path.startsWith('/add-cases')) return 'cases';
   if (path.startsWith('/user')) return 'user';
   if (path.startsWith('/papers')) return 'papers';
   return 'home';
 };
 
 const pathWithoutQuery = (path: string) => path.split('?')[0] ?? path;
-
-const isAddCasesJsonPath = (path: string) => {
-  const p = pathWithoutQuery(path);
-  return p === '/add-cases/json' || p.startsWith('/add-cases/json/');
-};
-
-const isAddCasesNamelistPath = (path: string) =>
-  pathWithoutQuery(path) === '/add-cases/namelist';
-
-const isCreateCasePath = (path: string) => {
-  const p = pathWithoutQuery(path);
-  if (!p.startsWith('/add-cases')) return false;
-  if (isAddCasesJsonPath(p) || isAddCasesNamelistPath(p)) return false;
-  return true;
-};
 
 export const RibbonLayout: React.FC<RibbonLayoutProps> = ({ children }) => (
   <RibbonCollapseProvider>
@@ -78,7 +59,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
     setRibbonTab(tab);
     const paths: Record<TabId, string> = {
       home: '/',
-      cases: '/add-cases',
       user: '/user',
       papers: '/papers',
     };
@@ -146,11 +126,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
           onClick={() => handleTabClick('home')}
         />
         <RibbonTab
-          label={intl.formatMessage({ id: 'ribbon.tab.cases' })}
-          active={ribbonTab === 'cases'}
-          onClick={() => handleTabClick('cases')}
-        />
-        <RibbonTab
           label={intl.formatMessage({ id: 'ribbon.tab.settings' })}
           active={ribbonTab === 'user'}
           onClick={() => handleTabClick('user')}
@@ -173,9 +148,7 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
               className="h-6 w-48 bg-white border border-gray-300 rounded-sm pl-7 pr-2 text-xs focus:outline-none focus:border-[var(--office-blue)] focus:ring-1 focus:ring-[var(--office-blue)]/30"
             />
           </div>
-          {(ribbonTab === 'home' ||
-            ribbonTab === 'cases' ||
-            ribbonTab === 'user') && (
+          {(ribbonTab === 'home' || ribbonTab === 'user') && (
             <button
               type="button"
               onClick={toggle}
@@ -209,9 +182,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
             {ribbonTab === 'home' && (
               <HomeRibbon location={location} onNavigate={setLocation} />
             )}
-            {ribbonTab === 'cases' && (
-              <CasesRibbon location={location} onNavigate={setLocation} />
-            )}
             {ribbonTab === 'user' && <UserRibbon />}
           </div>
         )}
@@ -241,64 +211,11 @@ const HomeRibbon: React.FC<{
           active={pathWithoutQuery(location) === '/'}
         />
       </RibbonGroup>
-      <RibbonGroup title={intl.formatMessage({ id: 'ribbon.group.new' })}>
+      <RibbonGroup title={intl.formatMessage({ id: 'ribbon.group.library' })}>
         <RibbonButton
-          icon={Plus}
-          label={intl.formatMessage({ id: 'ribbon.button.newCase' })}
-          active={isCreateCasePath(location)}
-          onClick={() => onNavigate('/add-cases')}
-        />
-        <RibbonButton
-          icon={FileJson}
-          label={intl.formatMessage({ id: 'ribbon.button.importJson' })}
-          active={isAddCasesJsonPath(location)}
-          onClick={() => onNavigate('/add-cases/json/baldur')}
-        />
-        <RibbonButton
-          icon={FileText}
-          label={intl.formatMessage({ id: 'ribbon.button.importNamelist' })}
-          active={isAddCasesNamelistPath(location)}
-          onClick={() => onNavigate('/add-cases/namelist')}
-        />
-      </RibbonGroup>
-    </>
-  );
-};
-
-const CasesRibbon: React.FC<{
-  location: string;
-  onNavigate: (path: string) => void;
-}> = ({ location, onNavigate }) => {
-  const intl = useIntl();
-  return (
-    <>
-      <RibbonGroup title={intl.formatMessage({ id: 'ribbon.group.view' })}>
-        <RibbonButton
-          icon={RefreshCw}
-          label={intl.formatMessage({ id: 'ribbon.button.refresh' })}
-          onClick={() => window.location.reload()}
-        />
-      </RibbonGroup>
-      <RibbonGroup title={intl.formatMessage({ id: 'ribbon.group.new' })}>
-        <RibbonButton
-          icon={Plus}
-          label={intl.formatMessage({ id: 'ribbon.button.createCase' })}
-          active={isCreateCasePath(location)}
-          onClick={() => onNavigate('/add-cases')}
-        />
-      </RibbonGroup>
-      <RibbonGroup title={intl.formatMessage({ id: 'ribbon.group.import' })}>
-        <RibbonButton
-          icon={FileJson}
-          label={intl.formatMessage({ id: 'ribbon.button.json' })}
-          active={isAddCasesJsonPath(location)}
-          onClick={() => onNavigate('/add-cases/json/baldur')}
-        />
-        <RibbonButton
-          icon={FileText}
-          label={intl.formatMessage({ id: 'ribbon.button.namelist' })}
-          active={isAddCasesNamelistPath(location)}
-          onClick={() => onNavigate('/add-cases/namelist')}
+          icon={Library}
+          label={intl.formatMessage({ id: 'ribbon.button.papers' })}
+          onClick={() => onNavigate('/papers')}
         />
       </RibbonGroup>
     </>

@@ -28,6 +28,8 @@ const messages: Record<string, string> = {
 
   // 论坛占位
 
+  'ribbon.group.library': '论文库',
+  'ribbon.button.papers': '论文库',
   'ribbon.search.placeholder': '搜索...',
   'ribbon.collapse.collapse': '折叠功能区',
   'ribbon.collapse.expand': '展开功能区',
