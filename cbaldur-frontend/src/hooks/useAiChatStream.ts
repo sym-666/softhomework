@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { AiChatItem, AiChatMessage } from '@/types/Ai';
+import type { AiChatItem, AiChatMessage, Citation } from '@/types/Ai';
 
 /** 与后端保持一致：每次只发送最近 12 条历史 */
 const MAX_HISTORY = 12;
 
 interface UseAiChatStreamOptions {
-  /** POST 地址，例如 /api/Ai/CaseChat?id=... */
+  /** POST 地址，例如 /api/Ai/PaperChat?id=... */
   url: string;
   /** 组装请求体；history 已截断为最近 12 条 */
   buildBody: (message: string, history: AiChatMessage[]) => unknown;
@@ -182,6 +182,12 @@ export function useAiChatStream({
                 patchActive((item) => ({
                   ...item,
                   content: item.content + (data.text ?? ''),
+                }));
+                break;
+              case 'citations':
+                patchActive((item) => ({
+                  ...item,
+                  citations: data as Citation[],
                 }));
                 break;
               case 'error':
