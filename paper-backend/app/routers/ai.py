@@ -15,6 +15,7 @@ from app.routers.study import StudyCardOut, to_card_out
 from app.schemas import CamelModel, UtcDatetime
 from app.services import llm
 from app.services.paper_chat import ChatTurn, chat_events, save_exchange
+from app.services.paper_compare import compare_events
 from app.services.paper_guide import guide_events
 from app.services.retrieval import Passage
 from app.services.study_cards import generate_cards, save_cards
@@ -24,6 +25,7 @@ router = APIRouter(prefix="/api/ai", tags=["ai"])
 MAX_HISTORY_TURNS = 12
 # 只影响页面恢复多少条，发给模型的历史由 MAX_HISTORY_TURNS 限制
 MAX_RESTORED_MESSAGES = 200
+MAX_COMPARED_PAPERS = 4
 SSE_HEADERS = {
     # 关闭缓存和反向代理缓冲，否则回答会等到最后才一次性显示
     "Cache-Control": "no-cache, no-store",
@@ -41,6 +43,10 @@ class ChatMessage(CamelModel):
 class PaperChatRequest(CamelModel):
     message: str = Field(min_length=1, max_length=2000)
     history: list[ChatMessage] = Field(default_factory=list, max_length=MAX_HISTORY_TURNS)
+
+
+class CompareRequest(PaperChatRequest):
+    paper_ids: list[int] = Field(min_length=2, max_length=MAX_COMPARED_PAPERS)
 
 
 class Citation(CamelModel):
@@ -180,6 +186,27 @@ def generate_paper_guide(
     paper, passages = load_ai_source(db, paper_id)
     return StreamingResponse(
         guide_events(paper, passages, language),
+        media_type="text/event-stream",
+        headers=SSE_HEADERS,
+    )
+
+
+@router.post("/compare")
+def compare_papers(
+    body: CompareRequest,
+    _user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> StreamingResponse:
+    question = body.message.strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="消息不能为空")
+    paper_ids = list(dict.fromkeys(body.paper_ids))
+    if len(paper_ids) < 2:
+        raise HTTPException(status_code=400, detail="请至少选择两篇不同的论文")
+    papers = [load_ai_source(db, paper_id) for paper_id in paper_ids]
+    history = [ChatTurn(turn.role, turn.content) for turn in body.history]
+    return StreamingResponse(
+        compare_events(papers, question, history),
         media_type="text/event-stream",
         headers=SSE_HEADERS,
     )
