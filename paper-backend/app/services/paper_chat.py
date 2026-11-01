@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 MAX_HISTORY_CHARS = 4000
 # 关键词本身很短，但推理型模型会先思考，上限太低时输出是空的
 REWRITE_MAX_TOKENS = 1500
+# 超过这个长度说明模型没有按要求提取关键词，而是直接回答了问题
+MAX_KEYWORD_CHARS = 200
 SNIPPET_CHARS = 160
 TRUNCATED_MESSAGE = "回答过长被截断，可以把问题拆小后再问"
 CONTEXT_TAG = "paper_context"
@@ -33,8 +35,9 @@ ABSTRACT_ONLY_NOTE = """
 当前只有论文的摘要，没有全文，也没有页码。请不要标注页码，并在回答开头说明这是基于摘要的回答。"""
 
 REWRITE_PROMPT = (
-    "把用户关于一篇英文论文的问题改写成用于全文检索的英文关键词。"
-    "只输出关键词，用空格分隔，不要解释。"
+    "你是检索关键词提取器，不回答问题。"
+    "把 <question> 中的问题转换成用于检索英文论文全文的英文关键词。"
+    "只输出 3 到 10 个英文关键词，用空格分隔。不要回答问题，不要解释，不要使用中文。"
 )
 
 
@@ -50,13 +53,16 @@ def rewrite_query(query: str) -> str:
         keywords = llm.complete(
             [
                 {"role": "system", "content": REWRITE_PROMPT},
-                {"role": "user", "content": query},
+                {"role": "user", "content": f"<question>{query}</question>"},
             ],
             max_tokens=REWRITE_MAX_TOKENS,
         )
     except LlmError:
         return query
-    return keywords or query
+    if not keywords or len(keywords) > MAX_KEYWORD_CHARS or contains_cjk(keywords):
+        logger.info("查询改写结果不可用，使用原问题")
+        return query
+    return keywords
 
 
 def build_search_query(

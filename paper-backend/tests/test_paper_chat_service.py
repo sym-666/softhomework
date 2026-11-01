@@ -13,6 +13,7 @@ from app.services.paper_chat import (
     build_messages,
     build_search_query,
     chat_events,
+    rewrite_query,
     sse_event,
 )
 from app.services.retrieval import Passage
@@ -158,3 +159,25 @@ def test_model_failure_becomes_error_event(monkeypatch: pytest.MonkeyPatch) -> N
     events = parse(list(chat_events(PAPER, PASSAGES, "attention", [])))
 
     assert [name for name, _ in events] == ["citations", "error", "done"]
+
+
+@pytest.mark.parametrize("answer", ["这是直接回答问题的内容", "attention " * 40, ""])
+def test_unusable_rewrite_falls_back_to_question(
+    monkeypatch: pytest.MonkeyPatch, answer: str
+) -> None:
+    monkeypatch.setattr(paper_chat.llm, "complete", lambda _m, max_tokens=0: answer)
+
+    assert rewrite_query("注意力怎么计算") == "注意力怎么计算"
+
+
+def test_rewrite_marks_the_question_as_input(monkeypatch: pytest.MonkeyPatch) -> None:
+    seen: list = []
+
+    def complete(messages, max_tokens=0):
+        seen.append(messages)
+        return "attention weights"
+
+    monkeypatch.setattr(paper_chat.llm, "complete", complete)
+
+    assert rewrite_query("注意力怎么计算") == "attention weights"
+    assert seen[0][-1]["content"] == "<question>注意力怎么计算</question>"
