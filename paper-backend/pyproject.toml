@@ -1,7 +1,7 @@
 [project]
-name = "paper-backend"
+name = "paperpilot-backend"
 version = "0.1.0"
-description = "AI 论文学习网站后端"
+description = "PaperPilot 后端"
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.13",

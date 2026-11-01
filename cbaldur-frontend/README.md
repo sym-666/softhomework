@@ -1,36 +1,11 @@
-# Rsbuild project
-
-## Setup
-
-Install the dependencies:
+# PaperPilot 前端
 
 ```bash
-pnpm install
+npm install
+npm run dev        # 开发服务器，/api 代理到 localhost:5168
+npm run lint
+npm run typecheck
+npm run build
 ```
 
-## Get started
-
-Start the dev server, and the app will be available at [http://localhost:3000](http://localhost:3000).
-
-```bash
-pnpm dev
-```
-
-Build the app for production:
-
-```bash
-pnpm build
-```
-
-Preview the production build locally:
-
-```bash
-pnpm preview
-```
-
-## Learn more
-
-To learn more about Rsbuild, check out the following resources:
-
-- [Rsbuild documentation](https://rsbuild.rs) - explore Rsbuild features and APIs.
-- [Rsbuild GitHub repository](https://github.com/web-infra-dev/rsbuild) - your feedback and contributions are welcome!
+项目结构和约定见仓库根目录的 `AGENTS.md`。
