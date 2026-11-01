@@ -20,6 +20,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shadcn/components/ui/dialog';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/shadcn/components/ui/tabs';
 
 // pdf.js 体积较大，只在打开论文时加载
 const PdfReader = lazy(() => import('@/components/reader/PdfReader'));
@@ -32,7 +38,7 @@ export default function PaperDetail({ id }: { id: string }) {
   const { data: user } = useGetCurrentUserQuery();
   const [deletePaper, deleteState] = useDeletePaperMutation();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [page, setPage] = useState(1);
 
   const confirmDelete = async () => {
     try {
@@ -68,23 +74,23 @@ export default function PaperDetail({ id }: { id: string }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] space-y-3">
-      <div className="border border-gray-200 bg-white px-4 py-3">
+    <div className="flex flex-col gap-2 lg:h-[calc(100vh-122px)]">
+      <div className="shrink-0 border border-gray-200 bg-white px-4 py-2">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <Link
               href="/papers"
-              className="mb-2 inline-flex items-center gap-1 text-xs text-gray-500 hover:text-[var(--office-blue)]"
+              className="inline-flex items-center gap-1 text-xs text-gray-500 hover:text-[var(--office-blue)]"
             >
               <ArrowLeft size={13} />
               {intl.formatMessage({ id: 'papers.back' })}
             </Link>
-            <h1 className="text-base font-semibold text-gray-900">
+            <h1 className="truncate text-sm font-semibold text-gray-900">
               {paper.title}
             </h1>
-            <p className="mt-1 flex items-start gap-1.5 text-xs text-gray-500">
-              <UserIcon size={12} className="mt-0.5 shrink-0" />
-              <span>
+            <p className="flex items-center gap-1.5 truncate text-xs text-gray-500">
+              <UserIcon size={12} className="shrink-0" />
+              <span className="truncate">
                 {paper.authors} · {paper.year}
               </span>
             </p>
@@ -109,46 +115,70 @@ export default function PaperDetail({ id }: { id: string }) {
             )}
           </div>
         </div>
-        {paper.tags.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-1">
-            {paper.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-sm bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-600"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
 
-      {paper.hasLocalFile && (
-        <div className="h-[70vh] border border-gray-200 bg-white">
-          <Suspense
-            fallback={
-              <div className="py-20 text-center text-sm text-gray-400">
-                <Loader2 className="mx-auto mb-2 animate-spin" />
-                {intl.formatMessage({ id: 'reader.loading' })}
-              </div>
-            }
-          >
-            <PdfReader
-              url={paper.downloadUrl}
-              page={currentPage}
-              onPageChange={setCurrentPage}
-            />
-          </Suspense>
-        </div>
-      )}
+      <div className="flex min-h-0 flex-1 flex-col gap-2 lg:flex-row">
+        {paper.hasLocalFile && (
+          <section className="h-[70vh] min-w-0 flex-1 border border-gray-200 bg-white lg:h-auto">
+            <Suspense
+              fallback={
+                <div className="py-20 text-center text-sm text-gray-400">
+                  <Loader2 className="mx-auto mb-2 animate-spin" />
+                  {intl.formatMessage({ id: 'reader.loading' })}
+                </div>
+              }
+            >
+              <PdfReader
+                url={paper.downloadUrl}
+                page={page}
+                onPageChange={setPage}
+              />
+            </Suspense>
+          </section>
+        )}
 
-      <div className="border border-gray-200 bg-white px-4 py-3">
-        <h2 className="text-sm font-semibold text-gray-900">
-          {intl.formatMessage({ id: 'papers.abstract' })}
-        </h2>
-        <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-gray-600">
-          {paper.abstract || intl.formatMessage({ id: 'papers.noAbstract' })}
-        </p>
+        <aside
+          className={`flex min-h-0 flex-col border border-gray-200 bg-white ${
+            paper.hasLocalFile ? 'lg:w-[400px] lg:shrink-0' : 'flex-1'
+          }`}
+        >
+          <Tabs defaultValue="info" className="flex min-h-0 flex-1 flex-col">
+            <TabsList className="m-2 shrink-0">
+              <TabsTrigger value="info">
+                {intl.formatMessage({ id: 'papers.tabInfo' })}
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent
+              value="info"
+              className="min-h-0 flex-1 overflow-auto px-4 pb-4"
+            >
+              {!paper.hasLocalFile && (
+                <p className="mb-3 rounded-sm bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-700">
+                  {intl.formatMessage({ id: 'papers.externalOnly' })}
+                </p>
+              )}
+              <h2 className="text-sm font-semibold text-gray-900">
+                {intl.formatMessage({ id: 'papers.abstract' })}
+              </h2>
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-gray-600">
+                {paper.abstract ||
+                  intl.formatMessage({ id: 'papers.noAbstract' })}
+              </p>
+              {paper.tags.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1">
+                  {paper.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-sm bg-gray-100 px-1.5 py-0.5 text-[10px] text-gray-600"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </aside>
       </div>
 
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
