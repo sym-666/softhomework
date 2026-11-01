@@ -22,6 +22,7 @@ docker compose up -d --build
 | `AI_OPENAI_BASE_URL` | 否 | OpenAI 兼容接口地址，默认 DeepSeek |
 | `AI_OPENAI_MODEL_ID` | 使用 AI 时 | 模型名称 |
 | `AI_OPENAI_API_KEY` | 使用 AI 时 | 模型服务的 API Key |
+| `AI_OPENAI_REASONING_EFFORT` | 否 | 推理强度，使用 DeepSeek 时建议设为 `low`，其他服务不支持时留空 |
 | `SEMANTIC_SCHOLAR_API_KEY` | 否 | 在线检索的 API Key，不填时共享限流更严格 |
 | `HTTP_BIND`、`HTTP_PORT` | 否 | 监听地址和端口，默认 `127.0.0.1:3000` |
 | `COOKIE_SECURE` | 否 | 走 HTTPS 时设为 `true` |
