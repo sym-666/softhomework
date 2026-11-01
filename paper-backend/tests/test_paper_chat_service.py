@@ -7,7 +7,9 @@ from app.services import paper_chat
 from app.services.llm import LlmError
 from app.services.paper_chat import (
     ABSTRACT_ONLY_NOTE,
+    FOCUS_PAGE_PASSAGES,
     ChatTurn,
+    add_focus_page,
     build_citations,
     build_context,
     build_messages,
@@ -181,3 +183,50 @@ def test_rewrite_marks_the_question_as_input(monkeypatch: pytest.MonkeyPatch) ->
 
     assert rewrite_query("注意力怎么计算") == "attention weights"
     assert seen[0][-1]["content"] == "<question>注意力怎么计算</question>"
+
+
+FOCUS_PASSAGES = [
+    Passage(1, "attention keys and values"),
+    Passage(2, "unrelated background about hardware"),
+    Passage(2, "recurrent models factor computation along positions"),
+    Passage(3, "attention weights"),
+]
+
+
+def test_focus_page_passage_is_added_even_when_search_missed_it() -> None:
+    selected = [FOCUS_PASSAGES[0]]
+
+    result = add_focus_page(selected, FOCUS_PASSAGES, "explain recurrent models", 2)
+
+    assert result[0] == FOCUS_PASSAGES[2]
+    assert FOCUS_PASSAGES[0] in result
+
+
+def test_focus_page_does_not_duplicate_passages() -> None:
+    selected = [FOCUS_PASSAGES[2]]
+
+    result = add_focus_page(selected, FOCUS_PASSAGES, "recurrent models", 2)
+
+    assert result.count(FOCUS_PASSAGES[2]) == 1
+
+
+def test_focus_page_is_limited() -> None:
+    passages = [Passage(5, f"text {index}") for index in range(10)]
+
+    assert len(add_focus_page([], passages, "text", 5)) == FOCUS_PAGE_PASSAGES
+
+
+def test_without_focus_page_selection_is_unchanged() -> None:
+    selected = [FOCUS_PASSAGES[0]]
+
+    assert add_focus_page(selected, FOCUS_PASSAGES, "q", None) == selected
+
+
+def test_unknown_page_adds_nothing() -> None:
+    assert add_focus_page([], FOCUS_PASSAGES, "q", 99) == []
+
+
+def test_prompt_mentions_the_page_being_read() -> None:
+    messages = build_messages(PAPER, [FOCUS_PASSAGES[2]], "这段什么意思", [], 2)
+
+    assert "用户正在阅读第 2 页" in messages[-1]["content"]
