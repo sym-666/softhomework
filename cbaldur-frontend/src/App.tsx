@@ -34,7 +34,6 @@ import AddCasesComment from './routes/add-cases/comment';
 import AddCasesDynamic from './routes/add-cases/dynamic';
 import AddCasesIndexDynamic from './routes/add-cases/index-dynamic';
 import UserProfile from './routes/user';
-import AdminPage from './routes/admin';
 import PapersPage from './routes/papers';
 
 const MainApp = () => {
@@ -97,7 +96,6 @@ const MainApp = () => {
           <Route path="/add-cases/dynamic/:configName/:panelIndex" component={AddCasesDynamic} />
           <Route path="/add-cases/dynamic" component={AddCasesDynamic} />
           <Route path="/user" component={UserProfile} />
-          <Route path="/sadmin" component={AdminPage} />
           <Route path="/papers" component={PapersPage} />
         </RibbonLayout>
       </AuthGuard>
