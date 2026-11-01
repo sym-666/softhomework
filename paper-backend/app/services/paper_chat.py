@@ -1,9 +1,12 @@
 import json
 import logging
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 
-from app.models import Paper
+from sqlalchemy.exc import IntegrityError
+
+from app.db import SessionLocal
+from app.models import Paper, PaperChatMessage
 from app.services import llm
 from app.services.llm import LlmError, Message
 from app.services.retrieval import Passage, contains_cjk, rank_passages
@@ -107,19 +110,66 @@ def sse_event(name: str, data: object) -> str:
     return f"event: {name}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
 
+def save_exchange(
+    user_id: str,
+    paper_id: int,
+    question: str,
+    answer: str,
+    citations: list[dict[str, object]],
+) -> None:
+    with SessionLocal() as db:
+        db.add_all(
+            [
+                PaperChatMessage(
+                    user_id=user_id, paper_id=paper_id, role="user", content=question
+                ),
+                PaperChatMessage(
+                    user_id=user_id,
+                    paper_id=paper_id,
+                    role="assistant",
+                    content=answer,
+                    citations=json.dumps(citations, ensure_ascii=False),
+                ),
+            ]
+        )
+        try:
+            db.commit()
+        except IntegrityError:
+            # 回答期间论文被删除，这条记录已经没有归属
+            db.rollback()
+            logger.info("论文 %d 的对话未保存", paper_id)
+
+
 def chat_events(
-    paper: Paper, passages: list[Passage], question: str, history: list[ChatTurn]
+    paper: Paper,
+    passages: list[Passage],
+    question: str,
+    history: list[ChatTurn],
+    on_complete: Callable[[str, list[dict[str, object]]], None] | None = None,
 ) -> Iterator[str]:
-    """检索放在生成器内，改写问题需要调用模型，不能让响应头等它。"""
+    """检索放在生成器内，改写问题需要调用模型，不能让响应头等它。
+
+    on_complete 只在完整回答后调用：失败或用户中途停止时不保存半句话。
+    """
+    parts: list[str] = []
+    citations: list[dict[str, object]] = []
     try:
         selected: list[Passage] = []
         if passages:
             query = build_search_query(question, history, passages)
             selected = rank_passages(passages, query)
-        yield sse_event("citations", build_citations(selected))
+        citations = build_citations(selected)
+        yield sse_event("citations", citations)
 
         for text in llm.stream(build_messages(paper, selected, question, history)):
+            parts.append(text)
             yield sse_event("delta", {"text": text})
     except LlmError:
         yield sse_event("error", {"message": "AI 服务暂时不可用，请稍后再试"})
+        yield sse_event("done", {})
+        return
+
+    answer = "".join(parts).strip()
+    if answer and on_complete is not None:
+        on_complete(answer, citations)
     yield sse_event("done", {})
