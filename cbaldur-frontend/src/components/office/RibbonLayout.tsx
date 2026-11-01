@@ -7,7 +7,7 @@ import {
   LogOut,
   LayoutDashboard,
   Library,
-  Search,
+  NotebookPen,
   ChevronUp,
   ChevronDown,
 } from 'lucide-react';
@@ -152,16 +152,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
 
         <div className="flex-1" />
         <div className="px-3 py-1 flex items-center gap-1">
-          <div className="relative">
-            <Search className="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder={intl.formatMessage({
-                id: 'ribbon.search.placeholder',
-              })}
-              className="h-6 w-48 bg-white border border-gray-300 rounded-sm pl-7 pr-2 text-xs focus:outline-none focus:border-[var(--office-blue)] focus:ring-1 focus:ring-[var(--office-blue)]/30"
-            />
-          </div>
           {(ribbonTab === 'home' || ribbonTab === 'user') && (
             <button
               type="button"
@@ -232,6 +222,11 @@ const HomeRibbon: React.FC<{
           icon={Library}
           label={intl.formatMessage({ id: 'ribbon.button.papers' })}
           onClick={() => onNavigate('/papers')}
+        />
+        <RibbonButton
+          icon={NotebookPen}
+          label={intl.formatMessage({ id: 'ribbon.tab.notes' })}
+          onClick={() => onNavigate('/notes')}
         />
       </RibbonGroup>
     </>

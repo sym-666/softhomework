@@ -14,14 +14,12 @@ const messages: Record<string, string> = {
 
   'ribbon.group.library': 'Library',
   'ribbon.button.papers': 'Papers',
-  'ribbon.search.placeholder': 'Search...',
   'ribbon.collapse.collapse': 'Collapse ribbon',
   'ribbon.collapse.expand': 'Expand ribbon',
   'ribbon.group.view': 'View',
   'ribbon.group.account': 'Account',
   'ribbon.button.dashboard': 'Dashboard',
   'ribbon.button.settings': 'Settings',
-  'status.connected': 'Connected',
   'status.language': 'Language',
 
   'auth.signIn.usernameOrEmailPlaceholder': 'Enter your username or email',
