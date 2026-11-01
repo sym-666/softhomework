@@ -11,6 +11,7 @@ import { useIntl } from 'react-intl';
 import { toast } from 'sonner';
 import PaperAssistant from '@/components/ai/PaperAssistant';
 import PaperGuide from '@/components/ai/PaperGuide';
+import { ExportLink } from '@/components/common/ExportLink';
 import { NotesPanel } from '@/components/notes/NotesPanel';
 import { IngestStatusNotice } from '@/components/reader/IngestStatusNotice';
 import { useReadingPage } from '@/hooks/useReadingPage';
@@ -312,6 +313,11 @@ export default function PaperDetail({ id }: { id: string }) {
                   ))}
                 </div>
               )}
+              <ExportLink
+                href={`/api/Papers/${paper.id}/bibtex`}
+                label={intl.formatMessage({ id: 'export.bibtex' })}
+                className="mt-3 h-7 text-xs"
+              />
             </TabsContent>
           </Tabs>
         </aside>

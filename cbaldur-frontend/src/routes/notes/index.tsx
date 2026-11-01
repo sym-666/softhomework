@@ -2,8 +2,10 @@ import { useState, type FormEvent } from 'react';
 import { Link } from 'wouter';
 import { Loader2, NotebookPen, Search } from 'lucide-react';
 import { useIntl } from 'react-intl';
+import { ExportLink } from '@/components/common/ExportLink';
 import { NoteItem } from '@/components/notes/NoteItem';
 import { useGetMyNotesQuery } from '@/redux/api/note';
+import { useAppSelector } from '@/redux/hooks';
 import { Button } from '@/shadcn/components/ui/button';
 import { Input } from '@/shadcn/components/ui/input';
 
@@ -11,6 +13,7 @@ const PAGE_SIZE = 20;
 
 export default function NotesPage() {
   const intl = useIntl();
+  const language = useAppSelector((state) => state.locale.locale);
   const [input, setInput] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -55,6 +58,11 @@ export default function NotesPage() {
           >
             {intl.formatMessage({ id: 'papers.search' })}
           </Button>
+          <ExportLink
+            href={`/api/Notes/export?lang=${language}`}
+            label={intl.formatMessage({ id: 'export.markdown' })}
+            className="h-8"
+          />
         </form>
       </div>
 
