@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import type { DueCards, StudyCard } from '@/types/study';
+import type { DueCards, StudyCard, StudySummary } from '@/types/study';
 
 export const studyApi = createApi({
   reducerPath: 'studyApi',
@@ -10,8 +10,16 @@ export const studyApi = createApi({
       query: (paperId) => `/Papers/${paperId}/study-cards`,
       providesTags: ['StudyCards'],
     }),
-    getDueCards: builder.query<DueCards, void>({
-      query: () => '/Study-Cards/due',
+    getDueCards: builder.query<DueCards, { paperId?: number }>({
+      query: (params) => ({ url: '/Study-Cards/due', params }),
+      providesTags: ['StudyCards'],
+    }),
+    getStudySummary: builder.query<StudySummary, void>({
+      // 服务端按用户时区分天
+      query: () => ({
+        url: '/Study-Cards/summary',
+        params: { tzOffset: new Date().getTimezoneOffset() },
+      }),
       providesTags: ['StudyCards'],
     }),
     generateCards: builder.mutation<
@@ -43,6 +51,8 @@ export const studyApi = createApi({
 export const {
   useGetPaperCardsQuery,
   useGetDueCardsQuery,
+  useLazyGetDueCardsQuery,
+  useGetStudySummaryQuery,
   useGenerateCardsMutation,
   useReviewCardMutation,
   useDeleteCardMutation,
