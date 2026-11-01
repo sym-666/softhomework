@@ -44,6 +44,8 @@ class ChatMessage(CamelModel):
 class PaperChatRequest(CamelModel):
     message: str = Field(min_length=1, max_length=2000)
     history: list[ChatMessage] = Field(default_factory=list, max_length=MAX_HISTORY_TURNS)
+    # 用户正在读的页，对比问答和外链论文没有这个值
+    page: int | None = Field(default=None, ge=1)
 
 
 class GlossaryTermOut(CamelModel):
@@ -130,7 +132,7 @@ def paper_chat(
         save_exchange(user_id, paper_id, question, answer, citations)
 
     return StreamingResponse(
-        chat_events(paper, passages, question, history, on_complete=save),
+        chat_events(paper, passages, question, history, on_complete=save, focus_page=body.page),
         media_type="text/event-stream",
         headers=SSE_HEADERS,
     )
