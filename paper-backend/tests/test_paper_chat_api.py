@@ -8,8 +8,10 @@ from sqlalchemy import select
 from app.config import get_settings
 from app.db import SessionLocal
 from app.models import PaperChatMessage
+from app.routers import ai
 from app.services import paper_chat
 from app.services.llm import LlmError
+from tests.conftest import login_as
 from tests.pdf_factory import make_pdf
 from tests.test_papers import upload
 
@@ -186,3 +188,68 @@ def test_empty_answer_is_not_saved(
     chat(user_client, paper_id)
 
     assert stored_messages() == []
+
+
+def history(client: TestClient, paper_id: int):
+    return client.get("/api/Ai/PaperChat/history", params={"id": paper_id})
+
+
+def test_history_returns_messages_in_order(user_client: TestClient, ai_enabled: list) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+    chat(user_client, paper_id, "first")
+    chat(user_client, paper_id, "second")
+
+    body = history(user_client, paper_id).json()
+
+    assert [item["content"] for item in body] == ["first", "答案 [p.1]", "second", "答案 [p.1]"]
+    assert body[0]["citations"] == []
+    assert body[1]["citations"][0]["page"] == 1
+    assert body[1]["createdAt"].endswith("Z")
+
+
+def test_history_is_private(
+    user_client: TestClient, other_client: TestClient, ai_enabled: list
+) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+    chat(user_client, paper_id)
+
+    assert history(other_client, paper_id).json() == []
+
+
+def test_clearing_only_affects_own_history(
+    user_client: TestClient, other_client: TestClient, ai_enabled: list
+) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+    chat(user_client, paper_id)
+    chat(other_client, paper_id)
+
+    response = user_client.delete("/api/Ai/PaperChat/history", params={"id": paper_id})
+
+    assert response.status_code == 204
+    assert history(user_client, paper_id).json() == []
+    assert len(history(other_client, paper_id).json()) == 2
+
+
+def test_history_is_limited_to_recent_messages(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(ai, "MAX_RESTORED_MESSAGES", 2)
+    user = login_as(client, "alice")
+    paper_id = upload(client)
+    with SessionLocal() as db:
+        db.add_all(
+            PaperChatMessage(
+                user_id=user["id"], paper_id=paper_id, role="user", content=str(index)
+            )
+            for index in range(3)
+        )
+        db.commit()
+
+    body = history(client, paper_id).json()
+
+    assert [item["content"] for item in body] == ["1", "2"]
+
+
+def test_history_requires_login(client: TestClient) -> None:
+    assert history(client, 1).status_code == 401
+    assert client.delete("/api/Ai/PaperChat/history", params={"id": 1}).status_code == 401
