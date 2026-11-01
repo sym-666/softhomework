@@ -301,6 +301,7 @@ export default function PaperDetail({ id }: { id: string }) {
                 ingestStatus={paper.ingestStatus}
                 onJumpToPage={setPage}
                 draftRequest={askRequest}
+                currentPage={paper.hasLocalFile ? page : null}
               />
             </TabsContent>
             <TabsContent
