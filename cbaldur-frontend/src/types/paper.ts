@@ -1,3 +1,11 @@
+export type IngestStatus =
+  | 'none'
+  | 'pending'
+  | 'processing'
+  | 'ready'
+  | 'no_text'
+  | 'failed';
+
 export interface Paper {
   id: number;
   title: string;
@@ -8,6 +16,7 @@ export interface Paper {
   sourceUrl?: string;
   downloadUrl: string;
   hasLocalFile: boolean;
+  ingestStatus: IngestStatus;
   createdByUserId: string;
   createdByUserName: string;
   createdAt: string;
