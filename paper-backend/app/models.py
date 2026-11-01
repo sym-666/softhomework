@@ -45,3 +45,22 @@ class Paper(Base):
     )
 
     created_by: Mapped[User] = relationship()
+
+
+class ReadingState(Base):
+    """每个用户对每篇论文的阅读进度，没有记录时视为未读。"""
+
+    __tablename__ = "reading_states"
+
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    paper_id: Mapped[int] = mapped_column(
+        ForeignKey("papers.id", ondelete="CASCADE"), primary_key=True
+    )
+    # unread / reading / done
+    status: Mapped[str] = mapped_column(String(16), default="unread")
+    last_page: Mapped[int] = mapped_column(Integer, default=1)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utc_now, onupdate=utc_now
+    )
