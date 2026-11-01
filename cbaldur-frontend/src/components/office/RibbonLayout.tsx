@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import {
+  BookOpen,
   Settings,
   User,
   LogOut,
@@ -85,13 +86,9 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
       {/* Title Bar */}
       <div className="h-8 bg-[var(--office-blue)] flex items-center px-3 shrink-0 select-none">
         <div className="flex items-center gap-2 flex-1">
-          <img
-            src="https://s2.loli.net/2024/12/04/nCkNI1J5AmgQ9l6.png"
-            alt="Logo"
-            className="h-4 w-auto brightness-0 invert"
-          />
+          <BookOpen className="h-4 w-4 text-white" />
           <span className="text-white text-xs font-medium tracking-wide">
-            CBaldur Simulation Platform
+            PaperPilot
           </span>
         </div>
         <div className="flex items-center gap-2">
