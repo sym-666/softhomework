@@ -7,7 +7,7 @@ from openai import OpenAI
 
 from app.config import get_settings
 from app.services import llm
-from app.services.llm import LlmError
+from app.services.llm import LlmError, LlmTruncatedError
 
 
 def use_transport(monkeypatch: pytest.MonkeyPatch, handler) -> None:
@@ -104,3 +104,55 @@ def test_status_reports_configuration(
 
     monkeypatch.undo()
     get_settings.cache_clear()
+
+
+def finished(reason: str) -> dict:
+    return delta(None) | {
+        "choices": [{"index": 0, "delta": {}, "finish_reason": reason}],
+    }
+
+
+def test_complete_rejects_truncated_answer(monkeypatch: pytest.MonkeyPatch) -> None:
+    def handler(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "id": "1",
+                "object": "chat.completion",
+                "created": 1,
+                "model": "m",
+                "choices": [
+                    {
+                        "index": 0,
+                        "finish_reason": "length",
+                        "message": {"role": "assistant", "content": '{"quiz": [{"que'},
+                    }
+                ],
+            },
+        )
+
+    use_transport(monkeypatch, handler)
+
+    with pytest.raises(LlmTruncatedError):
+        llm.complete([{"role": "user", "content": "q"}], max_tokens=50)
+
+
+def test_stream_raises_after_truncated_text(monkeypatch: pytest.MonkeyPatch) -> None:
+    use_transport(monkeypatch, lambda _: sse(delta("half"), finished("length")))
+    received: list[str] = []
+
+    with pytest.raises(LlmTruncatedError):
+        for text in llm.stream([{"role": "user", "content": "q"}]):
+            received.append(text)
+
+    assert received == ["half"]
+
+
+def test_stream_accepts_normal_finish(monkeypatch: pytest.MonkeyPatch) -> None:
+    use_transport(monkeypatch, lambda _: sse(delta("done"), finished("stop")))
+
+    assert list(llm.stream([{"role": "user", "content": "q"}])) == ["done"]
+
+
+def test_truncation_counts_as_model_failure() -> None:
+    assert issubclass(LlmTruncatedError, LlmError)

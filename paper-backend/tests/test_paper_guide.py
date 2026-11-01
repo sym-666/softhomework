@@ -6,7 +6,7 @@ from app.config import get_settings
 from app.db import SessionLocal
 from app.models import Paper, PaperGuide
 from app.services import paper_guide
-from app.services.llm import LlmError
+from app.services.llm import LlmError, LlmTruncatedError
 from app.services.paper_guide import (
     MAX_GUIDE_CHARS,
     build_guide_messages,
@@ -258,3 +258,30 @@ def test_deleting_paper_removes_guide(user_client: TestClient) -> None:
     user_client.delete(f"/api/Papers/{paper.id}")
 
     assert stored_guides(paper.id) == []
+
+
+def test_truncated_guide_is_not_cached(monkeypatch: pytest.MonkeyPatch) -> None:
+    def partial(messages, max_tokens):
+        yield "## 一句话概括\n写到一半"
+        raise LlmTruncatedError
+
+    monkeypatch.setattr(paper_guide.llm, "stream", partial)
+    saved: list[str] = []
+    monkeypatch.setattr(paper_guide, "save_guide", lambda *args: saved.append(args[2]))
+
+    events = list(guide_events(PAPER, [], "zh-CN"))
+
+    assert saved == []
+    assert any("event: error" in event for event in events)
+
+
+def test_truncated_guide_reports_incomplete(monkeypatch: pytest.MonkeyPatch) -> None:
+    def partial(messages, max_tokens):
+        raise LlmTruncatedError
+        yield
+
+    monkeypatch.setattr(paper_guide.llm, "stream", partial)
+
+    events = "".join(guide_events(PAPER, [], "zh-CN"))
+
+    assert "不完整" in events

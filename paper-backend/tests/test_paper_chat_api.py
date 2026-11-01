@@ -10,7 +10,7 @@ from app.db import SessionLocal
 from app.models import PaperChatMessage
 from app.routers import ai
 from app.services import paper_chat
-from app.services.llm import LlmError
+from app.services.llm import LlmError, LlmTruncatedError
 from tests.conftest import login_as
 from tests.pdf_factory import make_pdf
 from tests.test_papers import upload
@@ -253,3 +253,20 @@ def test_history_is_limited_to_recent_messages(
 def test_history_requires_login(client: TestClient) -> None:
     assert history(client, 1).status_code == 401
     assert client.delete("/api/Ai/PaperChat/history", params={"id": 1}).status_code == 401
+
+
+def test_truncated_answer_is_reported_and_not_saved(
+    user_client: TestClient, ai_enabled: list, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+
+    def partial(messages):
+        yield "只写到一半"
+        raise LlmTruncatedError
+
+    monkeypatch.setattr(paper_chat.llm, "stream", partial)
+
+    response = chat(user_client, paper_id)
+
+    assert "被截断" in response.text
+    assert stored_messages() == []

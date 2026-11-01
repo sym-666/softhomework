@@ -3,10 +3,11 @@ from dataclasses import dataclass
 
 from app.models import Paper
 from app.services import llm
-from app.services.llm import LlmError, Message
+from app.services.llm import LlmError, LlmTruncatedError, Message
 from app.services.paper_chat import (
     MAX_HISTORY_CHARS,
     SNIPPET_CHARS,
+    TRUNCATED_MESSAGE,
     ChatTurn,
     build_context,
     build_search_query,
@@ -16,7 +17,7 @@ from app.services.retrieval import Passage, rank_passages
 
 # 对比要给每篇论文都留出篇幅，单篇取得比问答少
 PASSAGES_PER_PAPER = 4
-MAX_COMPARE_TOKENS = 2000
+MAX_COMPARE_TOKENS = 8000
 
 COMPARE_SYSTEM_PROMPT = """你是论文对比助手，帮助用户比较多篇学术论文。
 
@@ -26,7 +27,8 @@ COMPARE_SYSTEM_PROMPT = """你是论文对比助手，帮助用户比较多篇�
 3. 每篇论文有编号，例如 P1。引用时在句末用 [P1 p.页码] 标注来源，例如 [P2 p.5]。
    只能使用上下文中出现的页码。
 4. 按维度组织回答，先说共同点，再说差异，需要时用 Markdown 表格。
-5. 使用用户提问的语言回答。"""
+5. 使用用户提问的语言回答。
+6. 公式用 LaTeX，行内写在 $...$ 中，独立成行的写在 $$...$$ 中。"""
 
 
 @dataclass(frozen=True)
@@ -97,6 +99,8 @@ def compare_events(
         messages = build_compare_messages(sources, question, history)
         for text in llm.stream(messages, max_tokens=MAX_COMPARE_TOKENS):
             yield sse_event("delta", {"text": text})
+    except LlmTruncatedError:
+        yield sse_event("error", {"message": TRUNCATED_MESSAGE})
     except LlmError:
         yield sse_event("error", {"message": "AI 服务暂时不可用，请稍后再试"})
     yield sse_event("done", {})
