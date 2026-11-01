@@ -1,8 +1,9 @@
 import re
 import unicodedata
 from collections.abc import Iterable
+from itertools import groupby
 
-from app.models import Paper
+from app.models import Note, Paper
 
 # BibTeX 里有特殊含义的字符，不转义会破坏整个文件
 BIBTEX_ESCAPES = {
@@ -19,6 +20,10 @@ BIBTEX_ESCAPES = {
 }
 AUTHOR_SEPARATOR = re.compile(r"\s*(?:[,;，；、]|\band\b|&)\s*")
 ET_AL = re.compile(r"\s*\bet\s+al\.?\s*$", re.IGNORECASE)
+NOTE_LABELS = {
+    "zh-CN": {"title": "我的笔记", "page": "第 {page} 页", "no_page": "未标注页码"},
+    "en": {"title": "My notes", "page": "Page {page}", "no_page": "No page"},
+}
 TITLE_STOPWORDS = {"a", "an", "the", "on", "of", "in", "for", "and", "to", "with"}
 
 
@@ -79,3 +84,19 @@ def papers_to_bibtex(papers: Iterable[Paper]) -> str:
     used: set[str] = set()
     entries = [bibtex_entry(paper, unique_key(citation_key(paper), used)) for paper in papers]
     return "\n\n".join(entries) + "\n" if entries else ""
+
+
+def notes_to_markdown(notes: Iterable[Note], language: str) -> str:
+    """notes 需要按论文排序，同一篇论文的笔记归到一节。"""
+    labels = NOTE_LABELS[language]
+    lines = [f"# {labels['title']}", ""]
+    for _paper_id, group in groupby(notes, key=lambda note: note.paper_id):
+        paper_notes = list(group)
+        paper = paper_notes[0].paper
+        lines += [f"## {' '.join(paper.title.split())}", "", f"{paper.authors} · {paper.year}", ""]
+        for note in paper_notes:
+            heading = labels["no_page"] if note.page is None else labels["page"].format(
+                page=note.page
+            )
+            lines += [f"### {heading}", "", note.content, ""]
+    return "\n".join(lines).rstrip() + "\n"

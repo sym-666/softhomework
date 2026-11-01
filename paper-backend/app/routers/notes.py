@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from typing import Literal
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from pydantic import Field, field_validator
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
@@ -7,6 +9,7 @@ from app.db import get_db
 from app.deps import get_current_user
 from app.models import Note, Paper, User
 from app.schemas import CamelModel, UtcDatetime
+from app.services.export import notes_to_markdown
 
 router = APIRouter(prefix="/api", tags=["notes"])
 
@@ -143,4 +146,29 @@ def list_my_notes(
         total=total,
         page=page,
         page_size=page_size,
+    )
+
+
+@router.get("/notes/export", response_model=None)
+def export_notes(
+    paper_id: int | None = Query(default=None, alias="paperId"),
+    language: Literal["zh-CN", "en"] = Query(default="zh-CN", alias="lang"),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Response:
+    filters = [Note.user_id == user.id]
+    if paper_id is not None:
+        filters.append(Note.paper_id == paper_id)
+    notes = db.scalars(
+        select(Note)
+        .options(joinedload(Note.paper))
+        .where(*filters)
+        # 同一篇论文按页码排列，读起来和原文顺序一致；没有页码的放在最后
+        .order_by(Note.paper_id, Note.page.is_(None), Note.page, Note.created_at)
+    ).all()
+    filename = "paperpilot-notes.md" if paper_id is None else f"paper-{paper_id}-notes.md"
+    return Response(
+        notes_to_markdown(notes, language),
+        media_type="text/markdown; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
