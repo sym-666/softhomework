@@ -32,7 +32,7 @@ interface RibbonLayoutProps {
   children: React.ReactNode;
 }
 
-type TabId = 'home' | 'cases' | 'analyze' | 'admin' | 'user' | 'papers' | 'forum';
+type TabId = 'home' | 'cases' | 'analyze' | 'admin' | 'user' | 'papers';
 
 const getActiveTabFromPath = (path: string): TabId => {
   if (path.startsWith('/cases/') && path.split('/').length > 3)
@@ -42,7 +42,6 @@ const getActiveTabFromPath = (path: string): TabId => {
   if (path.startsWith('/sadmin')) return 'admin';
   if (path.startsWith('/user')) return 'user';
   if (path.startsWith('/papers')) return 'papers';
-  if (path.startsWith('/forum')) return 'forum';
   return 'home';
 };
 
@@ -98,7 +97,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
       admin: '/sadmin',
       user: '/user',
       papers: '/papers',
-      forum: '/forum',
     };
     if (tab !== 'analyze' && tab !== ribbonTab) {
       setLocation(paths[tab]);
@@ -211,11 +209,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
           active={ribbonTab === 'papers'}
           onClick={() => handleTabClick('papers')}
         />
-        <RibbonTab
-          label={intl.formatMessage({ id: 'ribbon.tab.forum' })}
-          active={ribbonTab === 'forum'}
-          onClick={() => handleTabClick('forum')}
-        />
 
         <div className="flex-1" />
         <div className="px-3 py-1 flex items-center gap-1">
@@ -262,7 +255,6 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
       {/* Ribbon Content - hidden for tabs that use their own in-page toolbar */}
       {!collapsed &&
         ribbonTab !== 'admin' &&
-        ribbonTab !== 'forum' &&
         ribbonTab !== 'papers' &&
         ribbonTab !== 'analyze' && (
           <div className="bg-[var(--ribbon-content-bg)] border-b border-[var(--ribbon-separator)] shrink-0 min-h-[68px] flex items-stretch px-1">
