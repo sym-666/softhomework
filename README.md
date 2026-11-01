@@ -88,6 +88,7 @@ cd cbaldur-frontend && npm run lint && npm run typecheck && npm run build
 - 学习活动统计的是每天活跃的论文数和新增笔记数，不是阅读时长。
 - 问答中途停止或失败时不保存这一轮对话；多论文对比不保存记录。
 - 自测题和术语表由模型生成，内容可能有误，请对照原文。
+- 推理型模型的思考过程计入 token 上限。使用 DeepSeek 时建议设置 `AI_OPENAI_REASONING_EFFORT=low`，否则偶尔会因为推理过长而生成失败。
 - 参考文献按规则解析，支持 `[1]`、`1.` 和作者-年份格式，排版特殊的论文可能解析不全，标题是推测结果。
 - Semantic Scholar 在没有 API Key 时限流严格，可能检索失败，需要时配置 `SEMANTIC_SCHOLAR_API_KEY`。
 - SQLite 适合单机部署，不适合多实例。

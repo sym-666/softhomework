@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     ai_openai_base_url: str = "https://api.deepseek.com/v1"
     ai_openai_model_id: str = ""
     ai_openai_api_key: str = ""
+    # 推理强度，只有支持的模型才能配置，留空时不发送这个参数
+    ai_openai_reasoning_effort: str = ""
 
 
 @lru_cache

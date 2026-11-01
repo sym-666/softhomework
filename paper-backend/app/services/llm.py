@@ -36,13 +36,21 @@ def _build_client() -> OpenAI:
     )
 
 
+def _model_options() -> dict[str, object]:
+    settings = get_settings()
+    options: dict[str, object] = {"model": settings.ai_openai_model_id}
+    if settings.ai_openai_reasoning_effort:
+        options["reasoning_effort"] = settings.ai_openai_reasoning_effort
+    return options
+
+
 def complete(messages: list[Message], max_tokens: int = DEFAULT_MAX_TOKENS) -> str:
     try:
         response = _build_client().chat.completions.create(
-            model=get_settings().ai_openai_model_id,
             messages=messages,
             max_tokens=max_tokens,
             temperature=0,
+            **_model_options(),
         )
     except OpenAIError as exc:
         logger.warning("模型调用失败：%s", exc)
@@ -57,11 +65,11 @@ def complete(messages: list[Message], max_tokens: int = DEFAULT_MAX_TOKENS) -> s
 def stream(messages: list[Message], max_tokens: int = DEFAULT_MAX_TOKENS) -> Iterator[str]:
     try:
         response = _build_client().chat.completions.create(
-            model=get_settings().ai_openai_model_id,
             messages=messages,
             max_tokens=max_tokens,
             temperature=0.2,
             stream=True,
+            **_model_options(),
         )
         # 用 with 关闭连接：客户端中途断开时不再继续消耗额度
         truncated = False

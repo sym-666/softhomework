@@ -156,3 +156,34 @@ def test_stream_accepts_normal_finish(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_truncation_counts_as_model_failure() -> None:
     assert issubclass(LlmTruncatedError, LlmError)
+
+
+def capture_body(monkeypatch: pytest.MonkeyPatch, effort: str) -> list[dict]:
+    monkeypatch.setenv("AI_OPENAI_REASONING_EFFORT", effort)
+    get_settings.cache_clear()
+    seen: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(request.content))
+        return sse(delta("ok"), finished("stop"))
+
+    use_transport(monkeypatch, handler)
+    return seen
+
+
+def test_reasoning_effort_is_sent_when_configured(monkeypatch: pytest.MonkeyPatch) -> None:
+    seen = capture_body(monkeypatch, "low")
+
+    list(llm.stream([{"role": "user", "content": "q"}]))
+
+    assert seen[0]["reasoning_effort"] == "low"
+    get_settings.cache_clear()
+
+
+def test_reasoning_effort_is_omitted_by_default(monkeypatch: pytest.MonkeyPatch) -> None:
+    seen = capture_body(monkeypatch, "")
+
+    list(llm.stream([{"role": "user", "content": "q"}]))
+
+    assert "reasoning_effort" not in seen[0]
+    get_settings.cache_clear()
