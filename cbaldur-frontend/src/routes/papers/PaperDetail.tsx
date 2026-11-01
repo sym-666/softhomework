@@ -10,6 +10,7 @@ import {
 import { useIntl } from 'react-intl';
 import { toast } from 'sonner';
 import PaperAssistant from '@/components/ai/PaperAssistant';
+import PaperGlossary from '@/components/ai/PaperGlossary';
 import PaperGuide from '@/components/ai/PaperGuide';
 import { ExportLink } from '@/components/common/ExportLink';
 import { NotesPanel } from '@/components/notes/NotesPanel';
@@ -264,7 +265,8 @@ export default function PaperDetail({ id }: { id: string }) {
             onValueChange={setActiveTab}
             className="flex min-h-0 flex-1 flex-col"
           >
-            <TabsList className="m-2 shrink-0">
+            {/* 标签较多，窄屏时换行，避免溢出侧栏 */}
+            <TabsList className="m-2 h-auto shrink-0 flex-wrap justify-start">
               <TabsTrigger value="chat">
                 {intl.formatMessage({ id: 'papers.tabChat' })}
               </TabsTrigger>
@@ -276,6 +278,9 @@ export default function PaperDetail({ id }: { id: string }) {
               </TabsTrigger>
               <TabsTrigger value="study">
                 {intl.formatMessage({ id: 'papers.tabStudy' })}
+              </TabsTrigger>
+              <TabsTrigger value="glossary">
+                {intl.formatMessage({ id: 'papers.tabGlossary' })}
               </TabsTrigger>
               <TabsTrigger value="info">
                 {intl.formatMessage({ id: 'papers.tabInfo' })}
@@ -323,6 +328,16 @@ export default function PaperDetail({ id }: { id: string }) {
               className="min-h-0 flex-1 data-[state=inactive]:hidden"
             >
               <StudyPanel
+                paperId={paper.id}
+                ingestStatus={paper.ingestStatus}
+                onJumpToPage={setPage}
+              />
+            </TabsContent>
+            <TabsContent
+              value="glossary"
+              className="min-h-0 flex-1 data-[state=inactive]:hidden"
+            >
+              <PaperGlossary
                 paperId={paper.id}
                 ingestStatus={paper.ingestStatus}
                 onJumpToPage={setPage}
