@@ -10,6 +10,7 @@ import {
 import { useIntl } from 'react-intl';
 import { toast } from 'sonner';
 import PaperAssistant from '@/components/ai/PaperAssistant';
+import PaperGuide from '@/components/ai/PaperGuide';
 import { IngestStatusNotice } from '@/components/reader/IngestStatusNotice';
 import { useReadingPage } from '@/hooks/useReadingPage';
 import { useDeletePaperMutation, useGetPaperQuery } from '@/redux/api/paper';
@@ -166,11 +167,14 @@ export default function PaperDetail({ id }: { id: string }) {
               <TabsTrigger value="chat">
                 {intl.formatMessage({ id: 'papers.tabChat' })}
               </TabsTrigger>
+              <TabsTrigger value="guide">
+                {intl.formatMessage({ id: 'papers.tabGuide' })}
+              </TabsTrigger>
               <TabsTrigger value="info">
                 {intl.formatMessage({ id: 'papers.tabInfo' })}
               </TabsTrigger>
             </TabsList>
-            {/* forceMount：默认切走标签会卸载组件，对话记录就丢了 */}
+            {/* forceMount：默认切走标签会卸载组件，对话记录和生成中的导读就丢了 */}
             <TabsContent
               forceMount
               value="chat"
@@ -180,6 +184,16 @@ export default function PaperDetail({ id }: { id: string }) {
                 paperId={paper.id}
                 ingestStatus={paper.ingestStatus}
                 onJumpToPage={setPage}
+              />
+            </TabsContent>
+            <TabsContent
+              forceMount
+              value="guide"
+              className="min-h-0 flex-1 data-[state=inactive]:hidden"
+            >
+              <PaperGuide
+                paperId={paper.id}
+                ingestStatus={paper.ingestStatus}
               />
             </TabsContent>
             <TabsContent
