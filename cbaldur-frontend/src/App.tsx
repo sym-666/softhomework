@@ -13,6 +13,7 @@ import NotesPage from './routes/notes';
 import PapersPage from './routes/papers';
 import PaperDetail from './routes/papers/PaperDetail';
 import ReviewPage from './routes/review';
+import ComparePage from './routes/compare';
 
 const MainApp = () => {
   return (
@@ -27,6 +28,7 @@ const MainApp = () => {
               <Route path="/user" component={UserProfile} />
               <Route path="/notes" component={NotesPage} />
               <Route path="/review" component={ReviewPage} />
+              <Route path="/compare" component={ComparePage} />
               <Route path="/papers" component={PapersPage} />
               <Route path="/papers/:id">
                 {(params) => <PaperDetail key={params.id} id={params.id} />}

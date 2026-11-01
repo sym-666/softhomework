@@ -7,6 +7,10 @@ export interface AiChatMessage {
 export interface Citation {
   page: number;
   snippet: string;
+  /** 以下字段只在多论文对比时出现 */
+  paperId?: number;
+  label?: string;
+  title?: string;
 }
 
 /** 页面上展示的一条消息（含流式状态和引用来源） */

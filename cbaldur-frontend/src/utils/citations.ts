@@ -20,3 +20,20 @@ export function selectCitedSources(
   const cited = extractCitedPages(content);
   return citations.filter((citation) => cited.has(citation.page));
 }
+
+/** 对比回答的引用：[P1 p.3]，一个括号里可以有多处，如 [P1 p.3, P2 p.5] */
+export function selectComparedSources(
+  citations: Citation[] | undefined,
+  content: string,
+): Citation[] {
+  if (!citations) return [];
+  const cited = new Set<string>();
+  for (const bracket of content.matchAll(/\[([^\]]*)\]/g)) {
+    for (const match of bracket[1].matchAll(/(P\d+)\s*p\.\s*(\d+)/gi)) {
+      cited.add(`${match[1].toUpperCase()}:${match[2]}`);
+    }
+  }
+  return citations.filter((citation) =>
+    cited.has(`${citation.label}:${citation.page}`),
+  );
+}
