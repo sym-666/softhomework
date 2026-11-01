@@ -19,6 +19,18 @@ export interface ChatHistoryItem {
   createdAt: string;
 }
 
+export interface GlossaryTerm {
+  term: string;
+  explanation: string;
+  page: number | null;
+}
+
+export interface PaperGlossary {
+  terms: GlossaryTerm[];
+  model: string;
+  createdAt: string;
+}
+
 // 对话接口为 SSE 流式输出，见 src/hooks/useAiChatStream.ts；这里只放普通请求
 export const aiApi = createApi({
   reducerPath: 'aiApi',
@@ -26,7 +38,7 @@ export const aiApi = createApi({
     baseUrl: '/api/Ai',
     credentials: 'include',
   }),
-  tagTypes: ['ChatHistory'],
+  tagTypes: ['ChatHistory', 'Glossary'],
   endpoints: (builder) => ({
     getAiStatus: builder.query<AiStatus, void>({
       query: () => 'Status',
@@ -43,6 +55,24 @@ export const aiApi = createApi({
       }),
       invalidatesTags: (_result, _error, id) => [{ type: 'ChatHistory', id }],
     }),
+    getPaperGlossary: builder.query<
+      PaperGlossary | null,
+      { id: number; lang: string }
+    >({
+      query: (params) => ({ url: 'PaperGlossary', params }),
+      providesTags: (_result, _error, { id }) => [{ type: 'Glossary', id }],
+    }),
+    generateGlossary: builder.mutation<
+      PaperGlossary,
+      { id: number; lang: string }
+    >({
+      query: (params) => ({
+        url: 'PaperGlossary',
+        method: 'POST',
+        params,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [{ type: 'Glossary', id }],
+    }),
     // 生成走 SSE，见 src/hooks/useGuideStream.ts
     getPaperGuide: builder.query<
       PaperGuide | null,
@@ -58,4 +88,6 @@ export const {
   useGetChatHistoryQuery,
   useClearChatHistoryMutation,
   useGetPaperGuideQuery,
+  useGetPaperGlossaryQuery,
+  useGenerateGlossaryMutation,
 } = aiApi;
