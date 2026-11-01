@@ -1,7 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -82,3 +82,17 @@ class PaperChunk(Base):
     chunk_index: Mapped[int] = mapped_column(Integer)
     page: Mapped[int] = mapped_column(Integer)
     text: Mapped[str] = mapped_column(Text)
+
+
+class PaperGuide(Base):
+    """AI 生成的导读，全站共享，每篇论文每种语言一份，避免重复调用模型。"""
+
+    __tablename__ = "paper_guides"
+    __table_args__ = (UniqueConstraint("paper_id", "language"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    paper_id: Mapped[int] = mapped_column(ForeignKey("papers.id", ondelete="CASCADE"))
+    language: Mapped[str] = mapped_column(String(8))
+    content: Mapped[str] = mapped_column(Text)
+    model: Mapped[str] = mapped_column(String(200))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
