@@ -1,3 +1,5 @@
+from fastapi.testclient import TestClient
+
 from app.models import Paper
 from app.services.export import (
     bibtex_entry,
@@ -82,3 +84,47 @@ def test_duplicate_keys_get_a_suffix() -> None:
 
 def test_empty_library_exports_nothing() -> None:
     assert papers_to_bibtex([]) == ""
+
+
+def create(client: TestClient, title: str) -> int:
+    response = client.post(
+        "/api/Papers",
+        data={
+            "Title": title,
+            "Authors": "Ada Lovelace",
+            "Year": "2020",
+            "Url": "https://example.com/paper",
+        },
+    )
+    return response.json()["id"]
+
+
+def test_export_single_paper(user_client: TestClient) -> None:
+    paper_id = create(user_client, "First study")
+
+    response = user_client.get(f"/api/Papers/{paper_id}/bibtex")
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("application/x-bibtex")
+    assert f'filename="paper-{paper_id}.bib"' in response.headers["content-disposition"]
+    assert "@article{lovelace2020first," in response.text
+
+
+def test_export_missing_paper(user_client: TestClient) -> None:
+    assert user_client.get("/api/Papers/999/bibtex").status_code == 404
+
+
+def test_export_whole_library(user_client: TestClient) -> None:
+    create(user_client, "First study")
+    create(user_client, "Second study")
+
+    response = user_client.get("/api/Papers/bibtex")
+
+    assert response.status_code == 200
+    assert "lovelace2020first" in response.text
+    assert "lovelace2020second" in response.text
+
+
+def test_bibtex_requires_login(client: TestClient) -> None:
+    assert client.get("/api/Papers/bibtex").status_code == 401
+    assert client.get("/api/Papers/1/bibtex").status_code == 401
