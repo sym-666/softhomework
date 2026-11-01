@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent,
+} from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import {
   ChevronLeft,
@@ -13,7 +20,17 @@ import { useIntl } from 'react-intl';
 import { usePdfSelection } from '@/hooks/usePdfSelection';
 import { Button } from '@/shadcn/components/ui/button';
 import { Input } from '@/shadcn/components/ui/input';
-import { SelectionAction, SelectionToolbar } from './SelectionToolbar';
+import type {
+  Highlight,
+  HighlightColor,
+  NewHighlight,
+} from '@/types/highlight';
+import { HighlightLayer } from './HighlightLayer';
+import {
+  SelectionAction,
+  SelectionColor,
+  SelectionToolbar,
+} from './SelectionToolbar';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -27,6 +44,7 @@ const MIN_SCALE = 0.5;
 const MAX_SCALE = 3;
 const SCALE_STEP = 0.25;
 const PAGE_PADDING = 32;
+const COLORS: HighlightColor[] = ['yellow', 'green', 'pink'];
 
 interface PdfReaderProps {
   url: string;
@@ -37,6 +55,10 @@ interface PdfReaderProps {
   onAskSelection: (text: string) => void;
   /** 把选中文字记为笔记 */
   onNoteSelection: (text: string) => void;
+  /** 本人在这篇论文上的全部高亮 */
+  highlights: Highlight[];
+  onHighlight: (highlight: NewHighlight) => void;
+  onHighlightClick: (id: number) => void;
 }
 
 export default function PdfReader({
@@ -45,6 +67,9 @@ export default function PdfReader({
   onPageChange,
   onAskSelection,
   onNoteSelection,
+  highlights,
+  onHighlight,
+  onHighlightClick,
 }: PdfReaderProps) {
   const intl = useIntl();
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -70,6 +95,29 @@ export default function PdfReader({
     setPageInput(String(page));
     scrollRef.current?.scrollTo({ top: 0 });
   }, [page]);
+
+  const pageHighlights = useMemo(
+    () => highlights.filter((item) => item.page === page),
+    [highlights, page],
+  );
+
+  const handlePageClick = (event: MouseEvent<HTMLDivElement>) => {
+    // 拖选文字结束时也会触发 click，这种情况不算点击高亮
+    if (!window.getSelection()?.isCollapsed) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width;
+    const y = (event.clientY - rect.top) / rect.height;
+    const hit = pageHighlights.find((item) =>
+      item.rects.some(
+        (part) =>
+          x >= part.x &&
+          x <= part.x + part.width &&
+          y >= part.y &&
+          y <= part.y + part.height,
+      ),
+    );
+    if (hit) onHighlightClick(hit.id);
+  };
 
   const goTo = useCallback(
     (target: number) => {
@@ -200,6 +248,26 @@ export default function PdfReader({
               clearSelection();
             }}
           />
+          {selection.rects.length > 0 && (
+            <span className="mx-0.5 h-4 w-px bg-gray-200" />
+          )}
+          {selection.rects.length > 0 &&
+            COLORS.map((color) => (
+              <SelectionColor
+                key={color}
+                color={color}
+                label={intl.formatMessage({ id: `highlight.color.${color}` })}
+                onClick={() => {
+                  onHighlight({
+                    page,
+                    color,
+                    text: selection.text,
+                    rects: selection.rects,
+                  });
+                  clearSelection();
+                }}
+              />
+            ))}
         </SelectionToolbar>
       )}
 
@@ -227,7 +295,10 @@ export default function PdfReader({
               width={Math.max(containerWidth - PAGE_PADDING, 200) * scale}
               loading=""
               className="shadow"
-            />
+              onClick={handlePageClick}
+            >
+              <HighlightLayer highlights={pageHighlights} />
+            </Page>
           )}
         </Document>
       </div>

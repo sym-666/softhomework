@@ -22,6 +22,10 @@ import {
   useGetReadingStateQuery,
   useUpdateReadingStateMutation,
 } from '@/redux/api/paper';
+import {
+  useCreateHighlightMutation,
+  useGetHighlightsQuery,
+} from '@/redux/api/highlight';
 import { useGetCurrentUserQuery } from '@/redux/api/user';
 import { Button } from '@/shadcn/components/ui/button';
 import {
@@ -45,10 +49,12 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/shadcn/components/ui/tabs';
+import type { Highlight, NewHighlight } from '@/types/highlight';
 import type { ReadingStatus } from '@/types/paper';
 
 const INGEST_POLL_MS = 2000;
 const READING_STATUSES: ReadingStatus[] = ['unread', 'reading', 'done'];
+const NO_HIGHLIGHTS: Highlight[] = [];
 
 // pdf.js 体积较大，只在打开论文时加载
 const PdfReader = lazy(() => import('@/components/reader/PdfReader'));
@@ -68,6 +74,8 @@ export default function PaperDetail({ id }: { id: string }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { page, setPage } = useReadingPage(paperId);
   const search = useSearch();
+  const { data: highlights = NO_HIGHLIGHTS } = useGetHighlightsQuery(paperId);
+  const [createHighlight] = useCreateHighlightMutation();
   const { data: readingState } = useGetReadingStateQuery(paperId);
   const [updateReadingState] = useUpdateReadingStateMutation();
   const [activeTab, setActiveTab] = useState('chat');
@@ -97,6 +105,14 @@ export default function PaperDetail({ id }: { id: string }) {
   const noteSelection = (text: string) => {
     setNoteRequest({ text: `> ${text}\n\n` });
     setActiveTab('notes');
+  };
+
+  const addHighlight = async (highlight: NewHighlight) => {
+    try {
+      await createHighlight({ paperId, ...highlight }).unwrap();
+    } catch {
+      toast.error(intl.formatMessage({ id: 'highlight.saveError' }));
+    }
   };
 
   const changeStatus = async (status: ReadingStatus) => {
@@ -223,6 +239,9 @@ export default function PaperDetail({ id }: { id: string }) {
                   onPageChange={setPage}
                   onAskSelection={askSelection}
                   onNoteSelection={noteSelection}
+                  highlights={highlights}
+                  onHighlight={addHighlight}
+                  onHighlightClick={() => setActiveTab('notes')}
                 />
               )}
             </Suspense>
