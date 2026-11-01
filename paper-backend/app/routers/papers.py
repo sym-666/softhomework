@@ -24,6 +24,8 @@ from app.models import Paper, User
 from app.schemas import CamelModel, UtcDatetime
 from app.services.export import papers_to_bibtex
 from app.services.ingestion import ingest_paper
+from app.services.pdf_text import PdfReadError, extract_pages
+from app.services.references import parse_references
 from app.services.semantic_scholar import SearchUnavailableError, search_papers
 from app.services.storage import paper_storage_dir
 
@@ -67,6 +69,13 @@ class GlobalPaperOut(CamelModel):
     abstract: str | None
     url: str | None
     pdf_url: str | None
+
+
+class ReferenceOut(CamelModel):
+    index: int
+    text: str
+    title: str
+    year: int | None
 
 
 class PaperSearchResponse(CamelModel):
@@ -297,6 +306,34 @@ def export_paper_bibtex(
 ) -> Response:
     paper = _get_paper_or_404(paper_id, db)
     return _bibtex_response(papers_to_bibtex([paper]), f"paper-{paper_id}.bib")
+
+
+@router.get("/{paper_id}/references", response_model=list[ReferenceOut])
+def list_references(
+    paper_id: int,
+    _user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> list[ReferenceOut]:
+    paper = _get_paper_or_404(paper_id, db)
+    if not paper.stored_file_name:
+        return []
+    path = paper_storage_dir() / paper.stored_file_name
+    if not path.is_file():
+        return []
+    # 从 PDF 现场解析：切块为了检索做了重叠，不适合拼回完整文本
+    try:
+        pages = extract_pages(path)
+    except PdfReadError:
+        return []
+    return [
+        ReferenceOut(
+            index=reference.index,
+            text=reference.text,
+            title=reference.title,
+            year=reference.year,
+        )
+        for reference in parse_references(pages)
+    ]
 
 
 @router.get("/{paper_id}", response_model=PaperOut)
