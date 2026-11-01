@@ -34,23 +34,6 @@ export interface RegisterRequest {
   password: string;
 }
 
-// 发送验证码请求类型
-export interface SendVerificationCodeRequest {
-  email: string;
-}
-
-// 发送重置密码验证码请求类型
-export interface SendResetPasswordCodeRequest {
-  email: string;
-}
-
-// 重置密码请求类型
-export interface ResetPasswordRequest {
-  email: string;
-  verificationCode: string;
-  newPassword: string;
-}
-
 export interface AdminCreateUserRequest {
   username: string;
   email: string;
@@ -68,11 +51,6 @@ export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
   message?: string;
-}
-
-// GitHub登录响应类型
-export interface GitHubLoginResponse {
-  url: string;
 }
 
 // 验证响应类型
@@ -129,35 +107,6 @@ export const userApi = createApi({
       }),
     }),
 
-    // 发送验证码
-    sendVerificationCode: builder.mutation<
-      ApiResponse,
-      SendVerificationCodeRequest
-    >({
-      query: (data) => ({
-        url: '/Auth/send-verification-code',
-        method: 'POST',
-        body: data,
-      }),
-    }),
-
-    // GitHub登录
-    githubLogin: builder.query<GitHubLoginResponse, string>({
-      query: (redirectUri) => ({
-        url: '/Auth/github-login',
-        params: { redirectUri },
-      }),
-    }),
-
-    // GitHub回调处理
-    githubCallback: builder.query<any, { code: string; redirectUri: string }>({
-      query: ({ code, redirectUri }) => ({
-        url: '/Auth/github-callback',
-        params: { code, redirectUri },
-      }),
-      providesTags: ['User', 'Auth'],
-    }),
-
     // 用户登出
     logout: builder.mutation<void, void>({
       query: () => ({
@@ -165,27 +114,6 @@ export const userApi = createApi({
         method: 'POST',
       }),
       invalidatesTags: ['User', 'Auth'],
-    }),
-
-    // 发送重置密码验证码
-    sendResetPasswordCode: builder.mutation<
-      ApiResponse,
-      SendResetPasswordCodeRequest
-    >({
-      query: (data) => ({
-        url: '/Auth/send-reset-password-code',
-        method: 'POST',
-        body: data,
-      }),
-    }),
-
-    // 重置密码
-    resetPassword: builder.mutation<ApiResponse, ResetPasswordRequest>({
-      query: (data) => ({
-        url: '/Auth/reset-password',
-        method: 'POST',
-        body: data,
-      }),
     }),
 
     // 更新用户信息
@@ -246,12 +174,7 @@ export const {
   useValidateAuthQuery,
   useLoginMutation,
   useRegisterMutation,
-  useSendVerificationCodeMutation,
-  useLazyGithubLoginQuery,
-  useLazyGithubCallbackQuery,
   useLogoutMutation,
-  useSendResetPasswordCodeMutation,
-  useResetPasswordMutation,
   useUpdateUserMutation,
   useCreateUserMutation,
   useDeleteUserMutation,

@@ -6,8 +6,6 @@ import { RibbonLayout } from './components/office/RibbonLayout';
 import { AuthGuard } from './components/auth/auth-guard';
 import { SignIn } from './routes/auth/sign-in';
 import { SignUp } from './routes/auth/sign-up';
-import { ForgotPassword } from './routes/auth/forgot-password';
-import { GithubCallback } from './routes/auth/github-callback';
 import { Toaster } from '@/shadcn/components/ui/sonner';
 import Home from './routes';
 import UserProfile from './routes/user';
@@ -19,8 +17,6 @@ const MainApp = () => {
       <AuthGuard>
         <Route path="/auth/sign-in" component={SignIn} />
         <Route path="/auth/sign-up" component={SignUp} />
-        <Route path="/auth/forgot-password" component={ForgotPassword} />
-        <Route path="/auth/github/callback" component={GithubCallback} />
 
         <RibbonLayout>
           <Route path="/" component={Home} />
