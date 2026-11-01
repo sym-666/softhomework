@@ -18,6 +18,8 @@ interface PaperAssistantProps {
   ingestStatus: IngestStatus;
   onJumpToPage: (page: number) => void;
   draftRequest?: { text: string } | null;
+  /** 正在读的页；后端据此把这一页放进上下文，外链论文为 null */
+  currentPage?: number | null;
 }
 
 const SHORTCUTS = ['summary', 'method', 'result', 'concept'];
@@ -28,14 +30,19 @@ const PaperAssistant: React.FC<PaperAssistantProps> = ({
   ingestStatus,
   onJumpToPage,
   draftRequest,
+  currentPage = null,
 }) => {
   const intl = useIntl();
   const { data: status, isLoading } = useGetAiStatusQuery();
   const url = `/api/Ai/PaperChat?id=${paperId}`;
 
   const buildBody = useCallback(
-    (message: string, history: AiChatMessage[]) => ({ message, history }),
-    [],
+    (message: string, history: AiChatMessage[]) => ({
+      message,
+      history,
+      page: currentPage,
+    }),
+    [currentPage],
   );
 
   const chat = useAiChatStream({

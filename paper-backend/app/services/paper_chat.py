@@ -14,6 +14,8 @@ from app.services.retrieval import Passage, contains_cjk, rank_passages
 logger = logging.getLogger(__name__)
 
 MAX_HISTORY_CHARS = 4000
+# 用户正在读的页最多带上几段，避免挤占检索结果
+FOCUS_PAGE_PASSAGES = 3
 # 关键词本身很短，但推理型模型会先思考，上限太低时输出是空的
 REWRITE_MAX_TOKENS = 1500
 # 超过这个长度说明模型没有按要求提取关键词，而是直接回答了问题
@@ -77,6 +79,20 @@ def build_search_query(
     return query
 
 
+def add_focus_page(
+    selected: list[Passage], passages: list[Passage], question: str, page: int | None
+) -> list[Passage]:
+    """把正在读的页放进上下文。划词提问时，关键词检索不一定命中选中的那一段。
+
+    这里用原始问题排序：划词的问题里带着原文，比改写后的关键词更准。
+    """
+    if page is None:
+        return selected
+    on_page = [passage for passage in passages if passage.page == page]
+    focus = rank_passages(on_page, question, FOCUS_PAGE_PASSAGES)
+    return focus + [passage for passage in selected if passage not in focus]
+
+
 def _sanitize(text: str) -> str:
     # 防止论文内容提前闭合上下文标签，把后面的文字伪装成提示词
     return text.replace(f"</{CONTEXT_TAG}>", "").replace(f"<{CONTEXT_TAG}>", "")
@@ -93,15 +109,23 @@ def build_context(paper: Paper, passages: list[Passage]) -> str:
 
 
 def build_messages(
-    paper: Paper, passages: list[Passage], question: str, history: list[ChatTurn]
+    paper: Paper,
+    passages: list[Passage],
+    question: str,
+    history: list[ChatTurn],
+    focus_page: int | None = None,
 ) -> list[Message]:
     system = SYSTEM_PROMPT if passages else SYSTEM_PROMPT + ABSTRACT_ONLY_NOTE
     messages: list[Message] = [{"role": "system", "content": system}]
     messages += [
         {"role": turn.role, "content": turn.content[:MAX_HISTORY_CHARS]} for turn in history
     ]
+    reading = f"用户正在阅读第 {focus_page} 页。\n" if focus_page else ""
     messages.append(
-        {"role": "user", "content": f"{build_context(paper, passages)}\n\n问题：{question}"}
+        {
+            "role": "user",
+            "content": f"{build_context(paper, passages)}\n\n{reading}问题：{question}",
+        }
     )
     return messages
 
@@ -156,6 +180,7 @@ def chat_events(
     question: str,
     history: list[ChatTurn],
     on_complete: Callable[[str, list[dict[str, object]]], None] | None = None,
+    focus_page: int | None = None,
 ) -> Iterator[str]:
     """检索放在生成器内，改写问题需要调用模型，不能让响应头等它。
 
@@ -167,11 +192,14 @@ def chat_events(
         selected: list[Passage] = []
         if passages:
             query = build_search_query(question, history, passages)
-            selected = rank_passages(passages, query)
+            selected = add_focus_page(
+                rank_passages(passages, query), passages, question, focus_page
+            )
         citations = build_citations(selected)
         yield sse_event("citations", citations)
 
-        for text in llm.stream(build_messages(paper, selected, question, history)):
+        messages = build_messages(paper, selected, question, history, focus_page)
+        for text in llm.stream(messages):
             parts.append(text)
             yield sse_event("delta", {"text": text})
     except LlmTruncatedError:
