@@ -1,7 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { caseApi } from './api/case';
 import { userApi } from './api/user';
-import { plotApi } from './api/plot';
 import { paperApi } from './api/paper';
 import { aiApi } from './api/ai';
 import inputReducer from './slices/inputSlice';
@@ -19,7 +18,6 @@ export const store = configureStore({
     locale: localeReducer,
     [caseApi.reducerPath]: caseApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
-    [plotApi.reducerPath]: plotApi.reducer,
     [paperApi.reducerPath]: paperApi.reducer,
     [aiApi.reducerPath]: aiApi.reducer,
   },
@@ -27,7 +25,6 @@ export const store = configureStore({
     getDefaultMiddleware().concat(
       caseApi.middleware,
       userApi.middleware,
-      plotApi.middleware,
       paperApi.middleware,
       aiApi.middleware,
     ),

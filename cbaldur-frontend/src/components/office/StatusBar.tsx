@@ -6,12 +6,10 @@ import { setLocale, type Locale } from '@/redux/slices/localeSlice';
 
 interface StatusBarProps {
   userInfo?: string;
-  caseInfo?: string;
 }
 
 export const StatusBar: React.FC<StatusBarProps> = ({
   userInfo,
-  caseInfo,
 }) => {
   const language = useAppSelector((state) => state.locale.locale);
   const dispatch = useAppDispatch();
@@ -24,7 +22,6 @@ export const StatusBar: React.FC<StatusBarProps> = ({
           <Wifi className="w-3 h-3" />
           <span>{intl.formatMessage({ id: 'status.connected' })}</span>
         </div>
-        {caseInfo && <span className="opacity-80">{caseInfo}</span>}
       </div>
       <div className="flex items-center gap-4">
         {userInfo && (
