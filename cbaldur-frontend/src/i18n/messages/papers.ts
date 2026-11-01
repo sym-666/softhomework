@@ -1,5 +1,7 @@
 export const paperMessagesZh: Record<string, string> = {
   'ribbon.tab.papers': '论文',
+  'reader.loading': '正在加载 PDF…',
+  'reader.loadError': 'PDF 加载失败，请稍后再试',
   'papers.back': '返回论文库',
   'papers.notFound': '论文不存在或已被删除',
   'papers.delete': '删除',
@@ -48,6 +50,8 @@ export const paperMessagesZh: Record<string, string> = {
 
 export const paperMessagesEn: Record<string, string> = {
   'ribbon.tab.papers': 'Papers',
+  'reader.loading': 'Loading PDF…',
+  'reader.loadError': 'Could not load the PDF. Please try again later.',
   'papers.back': 'Back to library',
   'papers.notFound': 'This paper does not exist or has been deleted',
   'papers.delete': 'Delete',

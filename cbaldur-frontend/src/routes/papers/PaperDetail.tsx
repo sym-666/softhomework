@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import {
   ArrowLeft,
@@ -20,6 +20,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shadcn/components/ui/dialog';
+
+// pdf.js 体积较大，只在打开论文时加载
+const PdfReader = lazy(() => import('@/components/reader/PdfReader'));
 
 export default function PaperDetail({ id }: { id: string }) {
   const intl = useIntl();
@@ -118,6 +121,21 @@ export default function PaperDetail({ id }: { id: string }) {
           </div>
         )}
       </div>
+
+      {paper.hasLocalFile && (
+        <div className="h-[70vh] border border-gray-200 bg-white">
+          <Suspense
+            fallback={
+              <div className="py-20 text-center text-sm text-gray-400">
+                <Loader2 className="mx-auto mb-2 animate-spin" />
+                {intl.formatMessage({ id: 'reader.loading' })}
+              </div>
+            }
+          >
+            <PdfReader url={paper.downloadUrl} />
+          </Suspense>
+        </div>
+      )}
 
       <div className="border border-gray-200 bg-white px-4 py-3">
         <h2 className="text-sm font-semibold text-gray-900">
