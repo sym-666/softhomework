@@ -156,3 +156,46 @@ def test_startup_does_nothing_without_unfinished_papers(
 
     with TestClient(app):
         pass
+
+
+def retry(client: TestClient, paper_id: int):
+    return client.post(f"/api/Papers/{paper_id}/ingest")
+
+
+def test_retry_reprocesses_failed_paper(user_client: TestClient) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+    with SessionLocal() as db:
+        db.get(Paper, paper_id).ingest_status = "failed"
+        db.commit()
+
+    response = retry(user_client, paper_id)
+
+    assert response.status_code == 202
+    assert response.json()["ingestStatus"] == "pending"
+    assert status_of(user_client, paper_id) == "ready"
+
+
+def test_retry_is_limited_to_uploader(
+    user_client: TestClient, other_client: TestClient
+) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+
+    assert retry(other_client, paper_id).status_code == 403
+
+
+def test_retry_rejects_paper_in_progress(user_client: TestClient) -> None:
+    paper_id = upload(user_client, make_pdf([LONG_TEXT]))
+    with SessionLocal() as db:
+        db.get(Paper, paper_id).ingest_status = "processing"
+        db.commit()
+
+    assert retry(user_client, paper_id).status_code == 409
+
+
+def test_retry_rejects_external_paper(user_client: TestClient) -> None:
+    created = user_client.post(
+        "/api/Papers",
+        data={"Title": "T", "Authors": "A", "Year": "2020", "Url": "https://example.com"},
+    )
+
+    assert retry(user_client, created.json()["id"]).status_code == 400
