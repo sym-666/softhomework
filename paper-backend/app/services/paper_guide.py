@@ -8,7 +8,7 @@ from app.config import get_settings
 from app.db import SessionLocal
 from app.models import Paper, PaperGuide
 from app.services import llm
-from app.services.llm import LlmError, Message
+from app.services.llm import LlmError, LlmTruncatedError, Message
 from app.services.paper_chat import build_context, sse_event
 from app.services.retrieval import Passage
 
@@ -16,7 +16,8 @@ logger = logging.getLogger(__name__)
 
 # 约等于 1 万 token，留足回答空间，常见模型的上下文都放得下
 MAX_GUIDE_CHARS = 40_000
-MAX_GUIDE_TOKENS = 2500
+# 实测 deepseek-flash 写导读时推理就用掉 2000 多 token，2500 的上限只够输出几百字
+MAX_GUIDE_TOKENS = 8000
 
 SECTIONS = {
     "zh-CN": """请用简体中文写一份论文导读，帮助初学者读懂这篇论文。
@@ -28,7 +29,8 @@ SECTIONS = {
 ## 关键概念
 （列出 3 到 6 个概念，每个用一两句话解释）
 ## 阅读难点
-（指出最难理解的部分，并给出理解思路）""",
+（指出最难理解的部分，并给出理解思路）
+公式用 LaTeX，行内写在 $...$ 中，独立成行的写在 $$...$$ 中。""",
     "en": """Write a study guide in English that helps a beginner understand this paper. \
 Use Markdown with these sections, in order:
 ## In one sentence
@@ -38,7 +40,8 @@ Use Markdown with these sections, in order:
 ## Key concepts
 (List 3 to 6 concepts, explaining each in a sentence or two)
 ## Difficult parts
-(Point out the hardest parts and how to approach them)""",
+(Point out the hardest parts and how to approach them)
+Write formulas in LaTeX, inline in $...$ and on their own line in $$...$$.""",
 }
 
 GUIDE_SYSTEM_PROMPT = """你是论文导读作者。只依据 <paper_context> 中的内容写作，
@@ -98,6 +101,10 @@ def guide_events(paper: Paper, passages: list[Passage], language: str) -> Iterat
         for text in llm.stream(messages, max_tokens=MAX_GUIDE_TOKENS):
             parts.append(text)
             yield sse_event("delta", {"text": text})
+    except LlmTruncatedError:
+        yield sse_event("error", {"message": "导读生成不完整，请重新生成"})
+        yield sse_event("done", {})
+        return
     except LlmError:
         yield sse_event("error", {"message": "AI 服务暂时不可用，请稍后再试"})
         yield sse_event("done", {})
