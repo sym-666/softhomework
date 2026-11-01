@@ -5,16 +5,19 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from pydantic import Field
 from sqlalchemy import delete, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import get_current_user
 from app.models import Paper, PaperChatMessage, PaperChunk, PaperGuide, User
+from app.routers.study import StudyCardOut, to_card_out
 from app.schemas import CamelModel, UtcDatetime
 from app.services import llm
 from app.services.paper_chat import ChatTurn, chat_events, save_exchange
 from app.services.paper_guide import guide_events
 from app.services.retrieval import Passage
+from app.services.study_cards import generate_cards, save_cards
 
 router = APIRouter(prefix="/api/ai", tags=["ai"])
 
@@ -180,3 +183,24 @@ def generate_paper_guide(
         media_type="text/event-stream",
         headers=SSE_HEADERS,
     )
+
+
+@router.post("/studycards", response_model=list[StudyCardOut], status_code=201)
+def generate_study_cards(
+    paper_id: int = Query(alias="id"),
+    language: GuideLanguage = Query(alias="lang"),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> list[StudyCardOut]:
+    paper, passages = load_ai_source(db, paper_id)
+    try:
+        drafts = generate_cards(paper, passages, language)
+    except llm.LlmError as exc:
+        raise HTTPException(status_code=502, detail="AI 服务暂时不可用，请稍后再试") from exc
+    try:
+        cards = save_cards(db, user.id, paper_id, drafts)
+    except IntegrityError as exc:
+        # 同一用户同时点了两次生成，先到的已经写入
+        db.rollback()
+        raise HTTPException(status_code=409, detail="题目正在生成，请稍后刷新") from exc
+    return [to_card_out(card) for card in cards]
