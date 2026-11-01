@@ -3,6 +3,7 @@ import { userApi } from './api/user';
 import { paperApi } from './api/paper';
 import { aiApi } from './api/ai';
 import { noteApi } from './api/note';
+import { dashboardApi } from './api/dashboard';
 import localeReducer from './slices/localeSlice';
 
 export const store = configureStore({
@@ -12,6 +13,7 @@ export const store = configureStore({
     [paperApi.reducerPath]: paperApi.reducer,
     [aiApi.reducerPath]: aiApi.reducer,
     [noteApi.reducerPath]: noteApi.reducer,
+    [dashboardApi.reducerPath]: dashboardApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -19,6 +21,7 @@ export const store = configureStore({
       paperApi.middleware,
       aiApi.middleware,
       noteApi.middleware,
+      dashboardApi.middleware,
     ),
 });
 
