@@ -317,3 +317,24 @@ def delete_paper(
     # 提交成功后再删文件：反过来的话，提交失败会留下指向空文件的记录
     if stored_name:
         (paper_storage_dir() / stored_name).unlink(missing_ok=True)
+
+
+@router.post("/{paper_id}/ingest", response_model=PaperOut, status_code=202)
+def retry_ingestion(
+    paper_id: int,
+    background_tasks: BackgroundTasks,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> PaperOut:
+    paper = _get_paper_or_404(paper_id, db)
+    if paper.created_by_user_id != user.id:
+        raise HTTPException(status_code=403, detail="只有上传者可以重新解析")
+    if paper.stored_file_name is None:
+        raise HTTPException(status_code=400, detail="这篇论文没有本地 PDF")
+    if paper.ingest_status in ("pending", "processing"):
+        raise HTTPException(status_code=409, detail="论文正在解析中")
+
+    paper.ingest_status = "pending"
+    db.commit()
+    background_tasks.add_task(ingest_paper, paper.id)
+    return to_paper_out(paper)
