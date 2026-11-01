@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useIntl } from 'react-intl';
 import { toast } from 'sonner';
+import { useReadingPage } from '@/hooks/useReadingPage';
 import { useDeletePaperMutation, useGetPaperQuery } from '@/redux/api/paper';
 import { useGetCurrentUserQuery } from '@/redux/api/user';
 import { Button } from '@/shadcn/components/ui/button';
@@ -38,7 +39,7 @@ export default function PaperDetail({ id }: { id: string }) {
   const { data: user } = useGetCurrentUserQuery();
   const [deletePaper, deleteState] = useDeletePaperMutation();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [page, setPage] = useState(1);
+  const { page, setPage } = useReadingPage(paperId);
 
   const confirmDelete = async () => {
     try {
@@ -128,11 +129,13 @@ export default function PaperDetail({ id }: { id: string }) {
                 </div>
               }
             >
-              <PdfReader
-                url={paper.downloadUrl}
-                page={page}
-                onPageChange={setPage}
-              />
+              {page !== null && (
+                <PdfReader
+                  url={paper.downloadUrl}
+                  page={page}
+                  onPageChange={setPage}
+                />
+              )}
             </Suspense>
           </section>
         )}

@@ -45,3 +45,11 @@ export interface CreatePaper {
   url?: string;
   file?: File;
 }
+
+export type ReadingStatus = 'unread' | 'reading' | 'done';
+
+export interface ReadingState {
+  status: ReadingStatus;
+  lastPage: number;
+  updatedAt: string | null;
+}
