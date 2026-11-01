@@ -138,7 +138,8 @@ export function useAiChatStream({
       const fail = (reason: string) =>
         patchActive((item) => ({
           ...item,
-          content: item.content || reason,
+          // 已经输出的内容保留，把原因附在后面，否则回答停住时用户不知道发生了什么
+          content: item.content ? `${item.content}\n\n> ${reason}` : reason,
           error: !item.content,
         }));
 
