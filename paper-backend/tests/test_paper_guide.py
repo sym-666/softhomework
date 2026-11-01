@@ -2,6 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
+from app.config import get_settings
 from app.db import SessionLocal
 from app.models import Paper, PaperGuide
 from app.services import paper_guide
@@ -153,3 +154,107 @@ def test_save_ignores_deleted_paper(user_client: TestClient) -> None:
 
     assert stored_guides(999) == []
 
+
+GUIDE_URL = "/api/Ai/PaperGuide"
+
+
+@pytest.fixture
+def ai_enabled(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("AI_OPENAI_API_KEY", "key")
+    monkeypatch.setenv("AI_OPENAI_MODEL_ID", "test-model")
+    monkeypatch.setattr(paper_guide.llm, "stream", fake_stream(["## Guide"]))
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()
+
+
+def test_guide_is_empty_before_generation(user_client: TestClient) -> None:
+    paper = saved_paper(user_client)
+
+    response = user_client.get(GUIDE_URL, params={"id": paper.id, "lang": "zh-CN"})
+
+    assert response.status_code == 200
+    assert response.json() is None
+
+
+def test_generate_then_read_guide(user_client: TestClient, ai_enabled: None) -> None:
+    paper = saved_paper(user_client)
+
+    stream = user_client.post(GUIDE_URL, params={"id": paper.id, "lang": "en"})
+
+    assert stream.headers["content-type"].startswith("text/event-stream")
+    assert "event: delta" in stream.text
+    guide = user_client.get(GUIDE_URL, params={"id": paper.id, "lang": "en"}).json()
+    assert guide["content"] == "## Guide"
+    assert guide["model"] == "test-model"
+    assert guide["createdAt"].endswith("Z")
+
+
+def test_guide_is_cached_per_language(user_client: TestClient, ai_enabled: None) -> None:
+    paper = saved_paper(user_client)
+    user_client.post(GUIDE_URL, params={"id": paper.id, "lang": "en"})
+
+    assert user_client.get(GUIDE_URL, params={"id": paper.id, "lang": "zh-CN"}).json() is None
+
+
+def test_guide_is_shared_between_users(
+    user_client: TestClient, other_client: TestClient, ai_enabled: None
+) -> None:
+    paper = saved_paper(user_client)
+    user_client.post(GUIDE_URL, params={"id": paper.id, "lang": "en"})
+
+    guide = other_client.get(GUIDE_URL, params={"id": paper.id, "lang": "en"}).json()
+
+    assert guide["content"] == "## Guide"
+
+
+def test_cached_guide_is_readable_without_ai_configuration(
+    user_client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    paper = saved_paper(user_client)
+    save_guide(paper.id, "en", "cached")
+    monkeypatch.setenv("AI_OPENAI_API_KEY", "")
+    get_settings.cache_clear()
+
+    response = user_client.get(GUIDE_URL, params={"id": paper.id, "lang": "en"})
+
+    get_settings.cache_clear()
+    assert response.json()["content"] == "cached"
+
+
+def test_generate_requires_configuration(
+    user_client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    paper = saved_paper(user_client)
+    monkeypatch.setenv("AI_OPENAI_API_KEY", "")
+    get_settings.cache_clear()
+
+    response = user_client.post(GUIDE_URL, params={"id": paper.id, "lang": "en"})
+
+    get_settings.cache_clear()
+    assert response.status_code == 503
+
+
+def test_guide_rejects_unknown_language(user_client: TestClient, ai_enabled: None) -> None:
+    paper = saved_paper(user_client)
+
+    assert user_client.get(GUIDE_URL, params={"id": paper.id, "lang": "fr"}).status_code == 422
+    assert user_client.post(GUIDE_URL, params={"id": paper.id, "lang": "fr"}).status_code == 422
+
+
+def test_guide_requires_login(client: TestClient) -> None:
+    assert client.get(GUIDE_URL, params={"id": 1, "lang": "en"}).status_code == 401
+    assert client.post(GUIDE_URL, params={"id": 1, "lang": "en"}).status_code == 401
+
+
+def test_generate_rejects_unknown_paper(user_client: TestClient, ai_enabled: None) -> None:
+    assert user_client.post(GUIDE_URL, params={"id": 999, "lang": "en"}).status_code == 404
+
+
+def test_deleting_paper_removes_guide(user_client: TestClient) -> None:
+    paper = saved_paper(user_client)
+    save_guide(paper.id, "en", "cached")
+
+    user_client.delete(f"/api/Papers/{paper.id}")
+
+    assert stored_guides(paper.id) == []
