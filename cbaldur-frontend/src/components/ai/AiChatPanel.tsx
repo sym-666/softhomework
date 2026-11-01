@@ -22,6 +22,8 @@ interface AiChatPanelProps {
   renderExtras?: (item: AiChatItem) => React.ReactNode;
   /** 标题栏下方的附加控件 */
   toolbar?: React.ReactNode;
+  /** 外部填入输入框的内容；每次传入新对象都会填入一次 */
+  draftRequest?: { text: string } | null;
 }
 
 /**
@@ -40,15 +42,23 @@ const AiChatPanel: React.FC<AiChatPanelProps> = ({
   onClose,
   renderExtras,
   toolbar,
+  draftRequest,
 }) => {
   const intl = useIntl();
   const [draft, setDraft] = useState('');
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [items]);
+
+  useEffect(() => {
+    if (!draftRequest) return;
+    setDraft(draftRequest.text);
+    inputRef.current?.focus();
+  }, [draftRequest]);
 
   const submit = () => {
     const text = draft.trim();
@@ -159,6 +169,7 @@ const AiChatPanel: React.FC<AiChatPanelProps> = ({
         )}
         <div className="flex items-end gap-2">
           <Textarea
+            ref={inputRef}
             value={draft}
             rows={2}
             placeholder={intl.formatMessage({ id: 'ai.inputPlaceholder' })}

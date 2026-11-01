@@ -4,12 +4,15 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  Sparkles,
   ZoomIn,
   ZoomOut,
 } from 'lucide-react';
 import { useIntl } from 'react-intl';
+import { usePdfSelection } from '@/hooks/usePdfSelection';
 import { Button } from '@/shadcn/components/ui/button';
 import { Input } from '@/shadcn/components/ui/input';
+import { SelectionAction, SelectionToolbar } from './SelectionToolbar';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
@@ -29,11 +32,19 @@ interface PdfReaderProps {
   /** 当前页码，由父组件控制，AI 引用可以借此跳页 */
   page: number;
   onPageChange: (page: number) => void;
+  /** 针对选中文字提问 */
+  onAskSelection: (text: string) => void;
 }
 
-export default function PdfReader({ url, page, onPageChange }: PdfReaderProps) {
+export default function PdfReader({
+  url,
+  page,
+  onPageChange,
+  onAskSelection,
+}: PdfReaderProps) {
   const intl = useIntl();
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const { selection, clear: clearSelection } = usePdfSelection(scrollRef);
   const [containerWidth, setContainerWidth] = useState(0);
   const [numPages, setNumPages] = useState(0);
   const [scale, setScale] = useState(1);
@@ -167,7 +178,25 @@ export default function PdfReader({ url, page, onPageChange }: PdfReaderProps) {
         </div>
       </div>
 
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-auto bg-gray-100">
+      {selection && (
+        <SelectionToolbar selection={selection}>
+          <SelectionAction
+            icon={Sparkles}
+            label={intl.formatMessage({ id: 'reader.selection.ask' })}
+            onClick={() => {
+              onAskSelection(selection.text);
+              clearSelection();
+            }}
+          />
+        </SelectionToolbar>
+      )}
+
+      <div
+        ref={scrollRef}
+        // 选区跟随页面滚动，工具条是固定定位，继续留着会错位
+        onScroll={() => selection && clearSelection()}
+        className="min-h-0 flex-1 overflow-auto bg-gray-100"
+      >
         <Document
           file={file}
           onLoadSuccess={handleLoaded}

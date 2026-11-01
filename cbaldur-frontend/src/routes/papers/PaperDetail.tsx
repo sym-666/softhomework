@@ -67,6 +67,8 @@ export default function PaperDetail({ id }: { id: string }) {
   const { page, setPage } = useReadingPage(paperId);
   const { data: readingState } = useGetReadingStateQuery(paperId);
   const [updateReadingState] = useUpdateReadingStateMutation();
+  const [activeTab, setActiveTab] = useState('chat');
+  const [askRequest, setAskRequest] = useState<{ text: string } | null>(null);
 
   // 解析在后台进行，完成前定期刷新状态
   const ingesting =
@@ -74,6 +76,13 @@ export default function PaperDetail({ id }: { id: string }) {
   useEffect(() => {
     setPollingInterval(ingesting ? INGEST_POLL_MS : 0);
   }, [ingesting]);
+
+  const askSelection = (text: string) => {
+    setAskRequest({
+      text: intl.formatMessage({ id: 'reader.selection.askPrompt' }, { text }),
+    });
+    setActiveTab('chat');
+  };
 
   const changeStatus = async (status: ReadingStatus) => {
     try {
@@ -197,6 +206,7 @@ export default function PaperDetail({ id }: { id: string }) {
                   url={paper.downloadUrl}
                   page={page}
                   onPageChange={setPage}
+                  onAskSelection={askSelection}
                 />
               )}
             </Suspense>
@@ -208,7 +218,11 @@ export default function PaperDetail({ id }: { id: string }) {
             paper.hasLocalFile ? 'lg:w-[400px] lg:shrink-0' : 'flex-1'
           }`}
         >
-          <Tabs defaultValue="chat" className="flex min-h-0 flex-1 flex-col">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="flex min-h-0 flex-1 flex-col"
+          >
             <TabsList className="m-2 shrink-0">
               <TabsTrigger value="chat">
                 {intl.formatMessage({ id: 'papers.tabChat' })}
@@ -233,6 +247,7 @@ export default function PaperDetail({ id }: { id: string }) {
                 paperId={paper.id}
                 ingestStatus={paper.ingestStatus}
                 onJumpToPage={setPage}
+                draftRequest={askRequest}
               />
             </TabsContent>
             <TabsContent
