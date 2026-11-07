@@ -122,7 +122,7 @@ flowchart LR
 - 后端通过环境变量配置，`JWT_KEY` 未设置时 Compose 直接报错。
 - 本地开发时 Rsbuild 开发服务器把 `/api` 代理到 `localhost:5168`。
 
-> Docker 部署配置已编写并通过 `docker compose config` 校验，但还没有实际构建运行过，见[测试报告](06-test-report.md#7-未验证事项)。
+> Docker 部署已实际构建运行，流式回答、PDF 读取和数据持久化的验证结果见[测试报告](06-test-report.md#5-部署验证)。
 
 ## 6. 关键流程
 
