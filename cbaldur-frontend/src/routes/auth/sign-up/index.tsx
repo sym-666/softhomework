@@ -8,6 +8,10 @@ import { Input } from '@/shadcn/components/ui/input';
 import { Label } from '@/shadcn/components/ui/label';
 import { useRegisterMutation } from '@/redux/api/user';
 
+// 与后端 RegisterRequest 的校验规则保持一致
+const USERNAME_LENGTH = { min: 3, max: 50 };
+const PASSWORD_LENGTH = { min: 8, max: 128 };
+
 // 表单数据类型
 interface FormData {
   username: string;
@@ -65,8 +69,14 @@ export const SignUp: React.FC = () => {
     if (!form.username) {
       newErrors.username = intl.formatMessage({ id: 'auth.signUp.usernameErrorRequired' });
       isValid = false;
-    } else if (form.username.length < 3) {
-      newErrors.username = intl.formatMessage({ id: 'auth.signUp.usernameErrorLength' });
+    } else if (
+      form.username.trim().length < USERNAME_LENGTH.min ||
+      form.username.trim().length > USERNAME_LENGTH.max
+    ) {
+      newErrors.username = intl.formatMessage(
+        { id: 'auth.signUp.usernameErrorLength' },
+        USERNAME_LENGTH,
+      );
       isValid = false;
     }
 
@@ -81,8 +91,14 @@ export const SignUp: React.FC = () => {
     if (!form.password) {
       newErrors.password = intl.formatMessage({ id: 'auth.signUp.passwordErrorRequired' });
       isValid = false;
-    } else if (form.password.length < 8) {
-      newErrors.password = intl.formatMessage({ id: 'auth.signUp.passwordErrorLength' });
+    } else if (
+      form.password.length < PASSWORD_LENGTH.min ||
+      form.password.length > PASSWORD_LENGTH.max
+    ) {
+      newErrors.password = intl.formatMessage(
+        { id: 'auth.signUp.passwordErrorLength' },
+        PASSWORD_LENGTH,
+      );
       isValid = false;
     }
 
