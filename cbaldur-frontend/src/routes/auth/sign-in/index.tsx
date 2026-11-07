@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Button } from '@/shadcn/components/ui/button';
 import { Input } from '@/shadcn/components/ui/input';
 import { Label } from '@/shadcn/components/ui/label';
+import { AuthShell } from '@/components/auth/AuthShell';
 import {
   useLoginMutation,
   useValidateAuthQuery,
@@ -123,15 +123,10 @@ export const SignIn: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <div className="w-full max-w-md bg-card rounded-lg border border-border shadow-lg p-6">
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-6">
-          <BookOpen className="h-10 w-10 text-[var(--office-blue)]" />
-          <p className="mt-2 text-lg font-semibold text-foreground">
-            PaperPilot
-          </p>
-        </div>
+    <AuthShell
+      title={intl.formatMessage({ id: 'auth.signIn.welcome' })}
+      subtitle={intl.formatMessage({ id: 'auth.signIn.welcomeHint' })}
+    >
 
         {/* 登录表单 */}
         <form onSubmit={handleLogin} className="space-y-4">
@@ -178,7 +173,11 @@ export const SignIn: React.FC = () => {
           {/* 记住我和忘记密码 */}
           {/* 登录按钮 */}
           <div className="pt-4">
-            <Button type="submit" disabled={isLoading} className="w-full">
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="h-10 w-full rounded-lg bg-linear-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 hover:from-blue-700 hover:to-indigo-700"
+            >
               {isLoading ? intl.formatMessage({ id: 'auth.signIn.submitting' }) : intl.formatMessage({ id: 'auth.signIn.submit' })}
             </Button>
           </div>
@@ -195,7 +194,6 @@ export const SignIn: React.FC = () => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </AuthShell>
   );
 };

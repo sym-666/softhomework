@@ -1,0 +1,52 @@
+/** 登录页品牌区、看板横幅和论文卡片等展示性文案 */
+export const showcaseMessagesZh: Record<string, string> = {
+  'auth.hero.tagline': 'AI 论文学习助手',
+  'auth.hero.title': '读懂每一篇论文',
+  'auth.hero.subtitle':
+    '上传 PDF，边读边问 AI，每个回答都能追溯到原文页码；导读、术语表、自测和间隔复习帮你真正掌握。',
+  'auth.hero.feature.chat.title': '全文问答，页码溯源',
+  'auth.hero.feature.chat.desc': '回答标注来源页，点击跳回原文',
+  'auth.hero.feature.guide.title': 'AI 导读与术语表',
+  'auth.hero.feature.guide.desc': '研究问题、方法和结论一目了然',
+  'auth.hero.feature.highlight.title': '划词提问与高亮',
+  'auth.hero.feature.highlight.desc': '选中句子即可提问、记笔记',
+  'auth.hero.feature.review.title': '自测与间隔复习',
+  'auth.hero.feature.review.desc': '按遗忘规律安排复习',
+  'auth.hero.preview.paper': 'Attention Is All You Need',
+  'auth.hero.preview.question': '多头注意力有什么好处？',
+  'auth.hero.preview.answer':
+    '它让模型能同时关注来自不同表示子空间、不同位置的信息，单头注意力的平均操作会抑制这一点。',
+  'auth.hero.preview.source': '第 5 页',
+  'auth.hero.footer': 'FastAPI · React · OpenAI 兼容大模型',
+  'auth.signIn.welcome': '欢迎回来',
+  'auth.signIn.welcomeHint': '登录后继续你的论文学习',
+  'auth.signUp.welcome': '创建账号',
+  'auth.signUp.welcomeHint': '只需几秒，开始读懂论文',
+};
+
+export const showcaseMessagesEn: Record<string, string> = {
+  'auth.hero.tagline': 'AI study companion for papers',
+  'auth.hero.title': 'Understand every paper you read',
+  'auth.hero.subtitle':
+    'Upload a PDF and ask questions as you read. Every answer links back to its page, and guides, glossaries, quizzes and spaced review help the ideas stick.',
+  'auth.hero.feature.chat.title': 'Answers with page sources',
+  'auth.hero.feature.chat.desc': 'Jump back to the exact page in one click',
+  'auth.hero.feature.guide.title': 'AI guides and glossaries',
+  'auth.hero.feature.guide.desc':
+    'See the question, method and findings at a glance',
+  'auth.hero.feature.highlight.title': 'Select to ask or highlight',
+  'auth.hero.feature.highlight.desc':
+    'Ask about any sentence or save it as a note',
+  'auth.hero.feature.review.title': 'Quizzes and spaced review',
+  'auth.hero.feature.review.desc': 'Reviews are scheduled before you forget',
+  'auth.hero.preview.paper': 'Attention Is All You Need',
+  'auth.hero.preview.question': 'Why use multi-head attention?',
+  'auth.hero.preview.answer':
+    'It lets the model jointly attend to information from different representation subspaces at different positions, which averaging in a single head inhibits.',
+  'auth.hero.preview.source': 'Page 5',
+  'auth.hero.footer': 'FastAPI · React · OpenAI-compatible models',
+  'auth.signIn.welcome': 'Welcome back',
+  'auth.signIn.welcomeHint': 'Sign in to continue studying',
+  'auth.signUp.welcome': 'Create your account',
+  'auth.signUp.welcomeHint': 'It only takes a few seconds',
+};
