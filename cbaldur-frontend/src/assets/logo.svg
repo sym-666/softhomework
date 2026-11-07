@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- 朱砂印章底：圆角方块，内圈细框模仿印边 -->
+  <rect x="1" y="1" width="46" height="46" rx="6" fill="#b8432f"/>
+  <rect x="4.5" y="4.5" width="39" height="39" rx="3.5" stroke="#fff" stroke-opacity="0.35"/>
+  <!-- 飞行轨迹 -->
+  <path d="M7 42.2 C 9.8 38.6, 12.4 36.4, 16.6 34.5" stroke="#fff" stroke-opacity="0.8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="1.6 2.4"/>
+  <!-- 对折成纸飞机的论文页：上翼、下翼、龙骨 -->
+  <path d="M7.8 25.2 L40.2 9 L20.6 29.3 Z" fill="#fffdf8"/>
+  <path d="M20.6 29.3 L40.2 9 L24.6 39.4 Z" fill="#f2d9d1"/>
+  <path d="M20.6 29.3 L24.6 39.4 L18.8 34.8 Z" fill="#e2b4a7"/>
+  <!-- 页面上的文字行 -->
+  <path d="M14.2 24.2 L28.4 17.4" stroke="#1f2a44" stroke-opacity="0.6" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M17.8 25.7 L29.8 19.9" stroke="#1f2a44" stroke-opacity="0.42" stroke-width="1.4" stroke-linecap="round"/>
+</svg>
