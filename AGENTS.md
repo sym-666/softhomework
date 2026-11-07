@@ -20,6 +20,8 @@ PaperPilot 是 AI 论文学习网站。
 - `src/i18n/` - 中英文翻译
 - `src/shadcn/` - shadcn/ui 组件库
 
+`docs/` 是工程文档（需求、设计、接口、测试报告、用户手册、开发过程），修改接口、数据模型或关键常量时同步更新。
+
 `docker/` 存放部署配置（`docker-compose.yml`、`.env.example`、`nginx.conf`、`DEPLOY.md`）。
 
 ## 前端注意事项
