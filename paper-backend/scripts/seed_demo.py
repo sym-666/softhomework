@@ -80,6 +80,12 @@ KEY_SENTENCE = re.compile(
     re.IGNORECASE,
 )
 SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-Z])")
+# 版权声明、会议信息、脚注等虽然可能命中关键词，但不是论文内容
+NOT_CONTENT = re.compile(
+    r"permission|copyright|licen[cs]e|attribution|arxiv|proceedings|conference|"
+    r"workshop|equal contribution|@|\bhttps?://|\b(figure|fig\.|table)\s*\d",
+    re.IGNORECASE,
+)
 
 
 @dataclass(frozen=True)
@@ -205,6 +211,12 @@ def parse_notes(data: dict, pages: set[int], limit: int = NOTES_PER_PAPER) -> li
     return drafts[:limit]
 
 
+def looks_like_prose(sentence: str) -> bool:
+    """公式和图注提取出来是零散的符号，字母和空格应占绝大多数。"""
+    letters = sum(char.isalpha() or char.isspace() for char in sentence)
+    return letters / len(sentence) >= 0.85
+
+
 def pick_key_sentences(text: str, limit: int = HIGHLIGHTS_PER_PAPER) -> list[str]:
     """从一页文字中挑出说明贡献或结论的句子。"""
     sentences = SENTENCE_SPLIT.split(" ".join(text.split()))
@@ -213,6 +225,8 @@ def pick_key_sentences(text: str, limit: int = HIGHLIGHTS_PER_PAPER) -> list[str
         for sentence in sentences
         if MIN_HIGHLIGHT_CHARS <= len(sentence) <= MAX_HIGHLIGHT_CHARS
         and KEY_SENTENCE.search(sentence)
+        and not NOT_CONTENT.search(sentence)
+        and looks_like_prose(sentence)
     ]
     return picked[:limit]
 
@@ -475,7 +489,7 @@ def add_highlights(db: Session, user: User, paper: Paper) -> None:
                 user_id=user.id,
                 paper_id=paper.id,
                 page=draft.page,
-                content=f"> {draft.text}\n\n这句话概括了论文的核心贡献，复习时重点回看。",
+                content=f"> {draft.text}\n\n标记为重点，复习时回看。",
             )
             db.add(note)
             db.flush()
@@ -488,21 +502,23 @@ def simulate_timeline(db: Session, user: User, papers: dict[str, Paper], now: da
     """为演示账号安排阅读进度、笔记和复习的时间。时间是模拟的，只用于演示。"""
     rng = random.Random(20261107)
     read_specs = [spec for spec in PAPERS if spec.status and spec.arxiv_id in papers]
+    # 会话关闭了自动 flush，新建的记录用 db.get 查不到，自己保存引用
+    states: dict[str, ReadingState] = {}
     for spec, moment in zip(read_specs, spread_times(len(read_specs), now, rng), strict=True):
         paper = papers[spec.arxiv_id]
         state = db.get(ReadingState, (user.id, paper.id))
         if state is None:
             state = ReadingState(user_id=user.id, paper_id=paper.id)
             db.add(state)
+        states[spec.arxiv_id] = state
         chunk_pages = paper_page_count(db, paper.id)
         state.status = spec.status
         state.last_page = chunk_pages if spec.status == "done" else max(1, chunk_pages // 3)
         state.updated_at = moment
     # 正在读的论文里，最近读的那篇放在今天
-    reading = [papers[spec.arxiv_id] for spec in read_specs if spec.status == "reading"]
+    reading = [spec.arxiv_id for spec in read_specs if spec.status == "reading"]
     if reading:
-        latest = db.get(ReadingState, (user.id, reading[0].id))
-        latest.updated_at = now - timedelta(minutes=30)
+        states[reading[0]].updated_at = now - timedelta(minutes=30)
 
     notes = db.scalars(select(Note).where(Note.user_id == user.id).order_by(Note.id)).all()
     for note, moment in zip(notes, spread_times(len(notes), now, rng), strict=True):
