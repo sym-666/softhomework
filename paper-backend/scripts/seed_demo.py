@@ -266,7 +266,10 @@ def spread_times(count: int, now: datetime, rng: random.Random, days: int = ACTI
         moment = (now - timedelta(days=day)).replace(
             hour=hour, minute=rng.randrange(60), second=rng.randrange(60), microsecond=0
         )
-        moments.append(min(moment, now))
+        if moment > now:
+            # 今天还没到这个钟点：放在几小时前。直接截成当前时间会让多条记录挤在同一秒
+            moment = now - timedelta(minutes=rng.randrange(5, 240), seconds=rng.randrange(60))
+        moments.append(moment)
     return sorted(moments)
 
 
@@ -520,10 +523,15 @@ def simulate_timeline(db: Session, user: User, papers: dict[str, Paper], now: da
     if reading:
         states[reading[0]].updated_at = now - timedelta(minutes=30)
 
-    notes = db.scalars(select(Note).where(Note.user_id == user.id).order_by(Note.id)).all()
+    # 打乱后再分配时间：按 id 分配的话，后生成的高亮笔记总是分到最近的时间，挤在列表最前面
+    notes = list(db.scalars(select(Note).where(Note.user_id == user.id).order_by(Note.id)))
+    rng.shuffle(notes)
     for note, moment in zip(notes, spread_times(len(notes), now, rng), strict=True):
         note.created_at = note.updated_at = moment
-    highlights = db.scalars(select(Highlight).where(Highlight.user_id == user.id)).all()
+    highlights = list(
+        db.scalars(select(Highlight).where(Highlight.user_id == user.id).order_by(Highlight.id))
+    )
+    rng.shuffle(highlights)
     for highlight, moment in zip(
         highlights, spread_times(len(highlights), now, rng), strict=True
     ):
