@@ -1,7 +1,9 @@
 import { paperMessagesZh } from './papers';
+import { showcaseMessagesZh } from './showcase';
 
 const messages: Record<string, string> = {
   ...paperMessagesZh,
+  ...showcaseMessagesZh,
   'common.loading': '加载中...',
   'common.previous': '上一页',
   'common.next': '下一页',
