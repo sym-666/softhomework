@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useIntl } from 'react-intl';
 import { ExportLink } from '@/components/common/ExportLink';
+import { PageHeader } from '@/components/common/PageHeader';
 import { StatCard } from '@/components/common/StatCard';
 import { StepsGuide } from '@/components/common/StepsGuide';
 import { NoteItem } from '@/components/notes/NoteItem';
@@ -66,80 +67,81 @@ export default function NotesPage() {
   const filterClass = (active: boolean) =>
     `flex w-full items-center justify-between gap-2 rounded-sm px-2.5 py-2 text-left text-xs ${
       active
-        ? 'bg-blue-50 font-medium text-[var(--office-blue)]'
+        ? 'bg-[var(--office-blue-light)] font-medium text-[var(--office-blue)]'
         : 'text-gray-700 hover:bg-gray-50'
     }`;
 
   return (
     <div className="mx-auto w-full max-w-[1400px] space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-3 border border-gray-200 bg-white px-4 py-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-base font-semibold text-gray-900">
-            <NotebookPen size={17} className="text-[var(--office-blue)]" />
-            {intl.formatMessage({ id: 'notes.title' })}
-          </h1>
-          <p className="mt-0.5 text-xs text-gray-500">
-            {intl.formatMessage({ id: 'notes.subtitle' })}
-          </p>
-        </div>
-        <form onSubmit={submit} className="flex flex-wrap gap-2">
-          <div className="relative">
-            <Search
-              size={14}
-              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-            <Input
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              placeholder={intl.formatMessage({ id: 'notes.search' })}
-              className="h-8 w-56 rounded-sm pl-8 text-xs"
-            />
-          </div>
-          <Button
-            type="submit"
-            size="sm"
-            variant="outline"
-            className="h-8 rounded-sm"
-          >
-            {intl.formatMessage({ id: 'papers.search' })}
-          </Button>
-          {hasNotes && (
-            <ExportLink
-              href={`/api/Notes/export?lang=${language}${
-                paperId ? `&paperId=${paperId}` : ''
-              }`}
-              label={intl.formatMessage({ id: 'export.markdown' })}
-              className="h-8"
-            />
-          )}
-        </form>
-      </div>
+      <PageHeader
+        icon={NotebookPen}
+        tone="violet"
+        title={intl.formatMessage({ id: 'notes.title' })}
+        subtitle={intl.formatMessage({ id: 'notes.subtitle' })}
+        actions={
+          <form onSubmit={submit} className="flex flex-wrap gap-2">
+            <div className="relative">
+              <Search
+                size={14}
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <Input
+                value={input}
+                onChange={(event) => setInput(event.target.value)}
+                placeholder={intl.formatMessage({ id: 'notes.search' })}
+                className="h-8 w-56 rounded-sm pl-8 text-xs"
+              />
+            </div>
+            <Button
+              type="submit"
+              size="sm"
+              variant="outline"
+              className="h-8 rounded-sm"
+            >
+              {intl.formatMessage({ id: 'papers.search' })}
+            </Button>
+            {hasNotes && (
+              <ExportLink
+                href={`/api/Notes/export?lang=${language}${
+                  paperId ? `&paperId=${paperId}` : ''
+                }`}
+                label={intl.formatMessage({ id: 'export.markdown' })}
+                className="h-8"
+              />
+            )}
+          </form>
+        }
+      />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
           icon={NotebookPen}
+          tone="violet"
           label={intl.formatMessage({ id: 'notes.stat.total' })}
           value={summary?.total ?? 0}
         />
         <StatCard
           icon={Files}
+          tone="blue"
           label={intl.formatMessage({ id: 'notes.stat.papers' })}
           value={summary?.papers.length ?? 0}
         />
         <StatCard
           icon={CalendarDays}
+          tone="emerald"
           label={intl.formatMessage({ id: 'notes.stat.recent' })}
           value={summary?.recent ?? 0}
         />
         <StatCard
           icon={Highlighter}
+          tone="amber"
           label={intl.formatMessage({ id: 'notes.stat.highlights' })}
           value={summary?.highlights ?? 0}
         />
       </div>
 
       {summary && !hasNotes ? (
-        <section className="border border-gray-200 bg-white">
+        <section className="border border-[var(--rule)] bg-[var(--paper-card)]">
           <StepsGuide
             title={intl.formatMessage({ id: 'notes.guide.title' })}
             steps={[1, 2, 3].map((step) => ({
@@ -164,7 +166,7 @@ export default function NotesPage() {
         </section>
       ) : (
         <div className="grid items-start gap-3 lg:grid-cols-[280px_1fr]">
-          <aside className="border border-gray-200 bg-white p-2 lg:sticky lg:top-0">
+          <aside className="border border-[var(--rule)] bg-[var(--paper-card)] p-2 lg:sticky lg:top-0">
             <h2 className="px-2.5 pb-1.5 pt-1 text-xs font-semibold text-gray-900">
               {intl.formatMessage({ id: 'notes.filter.title' })}
             </h2>
@@ -194,7 +196,7 @@ export default function NotesPage() {
 
           <section className="min-w-0">
             {isLoading && (
-              <div className="border border-gray-200 bg-white py-20 text-center text-sm text-gray-400">
+              <div className="border border-[var(--rule)] bg-[var(--paper-card)] py-20 text-center text-sm text-gray-400">
                 <Loader2 className="mx-auto mb-2 animate-spin" />
                 {intl.formatMessage({ id: 'common.loading' })}
               </div>
@@ -205,7 +207,7 @@ export default function NotesPage() {
               </div>
             )}
             {data?.items.length === 0 && (
-              <div className="border border-gray-200 bg-white py-20 text-center text-sm text-gray-400">
+              <div className="border border-[var(--rule)] bg-[var(--paper-card)] py-20 text-center text-sm text-gray-400">
                 {intl.formatMessage({ id: 'notes.noResults' })}
               </div>
             )}
@@ -230,7 +232,7 @@ export default function NotesPage() {
             </div>
 
             {pages > 1 && (
-              <div className="mt-3 flex items-center justify-center gap-3 border border-gray-200 bg-white p-2 text-xs">
+              <div className="mt-3 flex items-center justify-center gap-3 border border-[var(--rule)] bg-[var(--paper-card)] p-2 text-xs">
                 <button
                   type="button"
                   disabled={page <= 1}

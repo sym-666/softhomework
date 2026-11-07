@@ -70,7 +70,7 @@ const AiChatPanel: React.FC<AiChatPanelProps> = ({
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col rounded-sm border border-gray-200 bg-white">
+    <div className="flex h-full min-h-0 flex-col rounded-sm border border-[var(--rule)] bg-[var(--paper-card)]">
       <div className="flex items-center gap-2 border-b border-gray-100 px-3 py-2">
         <Bot className="h-4 w-4 text-[var(--office-blue)]" />
         <div className="min-w-0 flex-1">

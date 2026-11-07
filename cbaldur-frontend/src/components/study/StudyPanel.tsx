@@ -131,7 +131,7 @@ export function StudyPanel({
         {cards?.map((card) => (
           <article
             key={card.id}
-            className="flex items-start justify-between gap-2 rounded-sm border border-gray-200 bg-white p-2.5"
+            className="flex items-start justify-between gap-2 rounded-sm border border-[var(--rule)] bg-[var(--paper-card)] p-2.5"
           >
             <div className="min-w-0">
               <p className="line-clamp-2 text-xs leading-5 text-gray-700">
