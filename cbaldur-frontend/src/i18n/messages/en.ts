@@ -1,7 +1,9 @@
 import { paperMessagesEn } from './papers';
+import { showcaseMessagesEn } from './showcase';
 
 const messages: Record<string, string> = {
   ...paperMessagesEn,
+  ...showcaseMessagesEn,
   'common.loading': 'Loading...',
   'common.previous': 'Previous',
   'common.next': 'Next',

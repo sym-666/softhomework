@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useIntl } from 'react-intl';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/common/PageHeader';
 import { StatCard } from '@/components/common/StatCard';
 import { StepsGuide } from '@/components/common/StepsGuide';
 import { StudySession } from '@/components/study/StudySession';
@@ -34,7 +35,7 @@ function Forecast({ forecast }: { forecast: StudySummary['forecast'] }) {
   const peak = Math.max(1, ...forecast.map((day) => day.count));
 
   return (
-    <section className="border border-gray-200 bg-white p-4">
+    <section className="border border-[var(--rule)] bg-[var(--paper-card)] p-4">
       <h2 className="text-sm font-semibold text-gray-900">
         {intl.formatMessage({ id: 'review.forecast' })}
       </h2>
@@ -52,7 +53,7 @@ function Forecast({ forecast }: { forecast: StudySummary['forecast'] }) {
             </span>
             <span
               className={`w-full rounded-t-sm ${
-                index === 0 ? 'bg-[var(--office-blue)]' : 'bg-blue-200'
+                index === 0 ? 'bg-[var(--office-blue)]' : 'bg-[#c9d1e0]'
               }`}
               style={{
                 height: `${Math.max(3, (day.count / peak) * 72)}%`,
@@ -84,7 +85,7 @@ function PaperProgress({
   const intl = useIntl();
 
   return (
-    <section className="border border-gray-200 bg-white p-4">
+    <section className="border border-[var(--rule)] bg-[var(--paper-card)] p-4">
       <h2 className="text-sm font-semibold text-gray-900">
         {intl.formatMessage({ id: 'review.papers' })}
       </h2>
@@ -161,53 +162,55 @@ export default function ReviewPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1400px] space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-3 border border-gray-200 bg-white px-4 py-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-base font-semibold text-gray-900">
-            <BookOpenCheck size={17} className="text-[var(--office-blue)]" />
-            {intl.formatMessage({ id: 'review.title' })}
-          </h1>
-          <p className="mt-0.5 text-xs text-gray-500">
-            {intl.formatMessage({ id: 'review.subtitle' })}
-          </p>
-        </div>
-        {!session && items.length > 0 && (
-          <Button
-            size="sm"
-            className="rounded-sm bg-[var(--office-blue)]"
-            onClick={() => setSession(items)}
-          >
-            <Play />
-            {intl.formatMessage({ id: 'review.start' })}
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        icon={BookOpenCheck}
+        tone="rose"
+        title={intl.formatMessage({ id: 'review.title' })}
+        subtitle={intl.formatMessage({ id: 'review.subtitle' })}
+        actions={
+          !session &&
+          items.length > 0 && (
+            <Button
+              size="sm"
+              className="rounded-sm bg-[var(--vermilion)] text-white hover:bg-[#9c3726]"
+              onClick={() => setSession(items)}
+            >
+              <Play />
+              {intl.formatMessage({ id: 'review.start' })}
+            </Button>
+          )
+        }
+      />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
           icon={CalendarClock}
+          tone="rose"
           label={intl.formatMessage({ id: 'review.stat.due' })}
           value={summary?.due ?? 0}
         />
         <StatCard
           icon={Layers}
+          tone="blue"
           label={intl.formatMessage({ id: 'review.stat.learning' })}
           value={(summary?.total ?? 0) - (summary?.mastered ?? 0)}
         />
         <StatCard
           icon={GraduationCap}
+          tone="emerald"
           label={intl.formatMessage({ id: 'review.stat.mastered' })}
           value={summary?.mastered ?? 0}
         />
         <StatCard
           icon={BookOpenCheck}
+          tone="violet"
           label={intl.formatMessage({ id: 'review.stat.total' })}
           value={summary?.total ?? 0}
         />
       </div>
 
       {summary && !hasCards ? (
-        <section className="border border-gray-200 bg-white">
+        <section className="border border-[var(--rule)] bg-[var(--paper-card)]">
           <StepsGuide
             title={intl.formatMessage({ id: 'review.guide.title' })}
             steps={[1, 2, 3].map((step) => ({
@@ -232,7 +235,7 @@ export default function ReviewPage() {
         </section>
       ) : (
         <div className="grid items-start gap-3 lg:grid-cols-[1fr_380px]">
-          <section className="min-w-0 border border-gray-200 bg-white">
+          <section className="min-w-0 border border-[var(--rule)] bg-[var(--paper-card)]">
             {session ? (
               <StudySession
                 cards={session}

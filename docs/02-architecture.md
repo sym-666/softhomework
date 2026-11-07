@@ -90,7 +90,7 @@ flowchart TB
 | 页面 | 路由 | 主要组件 |
 | :--- | :--- | :--- |
 | 登录 / 注册 | `/auth/sign-in`、`/auth/sign-up` | `routes/auth` |
-| 学习看板 | `/` | `StatCard`、`ActivityChart` |
+| 学习看板 | `/` | `WelcomeHero`（阅读日志与书架）、`StatCard`、`ActivityChart`、`TopicChart`、复习计划、最近笔记 |
 | 论文库 | `/papers` | 上传对话框、在线检索、`useSaveGlobalPaper` |
 | 论文详情 | `/papers/:id` | 左侧 `PdfReader`、`HighlightLayer`、`SelectionToolbar`；右侧标签页：问答 `PaperAssistant`、导读 `PaperGuide`、笔记 `NotesPanel`、自测 `StudyPanel`、术语 `PaperGlossary`、参考文献 `ReferencesPanel`、信息 |
 | 我的笔记 | `/notes` | `NoteItem`、`HighlightItem`、`ExportLink` |
@@ -269,6 +269,17 @@ stateDiagram-v2
 
 论文由上传者管理，其他用户只能阅读；删除论文时数据库外键级联删除所有关联数据。
 
-### 7.4 国际化
+### 7.4 界面风格
+
+界面借用学术期刊的视觉语言，避免常见的渐变和毛玻璃效果：
+
+| 项目 | 规范 |
+| :--- | :--- |
+| 颜色 | 米白纸张底色 `--paper`，墨蓝 `--ink` 为主色，朱砂红 `--vermilion` 点缀，研究方向等分类使用 `utils/palette.ts` 中的六种低饱和颜色，同一标签在各处颜色一致 |
+| 字体 | 标题和数字使用衬线字体（Noto Serif SC / 宋体），正文使用无衬线字体 |
+| 元素 | 小圆角、细边框、色条和双线代替阴影与渐变；`PageHeader`、`StatCard` 统一页头和统计卡片 |
+| 图标 | `src/assets/logo.svg`：朱砂印章里一张对折成纸飞机的论文页，同时作为网站图标 |
+
+### 7.5 国际化
 
 前端使用 react-intl，文案放在 `src/i18n/messages/zh-CN.ts` 和 `en.ts`。导读、术语表、学习卡片的生成请求带上 `lang`，按语言分别缓存。
