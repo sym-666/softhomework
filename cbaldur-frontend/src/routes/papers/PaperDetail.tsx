@@ -266,8 +266,8 @@ export default function PaperDetail({ id }: { id: string }) {
             onValueChange={setActiveTab}
             className="flex min-h-0 flex-1 flex-col"
           >
-            {/* 标签较多，窄屏时换行，避免溢出侧栏 */}
-            <TabsList className="m-2 h-auto shrink-0 flex-wrap justify-start">
+            {/* 标签较多：收窄内边距，125% 缩放下仍能放进 400px 侧栏；更窄时换行，避免溢出 */}
+            <TabsList className="m-2 h-auto shrink-0 flex-wrap justify-start [&>button]:px-2.5">
               <TabsTrigger value="chat">
                 {intl.formatMessage({ id: 'papers.tabChat' })}
               </TabsTrigger>
