@@ -64,6 +64,17 @@ docker compose up -d --build
 
 详见 [docker/DEPLOY.md](docker/DEPLOY.md)。
 
+## 演示数据
+
+后端配置好大模型后，可以一键生成演示数据：
+
+```bash
+cd paper-backend
+.venv/bin/python -m scripts.seed_demo        # 账号 demo / demo123456
+```
+
+脚本从 arXiv 获取 14 篇经典论文（Transformer、BERT、GPT-3、ResNet、ViT、CLIP、DDPM、GAN、Adam、LoRA、RAG、思维链、DQN，以及只保存外链的 Llama 2），走正常流程解析全文，并用大模型生成导读、术语表、学习卡片、笔记和问答。阅读进度、笔记、高亮和复习进度的时间分布在最近两周，是模拟的，只用于演示。脚本可以重复运行，已有内容会跳过；`--skip-ai` 只导入论文。
+
 ## 工程文档
 
 需求规格说明、概要设计、数据库设计、接口文档、详细设计、测试报告、用户手册和开发过程见 [docs/](docs/README.md)。
