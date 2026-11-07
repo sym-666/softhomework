@@ -67,7 +67,7 @@ export default function NotesPage() {
   const filterClass = (active: boolean) =>
     `flex w-full items-center justify-between gap-2 rounded-sm px-2.5 py-2 text-left text-xs ${
       active
-        ? 'bg-blue-50 font-medium text-[var(--office-blue)]'
+        ? 'bg-[var(--office-blue-light)] font-medium text-[var(--office-blue)]'
         : 'text-gray-700 hover:bg-gray-50'
     }`;
 
@@ -141,7 +141,7 @@ export default function NotesPage() {
       </div>
 
       {summary && !hasNotes ? (
-        <section className="border border-gray-200 bg-white">
+        <section className="border border-[var(--rule)] bg-[var(--paper-card)]">
           <StepsGuide
             title={intl.formatMessage({ id: 'notes.guide.title' })}
             steps={[1, 2, 3].map((step) => ({
@@ -166,7 +166,7 @@ export default function NotesPage() {
         </section>
       ) : (
         <div className="grid items-start gap-3 lg:grid-cols-[280px_1fr]">
-          <aside className="border border-gray-200 bg-white p-2 lg:sticky lg:top-0">
+          <aside className="border border-[var(--rule)] bg-[var(--paper-card)] p-2 lg:sticky lg:top-0">
             <h2 className="px-2.5 pb-1.5 pt-1 text-xs font-semibold text-gray-900">
               {intl.formatMessage({ id: 'notes.filter.title' })}
             </h2>
@@ -196,7 +196,7 @@ export default function NotesPage() {
 
           <section className="min-w-0">
             {isLoading && (
-              <div className="border border-gray-200 bg-white py-20 text-center text-sm text-gray-400">
+              <div className="border border-[var(--rule)] bg-[var(--paper-card)] py-20 text-center text-sm text-gray-400">
                 <Loader2 className="mx-auto mb-2 animate-spin" />
                 {intl.formatMessage({ id: 'common.loading' })}
               </div>
@@ -207,7 +207,7 @@ export default function NotesPage() {
               </div>
             )}
             {data?.items.length === 0 && (
-              <div className="border border-gray-200 bg-white py-20 text-center text-sm text-gray-400">
+              <div className="border border-[var(--rule)] bg-[var(--paper-card)] py-20 text-center text-sm text-gray-400">
                 {intl.formatMessage({ id: 'notes.noResults' })}
               </div>
             )}
@@ -232,7 +232,7 @@ export default function NotesPage() {
             </div>
 
             {pages > 1 && (
-              <div className="mt-3 flex items-center justify-center gap-3 border border-gray-200 bg-white p-2 text-xs">
+              <div className="mt-3 flex items-center justify-center gap-3 border border-[var(--rule)] bg-[var(--paper-card)] p-2 text-xs">
                 <button
                   type="button"
                   disabled={page <= 1}

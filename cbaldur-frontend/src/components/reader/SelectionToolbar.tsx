@@ -24,7 +24,7 @@ export function SelectionToolbar({
       }}
       // 阻止默认行为，否则按下按钮时浏览器会先取消文字选区
       onMouseDown={(event) => event.preventDefault()}
-      className="fixed z-50 flex -translate-x-1/2 items-center gap-0.5 rounded-sm border border-gray-200 bg-white p-1 shadow-md"
+      className="fixed z-50 flex -translate-x-1/2 items-center gap-0.5 rounded-sm border border-[var(--rule)] bg-[var(--paper-card)] p-1 shadow-md"
     >
       {children}
     </div>
@@ -46,7 +46,7 @@ export function SelectionAction({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-7 items-center gap-1 rounded-sm px-2 text-xs text-gray-700 hover:bg-blue-50 hover:text-[var(--office-blue)]"
+      className="inline-flex h-7 items-center gap-1 rounded-sm px-2 text-xs text-gray-700 hover:bg-[var(--office-blue-light)] hover:text-[var(--office-blue)]"
     >
       <Icon className="h-3.5 w-3.5" />
       {label}

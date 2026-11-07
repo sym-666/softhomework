@@ -29,6 +29,11 @@ export const showcaseMessagesZh: Record<string, string> = {
   'dashboard.hero.summary':
     '今天有 {due} 张卡片待复习，已经读完 {done} 篇论文，记下了 {notes} 条笔记。',
   'dashboard.hero.continue': '继续阅读',
+  'dashboard.hero.journal': '阅读日志 · READING JOURNAL',
+  'dashboard.hero.issue': '第 {number} 期',
+  'dashboard.shelf.title': '我的书架',
+  'dashboard.shelf.caption':
+    '{count} 篇论文 · 颜色代表研究方向 · 红色书签表示在读，点击书脊打开论文',
   'dashboard.hero.review': '开始复习',
   'dashboard.hero.library': '浏览论文库',
   'dashboard.hero.progress': '阅读完成度',
@@ -83,6 +88,11 @@ export const showcaseMessagesEn: Record<string, string> = {
   'dashboard.hero.summary':
     'You have {due} cards to review today, {done} papers finished and {notes} notes written.',
   'dashboard.hero.continue': 'Continue reading',
+  'dashboard.hero.journal': 'READING JOURNAL',
+  'dashboard.hero.issue': 'No. {number}',
+  'dashboard.shelf.title': 'My shelf',
+  'dashboard.shelf.caption':
+    '{count} papers · colour shows the topic · red bookmarks mark papers in progress',
   'dashboard.hero.review': 'Start review',
   'dashboard.hero.library': 'Browse library',
   'dashboard.hero.progress': 'Reading progress',

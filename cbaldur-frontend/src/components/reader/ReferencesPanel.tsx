@@ -30,7 +30,7 @@ function ReferenceItem({ reference }: { reference: PaperReference }) {
   };
 
   return (
-    <article className="rounded-sm border border-gray-200 bg-white p-2.5">
+    <article className="rounded-sm border border-[var(--rule)] bg-[var(--paper-card)] p-2.5">
       <p className="text-xs leading-5 text-gray-700">
         <span className="mr-1 font-semibold text-gray-500">
           [{reference.index}]

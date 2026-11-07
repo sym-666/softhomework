@@ -51,7 +51,7 @@ export function NoteItem({ note, onJumpToPage, header }: NoteItemProps) {
     intl.formatMessage({ id: 'ai.paper.page' }, { page: note.page });
 
   return (
-    <article className="rounded-sm border border-gray-200 bg-white p-3">
+    <article className="rounded-sm border border-[var(--rule)] bg-[var(--paper-card)] p-3">
       {header}
       {editing ? (
         <>

@@ -13,6 +13,7 @@ interface StatCardProps {
   href?: string;
 }
 
+/** 期刊风格的统计卡片：顶部色条、衬线大数字 */
 export function StatCard({
   icon: Icon,
   label,
@@ -24,30 +25,31 @@ export function StatCard({
   const colors = TONES[tone];
   const content = (
     <>
-      {/* 右上角的光晕只做装饰 */}
       <span
         aria-hidden
-        className={`pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full ${colors.glow} transition-transform duration-300 group-hover:scale-125`}
+        className={`absolute inset-x-0 top-0 h-[3px] ${colors.solid}`}
       />
-      <span
-        className={`relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br ${colors.gradient} text-white shadow-md`}
-      >
-        <Icon size={20} />
-      </span>
-      <div className="relative min-w-0">
-        <p className="truncate text-xs text-gray-500">{label}</p>
-        <p className="text-2xl font-bold tabular-nums tracking-tight text-gray-900">
-          {value}
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-[11px] font-medium tracking-[0.18em] text-[var(--ink-soft)]">
+          {label}
         </p>
-        {hint && <p className="truncate text-[11px] text-gray-400">{hint}</p>}
+        <Icon size={16} className={colors.text} />
       </div>
+      <p className="mt-2 font-serif text-[32px] font-semibold leading-none tabular-nums text-[var(--ink)]">
+        {value}
+      </p>
+      {hint && (
+        <p className="mt-1.5 truncate text-[11px] text-[var(--ink-soft)]">
+          {hint}
+        </p>
+      )}
     </>
   );
   const className =
-    'group relative flex items-center gap-3 overflow-hidden rounded-xl border border-gray-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md';
+    'group relative block overflow-hidden rounded-sm border border-[var(--rule)] bg-[var(--paper-card)] px-4 pb-3.5 pt-4 transition-colors';
 
   return href ? (
-    <Link href={href} className={`${className} cursor-pointer`}>
+    <Link href={href} className={`${className} hover:border-[var(--ink)]`}>
       {content}
     </Link>
   ) : (

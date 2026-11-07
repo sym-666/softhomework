@@ -109,7 +109,7 @@ export default function ComparePage() {
       />
 
       <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[360px_1fr]">
-        <section className="flex min-h-[320px] flex-col border border-gray-200 bg-white">
+        <section className="flex min-h-[320px] flex-col border border-[var(--rule)] bg-[var(--paper-card)]">
           <form onSubmit={submit} className="relative shrink-0 p-2">
             <Search
               size={14}
@@ -214,7 +214,7 @@ export default function ComparePage() {
               renderExtras={renderExtras}
             />
           ) : (
-            <div className="flex h-full items-center justify-center border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
+            <div className="flex h-full items-center justify-center border border-[var(--rule)] bg-[var(--paper-card)] p-8 text-center text-sm text-gray-500">
               {intl.formatMessage(
                 { id: 'compare.selectHint' },
                 { min: MIN_PAPERS },

@@ -35,7 +35,7 @@ function Forecast({ forecast }: { forecast: StudySummary['forecast'] }) {
   const peak = Math.max(1, ...forecast.map((day) => day.count));
 
   return (
-    <section className="border border-gray-200 bg-white p-4">
+    <section className="border border-[var(--rule)] bg-[var(--paper-card)] p-4">
       <h2 className="text-sm font-semibold text-gray-900">
         {intl.formatMessage({ id: 'review.forecast' })}
       </h2>
@@ -53,7 +53,7 @@ function Forecast({ forecast }: { forecast: StudySummary['forecast'] }) {
             </span>
             <span
               className={`w-full rounded-t-sm ${
-                index === 0 ? 'bg-[var(--office-blue)]' : 'bg-blue-200'
+                index === 0 ? 'bg-[var(--office-blue)]' : 'bg-[#c9d1e0]'
               }`}
               style={{
                 height: `${Math.max(3, (day.count / peak) * 72)}%`,
@@ -85,7 +85,7 @@ function PaperProgress({
   const intl = useIntl();
 
   return (
-    <section className="border border-gray-200 bg-white p-4">
+    <section className="border border-[var(--rule)] bg-[var(--paper-card)] p-4">
       <h2 className="text-sm font-semibold text-gray-900">
         {intl.formatMessage({ id: 'review.papers' })}
       </h2>
@@ -172,7 +172,7 @@ export default function ReviewPage() {
           items.length > 0 && (
             <Button
               size="sm"
-              className="rounded-lg bg-linear-to-r from-rose-500 to-orange-500 text-white shadow-md shadow-rose-500/25 hover:from-rose-600 hover:to-orange-600"
+              className="rounded-sm bg-[var(--vermilion)] text-white hover:bg-[#9c3726]"
               onClick={() => setSession(items)}
             >
               <Play />
@@ -210,7 +210,7 @@ export default function ReviewPage() {
       </div>
 
       {summary && !hasCards ? (
-        <section className="border border-gray-200 bg-white">
+        <section className="border border-[var(--rule)] bg-[var(--paper-card)]">
           <StepsGuide
             title={intl.formatMessage({ id: 'review.guide.title' })}
             steps={[1, 2, 3].map((step) => ({
@@ -235,7 +235,7 @@ export default function ReviewPage() {
         </section>
       ) : (
         <div className="grid items-start gap-3 lg:grid-cols-[1fr_380px]">
-          <section className="min-w-0 border border-gray-200 bg-white">
+          <section className="min-w-0 border border-[var(--rule)] bg-[var(--paper-card)]">
             {session ? (
               <StudySession
                 cards={session}
