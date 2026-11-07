@@ -143,6 +143,16 @@ def test_times_stay_within_the_window_and_are_sorted():
     assert len({moment.date() for moment in moments}) > 7
 
 
+def test_times_are_distinct_and_in_the_past_even_late_in_the_day():
+    # 早上 8 点：今天大部分候选钟点还没到，不能都截成当前时间
+    now = datetime(2026, 11, 7, 8, 0, tzinfo=UTC)
+
+    moments = spread_times(60, now, random.Random(5))
+
+    assert all(moment < now for moment in moments)
+    assert len(set(moments)) == len(moments)
+
+
 def test_review_states_cover_due_upcoming_and_mastered_cards():
     now = datetime(2026, 11, 7, 12, 0, tzinfo=UTC)
     rng = random.Random(3)
