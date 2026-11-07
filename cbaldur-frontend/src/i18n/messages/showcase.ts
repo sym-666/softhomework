@@ -22,6 +22,26 @@ export const showcaseMessagesZh: Record<string, string> = {
   'auth.signIn.welcomeHint': '登录后继续你的论文学习',
   'auth.signUp.welcome': '创建账号',
   'auth.signUp.welcomeHint': '只需几秒，开始读懂论文',
+
+  'dashboard.greeting.morning': '早上好，{name}',
+  'dashboard.greeting.afternoon': '下午好，{name}',
+  'dashboard.greeting.evening': '晚上好，{name}',
+  'dashboard.hero.summary':
+    '今天有 {due} 张卡片待复习，已经读完 {done} 篇论文，记下了 {notes} 条笔记。',
+  'dashboard.hero.continue': '继续阅读',
+  'dashboard.hero.review': '开始复习',
+  'dashboard.hero.library': '浏览论文库',
+  'dashboard.hero.progress': '阅读完成度',
+  'dashboard.hero.progressHint': '{done} / {total} 篇已读',
+  'dashboard.topics': '研究方向分布',
+  'dashboard.topicsEmpty': '论文还没有标签',
+  'dashboard.topicsOther': '其他',
+  'dashboard.reviewPlan': '复习计划',
+  'dashboard.reviewPlanHint': '未来 7 天每天到期的卡片',
+  'dashboard.reviewNow': '去复习',
+  'dashboard.recentNotes': '最近笔记',
+  'dashboard.noNotes': '还没有笔记，打开一篇论文开始记录吧',
+  'dashboard.viewAll': '查看全部',
 };
 
 export const showcaseMessagesEn: Record<string, string> = {
@@ -49,4 +69,24 @@ export const showcaseMessagesEn: Record<string, string> = {
   'auth.signIn.welcomeHint': 'Sign in to continue studying',
   'auth.signUp.welcome': 'Create your account',
   'auth.signUp.welcomeHint': 'It only takes a few seconds',
+
+  'dashboard.greeting.morning': 'Good morning, {name}',
+  'dashboard.greeting.afternoon': 'Good afternoon, {name}',
+  'dashboard.greeting.evening': 'Good evening, {name}',
+  'dashboard.hero.summary':
+    'You have {due} cards to review today, {done} papers finished and {notes} notes written.',
+  'dashboard.hero.continue': 'Continue reading',
+  'dashboard.hero.review': 'Start review',
+  'dashboard.hero.library': 'Browse library',
+  'dashboard.hero.progress': 'Reading progress',
+  'dashboard.hero.progressHint': '{done} of {total} finished',
+  'dashboard.topics': 'Research topics',
+  'dashboard.topicsEmpty': 'No tags yet',
+  'dashboard.topicsOther': 'Other',
+  'dashboard.reviewPlan': 'Review plan',
+  'dashboard.reviewPlanHint': 'Cards due each day over the next 7 days',
+  'dashboard.reviewNow': 'Review now',
+  'dashboard.recentNotes': 'Recent notes',
+  'dashboard.noNotes': 'No notes yet. Open a paper to start writing.',
+  'dashboard.viewAll': 'View all',
 };
