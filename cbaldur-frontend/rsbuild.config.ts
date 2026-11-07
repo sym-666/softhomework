@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [pluginReact()],
   html: {
     title: 'PaperPilot',
+    favicon: './src/assets/logo.svg',
   },
   server: {
     historyApiFallback: true,

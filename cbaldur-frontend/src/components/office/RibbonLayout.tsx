@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import {
-  BookOpen,
   BookOpenCheck,
   Settings,
   User,
@@ -16,6 +15,7 @@ import {
 import { useIntl } from 'react-intl';
 import { useGetCurrentUserQuery, useLogoutMutation } from '@/redux/api/user';
 import { RibbonTab } from './RibbonTab';
+import { LogoMark } from '@/components/brand/LogoMark';
 import { RibbonGroup } from './RibbonGroup';
 import { RibbonButton } from './RibbonButton';
 import { StatusBar } from './StatusBar';
@@ -91,12 +91,10 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-white">
       {/* Title Bar */}
-      <div className="h-9 bg-linear-to-r from-[#0b1f4d] via-[#1d4ed8] to-[#0ea5e9] flex items-center px-3 shrink-0 select-none shadow-sm">
+      <div className="h-9 bg-[var(--ink)] border-b-2 border-[var(--vermilion)] flex items-center px-3 shrink-0 select-none">
         <div className="flex items-center gap-2 flex-1">
-          <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white/15 ring-1 ring-white/25">
-            <BookOpen className="h-3.5 w-3.5 text-white" />
-          </span>
-          <span className="text-white text-sm font-semibold tracking-wide">
+          <LogoMark className="h-6 w-6" />
+          <span className="font-serif text-white text-[15px] font-semibold tracking-wide">
             PaperPilot
           </span>
         </div>
@@ -214,7 +212,7 @@ const RibbonLayoutInner: React.FC<RibbonLayoutProps> = ({ children }) => {
         )}
 
       {/* Content Area */}
-      <div className="flex-1 overflow-auto bg-[#f4f6fb]">
+      <div className="flex-1 overflow-auto bg-[var(--paper)]">
         <div className="p-4 min-h-full flex flex-col">{children}</div>
       </div>
 
