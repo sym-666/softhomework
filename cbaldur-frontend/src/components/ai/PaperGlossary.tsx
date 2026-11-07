@@ -102,7 +102,7 @@ export default function PaperGlossary({
         {glossary?.terms.map((item) => (
           <article
             key={item.term}
-            className="rounded-sm border border-gray-200 bg-white p-2.5"
+            className="rounded-sm border border-[var(--rule)] bg-[var(--paper-card)] p-2.5"
           >
             <div className="flex items-start justify-between gap-2">
               <h3 className="min-w-0 break-words text-xs font-semibold text-gray-900">

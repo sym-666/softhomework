@@ -31,7 +31,7 @@ export function IngestStatusNotice({
 
   if (status === 'pending' || status === 'processing') {
     return (
-      <p className="mb-3 flex items-center gap-1.5 rounded-sm bg-blue-50 px-3 py-2 text-xs text-[var(--office-blue)]">
+      <p className="mb-3 flex items-center gap-1.5 rounded-sm bg-[var(--office-blue-light)] px-3 py-2 text-xs text-[var(--office-blue)]">
         <Loader2 className="h-3.5 w-3.5 animate-spin" />
         {intl.formatMessage({ id: 'papers.ingest.processing' })}
       </p>

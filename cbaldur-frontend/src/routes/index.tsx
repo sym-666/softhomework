@@ -6,7 +6,6 @@ import {
   BookOpenCheck,
   CalendarClock,
   ChevronRight,
-  FileText,
   Library,
   Loader2,
   NotebookPen,
@@ -45,11 +44,11 @@ function Panel({
 }) {
   return (
     <section
-      className={`rounded-xl border border-gray-200/80 bg-white p-4 shadow-sm ${className}`}
+      className={`rounded-sm border border-[var(--rule)] bg-[var(--paper-card)] p-5 ${className}`}
     >
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-900">
-          <Icon className="h-4 w-4 text-blue-500" />
+      <div className="mb-4 flex items-center justify-between gap-2 border-b border-[var(--rule)] pb-2.5">
+        <h2 className="flex items-center gap-2 font-serif text-base font-semibold text-[var(--ink)]">
+          <Icon className="h-4 w-4 text-[var(--vermilion)]" />
           {title}
         </h2>
         {action}
@@ -64,7 +63,7 @@ function ViewAll({ href }: { href: string }) {
   return (
     <Link
       href={href}
-      className="inline-flex items-center text-xs text-gray-400 hover:text-blue-600"
+      className="inline-flex items-center text-xs text-[var(--ink-soft)] hover:text-[var(--ink)]"
     >
       {intl.formatMessage({ id: 'dashboard.viewAll' })}
       <ChevronRight className="h-3.5 w-3.5" />
@@ -88,27 +87,25 @@ function ReviewPlan() {
       title={intl.formatMessage({ id: 'dashboard.reviewPlan' })}
       action={<ViewAll href="/review" />}
     >
-      <p className="mb-3 text-xs text-gray-400">
+      <p className="mb-3 text-xs text-[var(--ink-soft)]">
         {intl.formatMessage({ id: 'dashboard.reviewPlanHint' })}
       </p>
-      <div className="flex h-32 items-end gap-2">
+      <div className="flex h-32 items-end gap-2 border-b border-[var(--ink)]/70 pb-0">
         {forecast.map((day, index) => (
           <div
             key={day.date}
             className="flex flex-1 flex-col items-center gap-1"
           >
-            <span className="text-[11px] font-medium tabular-nums text-gray-600">
+            <span className="font-serif text-xs font-semibold tabular-nums text-[var(--ink)]">
               {day.count}
             </span>
             <div
-              className={`w-full rounded-t-md ${
-                index === 0
-                  ? 'bg-linear-to-t from-rose-500 to-orange-400'
-                  : 'bg-linear-to-t from-blue-500 to-cyan-400'
+              className={`w-full rounded-t-[1px] ${
+                index === 0 ? 'bg-[var(--vermilion)]' : 'bg-[var(--ink)]/80'
               }`}
               style={{ height: `${Math.max(6, (day.count / peak) * 88)}px` }}
             />
-            <span className="text-[10px] text-gray-400">
+            <span className="text-[10px] text-[var(--ink-soft)]">
               {index === 0
                 ? intl.formatMessage({ id: 'review.today' })
                 : weekday.format(new Date(`${day.date}T00:00:00`))}
@@ -119,7 +116,7 @@ function ReviewPlan() {
       <Button
         asChild
         size="sm"
-        className="mt-4 w-full rounded-lg bg-linear-to-r from-rose-500 to-orange-500 text-white hover:from-rose-600 hover:to-orange-600"
+        className="mt-4 w-full rounded-sm bg-[var(--vermilion)] text-white hover:bg-[#9c3726]"
       >
         <Link href="/review">
           <BookOpenCheck />
@@ -146,7 +143,7 @@ function RecentNotes() {
       action={<ViewAll href="/notes" />}
     >
       {notes.length === 0 ? (
-        <p className="py-10 text-center text-sm text-gray-400">
+        <p className="py-10 text-center text-sm text-[var(--ink-soft)]">
           {intl.formatMessage({ id: 'dashboard.noNotes' })}
         </p>
       ) : (
@@ -155,12 +152,12 @@ function RecentNotes() {
             <li key={note.id}>
               <Link
                 href={`/papers/${note.paperId}${note.page ? `?page=${note.page}` : ''}`}
-                className="block rounded-lg border border-gray-100 bg-gray-50/70 px-3 py-2 transition-colors hover:border-violet-200 hover:bg-violet-50/60"
+                className="block border-l-2 border-[var(--ochre)] bg-[#faf6ec] px-3 py-2 transition-colors hover:bg-[#f4ecda]"
               >
-                <p className="line-clamp-2 text-xs leading-5 text-gray-700">
+                <p className="line-clamp-2 font-serif text-[13px] leading-6 text-[var(--ink)]">
                   {note.content.replace(/^>\s?/gm, '')}
                 </p>
-                <p className="mt-1 truncate text-[11px] text-violet-500">
+                <p className="mt-1 truncate text-[11px] italic text-[var(--ink-soft)]">
                   {note.paperTitle}
                   {note.page
                     ? ` · ${intl.formatMessage({ id: 'ai.paper.page' }, { page: note.page })}`
@@ -185,7 +182,7 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="rounded-xl border border-gray-200 bg-white py-20 text-center text-sm text-gray-400">
+      <div className="rounded-sm border border-[var(--rule)] bg-[var(--paper-card)] py-20 text-center text-sm text-[var(--ink-soft)]">
         <Loader2 className="mx-auto mb-2 animate-spin" />
         {intl.formatMessage({ id: 'common.loading' })}
       </div>
@@ -194,7 +191,7 @@ export default function Home() {
 
   if (isError || !data) {
     return (
-      <div className="rounded-xl border border-red-100 bg-white py-20 text-center text-sm text-red-500">
+      <div className="rounded-sm border border-red-100 bg-[var(--paper-card)] py-20 text-center text-sm text-red-600">
         {intl.formatMessage({ id: 'dashboard.loadError' })}
       </div>
     );
@@ -202,7 +199,11 @@ export default function Home() {
 
   return (
     <div className="mx-auto w-full max-w-[1400px] space-y-4">
-      <WelcomeHero username={user?.username} data={data} />
+      <WelcomeHero
+        username={user?.username}
+        data={data}
+        papers={library?.items ?? []}
+      />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <StatCard
@@ -271,7 +272,7 @@ export default function Home() {
               <Button
                 asChild
                 size="sm"
-                className="mt-3 rounded-lg bg-[var(--office-blue)]"
+                className="mt-3 rounded-sm bg-[var(--ink)]"
               >
                 <Link href="/papers">
                   <Library />
@@ -287,18 +288,16 @@ export default function Home() {
                   <li key={item.paperId}>
                     <Link
                       href={`/papers/${item.paperId}`}
-                      className="group flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-blue-50/60"
+                      className="group flex items-center gap-3 rounded-sm px-1 py-1.5 transition-colors hover:bg-[#f4ecda]/70"
                     >
                       <span
-                        className={`flex h-10 w-8 shrink-0 items-center justify-center rounded-md bg-linear-to-br ${tone.cover} text-white shadow-sm`}
-                      >
-                        <FileText className="h-4 w-4" />
-                      </span>
+                        className={`relative h-11 w-2.5 shrink-0 rounded-[1px] ${tone.solid}`}
+                      />
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm font-medium text-gray-800 group-hover:text-blue-600">
+                        <span className="block truncate font-serif text-sm font-semibold text-[var(--ink)] group-hover:underline">
                           {item.title}
                         </span>
-                        <span className="block truncate text-xs text-gray-500">
+                        <span className="block truncate text-xs text-[var(--ink-soft)]">
                           {intl.formatMessage(
                             { id: 'ai.paper.page' },
                             { page: item.lastPage },
@@ -306,7 +305,7 @@ export default function Home() {
                           · {item.authors}
                         </span>
                       </span>
-                      <ChevronRight className="h-4 w-4 shrink-0 text-gray-300 group-hover:text-blue-500" />
+                      <ChevronRight className="h-4 w-4 shrink-0 text-[var(--rule)] group-hover:text-[var(--ink)]" />
                     </Link>
                   </li>
                 );

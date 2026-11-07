@@ -1,54 +1,55 @@
 /**
- * 界面配色。类名必须完整写出，Tailwind 才能在构建时扫描到。
+ * 界面配色：沉稳的学术期刊色系，不用渐变和光晕。
+ * 键名沿用颜色倾向，实际色值见 hex。类名必须完整写出，Tailwind 才能在构建时扫描到。
  */
 export const TONES = {
+  // 墨蓝
   blue: {
-    gradient: 'from-blue-500 to-indigo-500',
-    cover: 'from-blue-500 via-indigo-500 to-violet-500',
-    soft: 'bg-blue-50 text-blue-700',
-    text: 'text-blue-600',
-    glow: 'bg-blue-400/15',
-    bar: 'bg-blue-500',
+    hex: '#2f4a7a',
+    solid: 'bg-[#2f4a7a]',
+    soft: 'bg-[#e8ecf4] text-[#2f4a7a]',
+    text: 'text-[#2f4a7a]',
+    border: 'border-[#2f4a7a]',
   },
+  // 葡萄紫
   violet: {
-    gradient: 'from-violet-500 to-fuchsia-500',
-    cover: 'from-violet-500 via-purple-500 to-fuchsia-500',
-    soft: 'bg-violet-50 text-violet-700',
-    text: 'text-violet-600',
-    glow: 'bg-violet-400/15',
-    bar: 'bg-violet-500',
+    hex: '#6f4a6e',
+    solid: 'bg-[#6f4a6e]',
+    soft: 'bg-[#f1e9f0] text-[#6f4a6e]',
+    text: 'text-[#6f4a6e]',
+    border: 'border-[#6f4a6e]',
   },
+  // 苔绿
   emerald: {
-    gradient: 'from-emerald-500 to-teal-500',
-    cover: 'from-emerald-500 via-teal-500 to-cyan-500',
-    soft: 'bg-emerald-50 text-emerald-700',
-    text: 'text-emerald-600',
-    glow: 'bg-emerald-400/15',
-    bar: 'bg-emerald-500',
+    hex: '#4f7a5a',
+    solid: 'bg-[#4f7a5a]',
+    soft: 'bg-[#e9f1ea] text-[#3f6449]',
+    text: 'text-[#4f7a5a]',
+    border: 'border-[#4f7a5a]',
   },
+  // 赭黄
   amber: {
-    gradient: 'from-amber-400 to-orange-500',
-    cover: 'from-amber-400 via-orange-500 to-rose-500',
-    soft: 'bg-amber-50 text-amber-700',
-    text: 'text-amber-600',
-    glow: 'bg-amber-400/15',
-    bar: 'bg-amber-500',
+    hex: '#b8862b',
+    solid: 'bg-[#b8862b]',
+    soft: 'bg-[#f6eedc] text-[#8a6420]',
+    text: 'text-[#a2741f]',
+    border: 'border-[#b8862b]',
   },
+  // 朱砂
   rose: {
-    gradient: 'from-rose-500 to-pink-500',
-    cover: 'from-rose-500 via-pink-500 to-fuchsia-500',
-    soft: 'bg-rose-50 text-rose-700',
-    text: 'text-rose-600',
-    glow: 'bg-rose-400/15',
-    bar: 'bg-rose-500',
+    hex: '#b8432f',
+    solid: 'bg-[#b8432f]',
+    soft: 'bg-[#f6e6e1] text-[#9c3726]',
+    text: 'text-[#b8432f]',
+    border: 'border-[#b8432f]',
   },
+  // 青灰
   cyan: {
-    gradient: 'from-cyan-500 to-sky-500',
-    cover: 'from-sky-500 via-cyan-500 to-teal-400',
-    soft: 'bg-cyan-50 text-cyan-700',
-    text: 'text-cyan-600',
-    glow: 'bg-cyan-400/15',
-    bar: 'bg-cyan-500',
+    hex: '#2f6f73',
+    solid: 'bg-[#2f6f73]',
+    soft: 'bg-[#e4f0f0] text-[#2a6266]',
+    text: 'text-[#2f6f73]',
+    border: 'border-[#2f6f73]',
   },
 } as const;
 
@@ -65,14 +66,23 @@ export function toneFor(key: string): Tone {
   return TONE_NAMES[hash % TONE_NAMES.length];
 }
 
-/** ECharts 使用的十六进制颜色，与上面的配色对应 */
+/** 由字符串得到稳定的 0–1 之间的数，用于书脊高度等装饰性差异 */
+export function hashRatio(key: string): number {
+  let hash = 7;
+  for (const char of key) {
+    hash = (hash * 131 + char.charCodeAt(0)) >>> 0;
+  }
+  return (hash % 1000) / 1000;
+}
+
+/** ECharts 使用的颜色，与上面的配色一致 */
 export const CHART_COLORS = [
-  '#3b82f6',
-  '#8b5cf6',
-  '#10b981',
-  '#f59e0b',
-  '#f43f5e',
-  '#06b6d4',
-  '#6366f1',
-  '#14b8a6',
+  '#2f4a7a',
+  '#b8432f',
+  '#4f7a5a',
+  '#b8862b',
+  '#6f4a6e',
+  '#2f6f73',
+  '#8a6d4b',
+  '#5b6b82',
 ];

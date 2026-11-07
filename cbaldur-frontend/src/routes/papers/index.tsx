@@ -43,49 +43,48 @@ type ViewMode = 'library' | 'global';
 const currentYear = new Date().getFullYear();
 
 const STATUS_STYLES: Record<Paper['ingestStatus'], string> = {
-  ready: 'bg-emerald-500/90 text-white',
-  pending: 'bg-amber-400/95 text-amber-950',
-  processing: 'bg-amber-400/95 text-amber-950',
-  no_text: 'bg-white/85 text-gray-700',
-  failed: 'bg-rose-500/90 text-white',
-  none: 'bg-white/85 text-gray-700',
+  ready: 'border-white/70 text-white',
+  pending: 'border-[#f3d27a] text-[#f3d27a]',
+  processing: 'border-[#f3d27a] text-[#f3d27a]',
+  no_text: 'border-white/50 text-white/80',
+  failed: 'border-[#ffb4a6] text-[#ffb4a6]',
+  none: 'border-white/50 text-white/80',
 };
 
+/** 期刊封面风格的论文卡片 */
 function PaperCard({ paper }: { paper: Paper }) {
   const intl = useIntl();
   const tone = TONES[toneFor(paper.tags[0] ?? paper.title)];
   const status = paper.ingestStatus === 'pending' ? 'processing' : paper.ingestStatus;
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200/80 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
-      <Link href={`/papers/${paper.id}`} className={`relative block h-24 overflow-hidden bg-linear-to-br ${tone.cover}`}>
-        <span aria-hidden className="absolute inset-0 opacity-20 [background-image:radial-gradient(white_1px,transparent_1px)] [background-size:14px_14px]" />
-        <FileText aria-hidden className="absolute -bottom-4 -right-3 h-24 w-24 rotate-[-12deg] text-white/20 transition-transform duration-300 group-hover:rotate-0 group-hover:scale-110" />
-        <span className="absolute left-4 top-3 rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-semibold text-white ring-1 ring-white/30 backdrop-blur">{paper.year}</span>
-        <span className={`absolute right-3 top-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium shadow-sm ${STATUS_STYLES[paper.ingestStatus]}`}>
-          {status === 'processing' ? <Loader2 size={11} className="animate-spin" /> : paper.hasLocalFile ? <FileText size={11} /> : <ExternalLink size={11} />}
+    <article className="group flex h-full flex-col overflow-hidden rounded-sm border border-[var(--rule)] bg-[var(--paper-card)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--ink)] hover:shadow-[0_10px_24px_-14px_rgba(31,42,68,0.6)]">
+      <Link href={`/papers/${paper.id}`} className={`cover-hatch relative block h-28 overflow-hidden ${tone.solid}`}>
+        {/* 封面内框 */}
+        <span aria-hidden className="absolute inset-2.5 border border-white/35" />
+        <span className="absolute left-5 top-4 text-[10px] tracking-[0.3em] text-white/80">{paper.tags[0] ?? 'PAPER'}</span>
+        <span className="absolute bottom-3 left-5 font-serif text-[34px] font-bold leading-none text-white/95">{paper.year}</span>
+        <span className={`absolute right-5 top-3.5 inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[10px] tracking-wider ${STATUS_STYLES[paper.ingestStatus]}`}>
+          {status === 'processing' ? <Loader2 size={10} className="animate-spin" /> : paper.hasLocalFile ? <FileText size={10} /> : <ExternalLink size={10} />}
           {intl.formatMessage({ id: `papers.status.${status}` })}
         </span>
-        {paper.tags[0] && <span className="absolute bottom-3 left-4 text-sm font-semibold text-white drop-shadow">{paper.tags[0]}</span>}
+        <BookOpen aria-hidden className="absolute bottom-3 right-5 h-7 w-7 text-white/30 transition-transform duration-300 group-hover:scale-110" />
       </Link>
       <div className="flex flex-1 flex-col p-4">
-        <h2 className="line-clamp-2 text-sm font-semibold leading-5 text-gray-900 group-hover:text-blue-600"><Link href={`/papers/${paper.id}`}>{paper.title}</Link></h2>
-        <div className="mt-2 flex items-start gap-1.5 text-[11px] text-gray-500">
-          <User size={12} className="mt-0.5 shrink-0" />
-          <span className="line-clamp-1">{paper.authors}</span>
-        </div>
-        <p className="mt-3 line-clamp-3 text-xs leading-5 text-gray-500">{paper.abstract || intl.formatMessage({ id: 'papers.noAbstract' })}</p>
+        <h2 className="line-clamp-2 font-serif text-[15px] font-semibold leading-6 text-[var(--ink)] group-hover:underline group-hover:decoration-[var(--vermilion)] group-hover:underline-offset-4"><Link href={`/papers/${paper.id}`}>{paper.title}</Link></h2>
+        <p className="mt-1.5 line-clamp-1 text-[11px] italic text-[var(--ink-soft)]">{paper.authors}</p>
+        <p className="mt-3 line-clamp-3 text-xs leading-5 text-[var(--ink-soft)]">{paper.abstract || intl.formatMessage({ id: 'papers.noAbstract' })}</p>
         {paper.tags.length > 0 && (
           <div className="mt-auto flex flex-wrap gap-1 pt-3">
-            {paper.tags.map((tag) => <span key={tag} className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${TONES[toneFor(tag)].soft}`}>{tag}</span>)}
+            {paper.tags.map((tag) => <span key={tag} className={`rounded-sm px-1.5 py-0.5 text-[10px] ${TONES[toneFor(tag)].soft}`}>{tag}</span>)}
           </div>
         )}
       </div>
-      <div className="flex items-center justify-between border-t border-gray-100 px-4 py-2.5 text-[11px] text-gray-500">
+      <div className="flex items-center justify-between border-t border-[var(--rule)] px-4 py-2.5 text-[11px] text-[var(--ink-soft)]">
         <span className="inline-flex items-center gap-1.5">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-cyan-400 text-[10px] font-semibold uppercase text-white">{paper.createdByUserName.slice(0, 1)}</span>
+          <User size={12} />
           {paper.createdByUserName}
         </span>
-        <Link href={`/papers/${paper.id}`} className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 font-medium text-blue-600 transition-colors hover:bg-blue-600 hover:text-white">
+        <Link href={`/papers/${paper.id}`} className="inline-flex items-center gap-1 font-medium text-[var(--vermilion)] hover:underline">
           <BookOpen size={12} />{intl.formatMessage({ id: 'papers.read' })}
         </Link>
       </div>
@@ -97,10 +96,10 @@ function GlobalPaperCard({ paper, onSave, saving }: { paper: GlobalPaper; onSave
   const intl = useIntl();
   const source = paper.pdfUrl || paper.url;
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-200/80 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg">
+    <article className="group flex h-full flex-col overflow-hidden rounded-sm border border-[var(--rule)] bg-[var(--paper-card)] transition-all duration-200 hover:-translate-y-1 hover:border-[var(--ink)]">
       <div className="flex flex-1 flex-col p-4">
         <div className="mb-3 flex items-start justify-between">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-indigo-500 to-violet-500 text-white shadow-md"><Globe2 size={18} /></span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-sm border border-[#2f6f73] text-[#2f6f73]"><Globe2 size={18} /></span>
           {paper.year && <span className="rounded-sm bg-gray-100 px-2 py-1 text-[11px] text-gray-600">{paper.year}</span>}
         </div>
         <h2 className="line-clamp-2 text-sm font-semibold leading-5 text-gray-900 group-hover:text-indigo-600">{paper.title}</h2>
@@ -172,18 +171,18 @@ export default function PapersPage() {
       <PageHeader
         icon={Library}
         title={intl.formatMessage({ id: 'papers.title' })}
-        subtitle={<>{intl.formatMessage({ id: 'papers.subtitle' })}{local.data && <span className="ml-2 rounded-full bg-blue-50 px-2 py-0.5 font-medium text-blue-600">{intl.formatMessage({ id: 'papers.count' }, { count: local.data.total })}</span>}</>}
+        subtitle={<>{intl.formatMessage({ id: 'papers.subtitle' })}{local.data && <span className="ml-2 font-serif font-semibold text-[var(--vermilion)]">{intl.formatMessage({ id: 'papers.count' }, { count: local.data.total })}</span>}</>}
         className="mb-3"
         actions={<>
           <ExportLink href="/api/Papers/bibtex" label={intl.formatMessage({ id: 'export.bibtex' })} />
-          <Button size="sm" onClick={() => setDialogOpen(true)} className="rounded-lg bg-linear-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25 hover:from-blue-700 hover:to-indigo-700"><Plus />{intl.formatMessage({ id: 'papers.upload' })}</Button>
+          <Button size="sm" onClick={() => setDialogOpen(true)} className="rounded-sm bg-[var(--ink)] text-white hover:bg-[#2b3a5e]"><Plus />{intl.formatMessage({ id: 'papers.upload' })}</Button>
         </>}
       />
 
-      <div className="mb-3 flex flex-col gap-2 rounded-xl border border-gray-200/80 bg-white p-3 shadow-sm sm:flex-row sm:items-center">
-        <div className="inline-flex h-8 shrink-0 rounded-lg border border-gray-200 bg-gray-50 p-0.5">
-          <button onClick={() => { setMode('library'); setSearchInput(localSearch); }} className={`inline-flex items-center gap-1.5 rounded-md px-3 text-xs ${mode === 'library' ? 'bg-white font-medium text-blue-600 shadow-sm' : 'text-gray-500'}`}><BookOpen size={13} />{intl.formatMessage({ id: 'papers.library' })}</button>
-          <button onClick={() => { setMode('global'); setSearchInput(''); }} className={`inline-flex items-center gap-1.5 rounded-md px-3 text-xs ${mode === 'global' ? 'bg-white font-medium text-indigo-600 shadow-sm' : 'text-gray-500'}`}><Globe2 size={13} />{intl.formatMessage({ id: 'papers.global' })}</button>
+      <div className="mb-3 flex flex-col gap-2 rounded-sm border border-[var(--rule)] bg-[var(--paper-card)] p-3 sm:flex-row sm:items-center">
+        <div className="inline-flex h-8 shrink-0 rounded-sm border border-[var(--rule)] bg-[#f3eddf] p-0.5">
+          <button onClick={() => { setMode('library'); setSearchInput(localSearch); }} className={`inline-flex items-center gap-1.5 rounded-sm px-3 text-xs ${mode === 'library' ? 'bg-[var(--paper-card)] font-medium text-[var(--ink)] shadow-sm' : 'text-[var(--ink-soft)]'}`}><BookOpen size={13} />{intl.formatMessage({ id: 'papers.library' })}</button>
+          <button onClick={() => { setMode('global'); setSearchInput(''); }} className={`inline-flex items-center gap-1.5 rounded-sm px-3 text-xs ${mode === 'global' ? 'bg-[var(--paper-card)] font-medium text-[#2f6f73] shadow-sm' : 'text-[var(--ink-soft)]'}`}><Globe2 size={13} />{intl.formatMessage({ id: 'papers.global' })}</button>
         </div>
         <form onSubmit={submitSearch} className="flex flex-1 gap-2">
           <div className="relative flex-1"><Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" /><Input value={searchInput} onChange={(event) => setSearchInput(event.target.value)} placeholder={intl.formatMessage({ id: mode === 'library' ? 'papers.searchLocal' : 'papers.searchGlobal' })} className="h-8 rounded-sm pl-8 text-xs" /></div>
@@ -193,17 +192,17 @@ export default function PapersPage() {
 
       {mode === 'library' ? (
         <>
-          {local.isLoading && <div className="border border-gray-200 bg-white py-20 text-center text-sm text-gray-400"><Loader2 className="mx-auto mb-2 animate-spin" />{intl.formatMessage({ id: 'common.loading' })}</div>}
+          {local.isLoading && <div className="border border-[var(--rule)] bg-[var(--paper-card)] py-20 text-center text-sm text-gray-400"><Loader2 className="mx-auto mb-2 animate-spin" />{intl.formatMessage({ id: 'common.loading' })}</div>}
           {local.isError && <div className="border border-red-100 bg-white py-20 text-center text-sm text-red-500">{intl.formatMessage({ id: 'papers.loadError' })}</div>}
-          {local.data?.items.length === 0 && <div className="border border-gray-200 bg-white py-20 text-center text-sm text-gray-400">{intl.formatMessage({ id: 'papers.empty' })}</div>}
+          {local.data?.items.length === 0 && <div className="border border-[var(--rule)] bg-[var(--paper-card)] py-20 text-center text-sm text-gray-400">{intl.formatMessage({ id: 'papers.empty' })}</div>}
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{local.data?.items.map((paper) => <PaperCard key={paper.id} paper={paper} />)}</div>
-          {pages > 1 && <div className="mt-3 flex items-center justify-center gap-3 border border-gray-200 bg-white p-2 text-xs"><button disabled={page <= 1} onClick={() => setPage((x) => x - 1)} className="disabled:opacity-30">{intl.formatMessage({ id: 'common.previous' })}</button><span>{page} / {pages}</span><button disabled={page >= pages} onClick={() => setPage((x) => x + 1)} className="disabled:opacity-30">{intl.formatMessage({ id: 'common.next' })}</button></div>}
+          {pages > 1 && <div className="mt-3 flex items-center justify-center gap-3 border border-[var(--rule)] bg-[var(--paper-card)] p-2 text-xs"><button disabled={page <= 1} onClick={() => setPage((x) => x - 1)} className="disabled:opacity-30">{intl.formatMessage({ id: 'common.previous' })}</button><span>{page} / {pages}</span><button disabled={page >= pages} onClick={() => setPage((x) => x + 1)} className="disabled:opacity-30">{intl.formatMessage({ id: 'common.next' })}</button></div>}
         </>
       ) : (
         <>
-          {global.isFetching && <div className="border border-gray-200 bg-white py-20 text-center text-sm text-gray-400"><Loader2 className="mx-auto mb-2 animate-spin" />{intl.formatMessage({ id: 'papers.searching' })}</div>}
-          {!global.isFetching && !global.data && <div className="border border-gray-200 bg-white py-20 text-center"><Globe2 className="mx-auto mb-3 text-gray-300" size={34} /><p className="text-sm text-gray-500">{intl.formatMessage({ id: 'papers.globalHint' })}</p></div>}
-          {!global.isFetching && global.data?.papers.length === 0 && <div className="border border-gray-200 bg-white py-20 text-center text-sm text-gray-400">{intl.formatMessage({ id: 'papers.empty' })}</div>}
+          {global.isFetching && <div className="border border-[var(--rule)] bg-[var(--paper-card)] py-20 text-center text-sm text-gray-400"><Loader2 className="mx-auto mb-2 animate-spin" />{intl.formatMessage({ id: 'papers.searching' })}</div>}
+          {!global.isFetching && !global.data && <div className="border border-[var(--rule)] bg-[var(--paper-card)] py-20 text-center"><Globe2 className="mx-auto mb-3 text-gray-300" size={34} /><p className="text-sm text-gray-500">{intl.formatMessage({ id: 'papers.globalHint' })}</p></div>}
+          {!global.isFetching && global.data?.papers.length === 0 && <div className="border border-[var(--rule)] bg-[var(--paper-card)] py-20 text-center text-sm text-gray-400">{intl.formatMessage({ id: 'papers.empty' })}</div>}
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{global.data?.papers.map((paper) => <GlobalPaperCard key={paper.id} paper={paper} saving={savingId === paper.id} onSave={() => saveGlobal(paper)} />)}</div>
         </>
       )}
