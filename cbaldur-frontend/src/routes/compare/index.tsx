@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'wouter';
 import { FileText, GitCompareArrows, Info, Search, X } from 'lucide-react';
 import { useIntl } from 'react-intl';
+import { PageHeader } from '@/components/common/PageHeader';
 import AiChatPanel from '@/components/ai/AiChatPanel';
 import { useAiChatStream } from '@/hooks/useAiChatStream';
 import { useGetAiStatusQuery } from '@/redux/api/ai';
@@ -96,18 +97,16 @@ export default function ComparePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-3 lg:h-[calc(100vh-122px)]">
-      <div className="shrink-0 border border-gray-200 bg-white px-4 py-3">
-        <h1 className="flex items-center gap-2 text-base font-semibold text-gray-900">
-          <GitCompareArrows size={17} className="text-[var(--office-blue)]" />
-          {intl.formatMessage({ id: 'compare.title' })}
-        </h1>
-        <p className="mt-0.5 text-xs text-gray-500">
-          {intl.formatMessage(
-            { id: 'compare.subtitle' },
-            { min: MIN_PAPERS, max: MAX_PAPERS },
-          )}
-        </p>
-      </div>
+      <PageHeader
+        icon={GitCompareArrows}
+        tone="cyan"
+        className="shrink-0"
+        title={intl.formatMessage({ id: 'compare.title' })}
+        subtitle={intl.formatMessage(
+          { id: 'compare.subtitle' },
+          { min: MIN_PAPERS, max: MAX_PAPERS },
+        )}
+      />
 
       <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[360px_1fr]">
         <section className="flex min-h-[320px] flex-col border border-gray-200 bg-white">

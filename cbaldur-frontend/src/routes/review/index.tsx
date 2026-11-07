@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useIntl } from 'react-intl';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/common/PageHeader';
 import { StatCard } from '@/components/common/StatCard';
 import { StepsGuide } from '@/components/common/StepsGuide';
 import { StudySession } from '@/components/study/StudySession';
@@ -161,46 +162,48 @@ export default function ReviewPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1400px] space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-3 border border-gray-200 bg-white px-4 py-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-base font-semibold text-gray-900">
-            <BookOpenCheck size={17} className="text-[var(--office-blue)]" />
-            {intl.formatMessage({ id: 'review.title' })}
-          </h1>
-          <p className="mt-0.5 text-xs text-gray-500">
-            {intl.formatMessage({ id: 'review.subtitle' })}
-          </p>
-        </div>
-        {!session && items.length > 0 && (
-          <Button
-            size="sm"
-            className="rounded-sm bg-[var(--office-blue)]"
-            onClick={() => setSession(items)}
-          >
-            <Play />
-            {intl.formatMessage({ id: 'review.start' })}
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        icon={BookOpenCheck}
+        tone="rose"
+        title={intl.formatMessage({ id: 'review.title' })}
+        subtitle={intl.formatMessage({ id: 'review.subtitle' })}
+        actions={
+          !session &&
+          items.length > 0 && (
+            <Button
+              size="sm"
+              className="rounded-lg bg-linear-to-r from-rose-500 to-orange-500 text-white shadow-md shadow-rose-500/25 hover:from-rose-600 hover:to-orange-600"
+              onClick={() => setSession(items)}
+            >
+              <Play />
+              {intl.formatMessage({ id: 'review.start' })}
+            </Button>
+          )
+        }
+      />
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
           icon={CalendarClock}
+          tone="rose"
           label={intl.formatMessage({ id: 'review.stat.due' })}
           value={summary?.due ?? 0}
         />
         <StatCard
           icon={Layers}
+          tone="blue"
           label={intl.formatMessage({ id: 'review.stat.learning' })}
           value={(summary?.total ?? 0) - (summary?.mastered ?? 0)}
         />
         <StatCard
           icon={GraduationCap}
+          tone="emerald"
           label={intl.formatMessage({ id: 'review.stat.mastered' })}
           value={summary?.mastered ?? 0}
         />
         <StatCard
           icon={BookOpenCheck}
+          tone="violet"
           label={intl.formatMessage({ id: 'review.stat.total' })}
           value={summary?.total ?? 0}
         />
