@@ -88,6 +88,21 @@ def test_key_sentences_are_contribution_statements_of_reasonable_length():
     ]
 
 
+def test_license_and_venue_sentences_are_not_highlighted():
+    text = (
+        "Provided proper attribution is provided, Google hereby grants permission to "
+        "reproduce the tables and figures in this paper. 31st Conference on Neural "
+        "Information Processing Systems, where we present results. In this paper we "
+        "present a simple model that outperforms prior work. X ! xT −! · · · −! x0 "
+        "p(xt−1|xt) we show q(xt|xt−1) ∗∗∗. Figure 2: We show the directed graphical "
+        "model used in this work."
+    )
+
+    assert pick_key_sentences(text) == [
+        "In this paper we present a simple model that outperforms prior work."
+    ]
+
+
 def test_rects_are_converted_to_page_ratios_and_clamped():
     rects = normalize_rects([(60, 80, 300, 92), (500, 700, 700, 712), (10, 10, 10, 20)], 600, 800)
 
