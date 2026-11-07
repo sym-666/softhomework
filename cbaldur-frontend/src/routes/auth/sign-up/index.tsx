@@ -254,7 +254,7 @@ export const SignUp: React.FC = () => {
             <Button
               type="submit"
               disabled={isLoading}
-              className="h-10 w-full rounded-lg bg-linear-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/30 hover:from-blue-700 hover:to-indigo-700"
+              className="h-10 w-full rounded-sm bg-[var(--ink)] text-[#f7f3ea] hover:bg-[#2b3a5e]"
             >
               {isLoading ? intl.formatMessage({ id: 'auth.signUp.submitting' }) : intl.formatMessage({ id: 'auth.signUp.submit' })}
             </Button>
