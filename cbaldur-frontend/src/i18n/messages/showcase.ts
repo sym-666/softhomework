@@ -42,6 +42,13 @@ export const showcaseMessagesZh: Record<string, string> = {
   'dashboard.recentNotes': '最近笔记',
   'dashboard.noNotes': '还没有笔记，打开一篇论文开始记录吧',
   'dashboard.viewAll': '查看全部',
+
+  'papers.count': '共 {count} 篇论文',
+  'papers.status.ready': '可问答',
+  'papers.status.processing': '解析中',
+  'papers.status.no_text': '仅摘要',
+  'papers.status.failed': '解析失败',
+  'papers.status.none': '外链',
 };
 
 export const showcaseMessagesEn: Record<string, string> = {
@@ -89,4 +96,11 @@ export const showcaseMessagesEn: Record<string, string> = {
   'dashboard.recentNotes': 'Recent notes',
   'dashboard.noNotes': 'No notes yet. Open a paper to start writing.',
   'dashboard.viewAll': 'View all',
+
+  'papers.count': '{count} papers',
+  'papers.status.ready': 'Ready',
+  'papers.status.processing': 'Processing',
+  'papers.status.no_text': 'Abstract only',
+  'papers.status.failed': 'Failed',
+  'papers.status.none': 'Link',
 };
