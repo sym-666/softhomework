@@ -64,10 +64,14 @@ docker compose up -d --build
 
 详见 [docker/DEPLOY.md](docker/DEPLOY.md)。
 
+## 工程文档
+
+需求规格说明、概要设计、数据库设计、接口文档、详细设计、测试报告、用户手册和开发过程见 [docs/](docs/README.md)。
+
 ## 开发检查
 
 ```bash
-# 后端
+# 后端（加 --cov=app 查看覆盖率）
 cd paper-backend && .venv/bin/ruff check . && .venv/bin/python -m pytest
 
 # 前端
